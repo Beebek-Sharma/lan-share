@@ -21,22 +21,30 @@ Built with direct **WebRTC DataChannels** (simple-peer), a **Python Flask + Sock
 ## Screenshots
 
 <div align="center">
-  <p><strong>Desktop Web Client</strong></p>
-  <img src="Photo/desktop.png" alt="Desktop client" width="700">
+  <h3>🖥️ Desktop Web Client</h3>
+  <img src="Photo/desktop.png" alt="LAN Share Desktop Web Client" width="850" style="border-radius: 8px; max-width: 100%;" />
 </div>
 
 <br>
 
 <div align="center">
   <table>
-    <tr>
-      <td align="center"><strong>Mobile Web Interface</strong></td>
-      <td align="center"><strong>Extension Popup</strong></td>
-    </tr>
-    <tr>
-      <td><img src="Photo/phone.png" alt="Phone interface" width="340"></td>
-      <td><img src="Photo/extension.png" alt="Extension popup" width="340"></td>
-    </tr>
+    <thead>
+      <tr>
+        <th align="center">📱 Mobile Web Interface</th>
+        <th align="center">🧩 Extension Popup Launcher</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td align="center" valign="top">
+          <img src="Photo/phone.png" alt="Mobile Web Interface" width="320" style="border-radius: 8px; max-width: 100%;" />
+        </td>
+        <td align="center" valign="top">
+          <img src="Photo/extension.png" alt="Extension Popup" width="320" style="border-radius: 8px; max-width: 100%;" />
+        </td>
+      </tr>
+    </tbody>
   </table>
 </div>
 
