@@ -2,439 +2,1697 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>LAN Share</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+  <title>LAN Share — Fast Peer-to-Peer Transfer</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
-    :root{
-      --bg: #0b1020;
-      --bg2: #0e1326;
-      --surface: rgba(255,255,255,0.06);
-      --text: #e6e8ef;
-      --muted: #a7adbd;
-      --accent: #6aa6ff;
-      --accent-2: #6efacc;
-      --danger: #ff6b6b;
-      --shadow: 0 10px 30px rgba(0,0,0,0.35);
-      --radius: 14px;
+    :root {
+      /* Pure Solid Dark Green Theme based on exact swatch #071f19 (No Gradients) */
+      --pine-bg: #071f19;
+      --pine-sidebar: #041611;
+      --pine-header: #0a2720;
+      --pine-card: #0c3027;
+      --pine-card-hover: #113c31;
+      --pine-card-border: #154538;
+      --pine-card-border-light: #1d5c4b;
+      --pine-input: #04120e;
+      --pine-bubble-out: #114336;
+      --pine-bubble-out-border: #1a5c4b;
+      --pine-bubble-in: #09261f;
+      --pine-bubble-in-border: #113b30;
+      --emerald-btn: #10b981;
+      --emerald-btn-hover: #34d399;
+      --emerald-btn-text: #022016;
+      --mint: #34d399;
+      --text: #ecfdf5;
+      --text-muted: #8ea799;
+      --text-subtle: #567367;
+      --danger: #f87171;
+      --danger-bg: #2d0e12;
+      --danger-border: #641c23;
+      --radius-xl: 16px;
+      --radius-lg: 12px;
+      --radius-md: 8px;
+      --radius-sm: 6px;
+      --shadow-sm: 0 4px 14px rgba(0,0,0,0.4);
+      --shadow-lg: 0 16px 36px rgba(0,0,0,0.55);
     }
-    @media (prefers-color-scheme: light) {
-      :root{
-        --bg: #ecf1ff;
-        --bg2: #e8eefc;
-        --surface: rgba(0,0,0,0.06);
-        --text: #0b1020;
-        --muted: #4b5567;
-      }
-    }
-    * { box-sizing: border-box; }
-    html, body { height: 100%; }
-    body{
-      margin:0;
-      font-family: 'Inter', system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { height: 100%; width: 100%; overflow: hidden; }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      background: var(--pine-bg);
       color: var(--text);
-      background:
-        radial-gradient(1200px 600px at -10% -10%, rgba(107, 170, 255, 0.25), transparent 60%),
-        radial-gradient(1000px 500px at 120% 10%, rgba(110, 250, 204, 0.22), transparent 60%),
-        linear-gradient(180deg, var(--bg), var(--bg2));
+      display: flex;
+      flex-direction: column;
     }
-    .container{ max-width: 1000px; margin: 0 auto; padding: 24px 18px 32px; }
-    header{
-      display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:18px; flex-wrap:wrap;
+
+    /* Scrollbars */
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: var(--pine-card-border); border-radius: 999px; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--mint); }
+
+    /* Main App Container */
+    .app-shell {
+      display: flex;
+      height: 100vh;
+      width: 100vw;
+      overflow: hidden;
+      background: var(--pine-bg);
     }
-    .title{ font-weight:700; letter-spacing:.2px; font-size: clamp(18px, 2.6vw, 28px); }
-    .subtitle{ color:var(--muted); font-weight:500; font-size: 12px; }
 
-    .grid{ display:grid; grid-template-columns: 1fr 1.4fr; gap:16px; }
-    @media (max-width: 860px){ .grid{ grid-template-columns: 1fr; } }
+    /* Left Sidebar */
+    .sidebar {
+      width: 320px;
+      min-width: 300px;
+      background: var(--pine-sidebar);
+      border-right: 1px solid var(--pine-card-border);
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      flex-shrink: 0;
+      transition: transform 0.25s ease;
+      z-index: 20;
+    }
 
-    .col{ display:flex; flex-direction:column; gap:16px; }
+    .sidebar-header {
+      padding: 16px 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--pine-card-border);
+      background: var(--pine-header);
+    }
 
-    .card{
-      background: var(--surface);
-      border: 1px solid rgba(255,255,255,0.12);
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .brand-logo {
+      width: 36px;
+      height: 36px;
+      border-radius: var(--radius-md);
+      background: var(--pine-card);
+      border: 1px solid var(--pine-card-border-light);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .brand-logo svg {
+      width: 20px;
+      height: 20px;
+      fill: var(--mint);
+    }
+
+    .brand-title {
+      font-weight: 700;
+      font-size: 16px;
+      letter-spacing: -0.2px;
+      color: #ffffff;
+      line-height: 1.15;
+    }
+
+    .brand-version {
+      font-size: 11px;
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+
+    /* User Profile Card */
+    .user-card {
+      margin: 14px 16px 8px;
+      padding: 12px 14px;
+      background: var(--pine-card);
+      border: 1px solid var(--pine-card-border);
+      border-radius: var(--radius-lg);
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .user-card-top {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .user-avatar {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: var(--pine-card);
+      border: 1.5px solid var(--mint);
+      color: var(--mint);
+      font-weight: 700;
+      font-size: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .user-details {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .user-name-input {
+      background: transparent;
+      border: none;
+      outline: none;
+      color: var(--text);
+      font-weight: 600;
+      font-size: 14px;
+      width: 100%;
+      font-family: inherit;
+      padding: 2px 0;
+      border-bottom: 1px dashed rgba(52, 211, 153, 0.4);
+      transition: border-color 0.2s;
+    }
+
+    .user-name-input:focus {
+      border-bottom-color: var(--mint);
+    }
+
+    .user-status-row {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-top: 3px;
+    }
+
+    .pulse-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: #64748b;
+      transition: all 0.3s;
+    }
+
+    .pulse-dot.online {
+      background: var(--mint);
+      box-shadow: 0 0 6px var(--mint);
+    }
+
+    .user-card-bottom {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .room-input-wrap {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--pine-input);
+      border: 1px solid var(--pine-card-border);
+      border-radius: var(--radius-sm);
+      padding: 5px 8px;
+      font-size: 12px;
+    }
+
+    .room-label {
+      color: var(--text-subtle);
+      font-weight: 700;
+      font-size: 10px;
+      text-transform: uppercase;
+    }
+
+    .room-input {
+      background: transparent;
+      border: none;
+      outline: none;
+      color: var(--text);
+      font-size: 12px;
+      width: 100%;
+      font-family: inherit;
+      font-weight: 600;
+    }
+
+    .connect-btn {
+      appearance: none;
+      border: none;
+      outline: none;
+      cursor: pointer;
+      padding: 6px 14px;
+      border-radius: var(--radius-sm);
+      font-weight: 600;
+      font-size: 12px;
+      font-family: inherit;
+      color: var(--emerald-btn-text);
+      background: var(--emerald-btn);
+      transition: background 0.15s, transform 0.15s;
+    }
+
+    .connect-btn:hover:not(:disabled) {
+      background: var(--emerald-btn-hover);
+      transform: translateY(-1px);
+    }
+
+    .connect-btn.disconnect {
+      background: var(--danger-bg);
+      color: var(--danger);
+      border: 1px solid var(--danger-border);
+    }
+
+    .connect-btn.disconnect:hover {
+      background: #50181e;
+    }
+
+    /* Peers Section */
+    .sidebar-section {
+      padding: 14px 16px 6px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      color: var(--text-subtle);
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.6px;
+      text-transform: uppercase;
+    }
+
+    .peer-badge {
+      font-size: 10.5px;
+      padding: 2px 7px;
+      border-radius: 999px;
+      background: var(--pine-card);
+      color: var(--mint);
+      border: 1px solid var(--pine-card-border);
+      font-weight: 600;
+    }
+
+    .peers-scroll {
+      flex: 1;
+      overflow-y: auto;
+      padding: 6px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .peer-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 9px 12px;
+      border-radius: var(--radius-md);
+      background: var(--pine-card);
+      border: 1px solid var(--pine-card-border);
+      transition: border-color 0.15s;
+    }
+
+    .peer-item:hover {
+      border-color: var(--pine-card-border-light);
+      background: var(--pine-card-hover);
+    }
+
+    .peer-avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: var(--pine-card);
+      border: 1px solid var(--pine-card-border-light);
+      color: var(--mint);
+      font-weight: 700;
+      font-size: 13px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .peer-info {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .peer-name {
+      font-size: 13px;
+      font-weight: 600;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .peer-status {
+      font-size: 11px;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      margin-top: 1px;
+    }
+
+    .peer-state-tag {
+      font-size: 10px;
+      padding: 2px 6px;
+      border-radius: 4px;
+      background: rgba(0, 0, 0, 0.3);
+      color: var(--mint);
+      border: 1px solid var(--pine-card-border);
+    }
+
+    .peer-state-tag.pending {
+      color: var(--text-muted);
+    }
+
+    .no-peers-msg {
+      padding: 24px 10px;
+      text-align: center;
+      color: var(--text-subtle);
+      font-size: 12px;
+      line-height: 1.5;
+    }
+
+    /* Sidebar Footer Network Card */
+    .sidebar-footer {
+      padding: 12px 16px;
+      border-top: 1px solid var(--pine-card-border);
+      background: var(--pine-header);
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .network-pill {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: var(--pine-input);
+      border: 1px solid var(--pine-card-border);
+      border-radius: var(--radius-md);
+      padding: 7px 10px;
+      font-size: 11.5px;
+    }
+
+    .network-ip {
+      color: var(--mint);
+      font-family: ui-monospace, SFMono-Regular, monospace;
+      font-weight: 600;
+    }
+
+    .icon-btn-ghost {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      font-size: 13px;
+      padding: 3px 6px;
+      border-radius: 4px;
+      transition: color 0.15s;
+    }
+
+    .icon-btn-ghost:hover {
+      color: var(--text);
+    }
+
+    /* Main Chat Canvas */
+    .main-chat {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      min-width: 0;
+      position: relative;
+      background: var(--pine-bg);
+    }
+
+    /* Chat Header */
+    .chat-header {
+      height: 60px;
+      padding: 0 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--pine-card-border);
+      background: var(--pine-header);
+      flex-shrink: 0;
+      z-index: 10;
+    }
+
+    .chat-header-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .sidebar-toggle {
+      display: none;
+      background: var(--pine-card);
+      border: 1px solid var(--pine-card-border);
+      border-radius: var(--radius-md);
+      color: var(--text);
+      cursor: pointer;
+      padding: 6px;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .room-title-wrap {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .room-name-display {
+      font-weight: 700;
+      font-size: 16px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .room-subtitle {
+      font-size: 11.5px;
+      color: var(--text-muted);
+    }
+
+    .chat-header-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .action-pill-btn {
+      appearance: none;
+      background: var(--pine-card);
+      border: 1px solid var(--pine-card-border);
+      border-radius: var(--radius-md);
+      color: var(--text);
+      cursor: pointer;
+      font-size: 12px;
+      font-family: inherit;
+      font-weight: 600;
+      padding: 6px 12px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: background 0.15s, border-color 0.15s;
+    }
+
+    .action-pill-btn:hover {
+      background: var(--pine-card-hover);
+      border-color: var(--pine-card-border-light);
+    }
+
+    .action-pill-btn svg {
+      width: 14px;
+      height: 14px;
+      fill: currentColor;
+    }
+
+    /* Message Stream */
+    .message-stream {
+      flex: 1;
+      overflow-y: auto;
+      padding: 20px 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      background: var(--pine-bg);
+    }
+
+    /* Empty state */
+    .empty-chat {
+      margin: auto;
+      text-align: center;
+      max-width: 360px;
+      padding: 30px 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .empty-icon-wrap {
+      width: 60px;
+      height: 60px;
+      border-radius: var(--radius-xl);
+      background: var(--pine-card);
+      border: 1px solid var(--pine-card-border-light);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .empty-icon-wrap svg {
+      width: 28px;
+      height: 28px;
+      fill: var(--mint);
+    }
+
+    .empty-title {
+      font-size: 16px;
+      font-weight: 700;
+      color: #ffffff;
+    }
+
+    .empty-desc {
+      font-size: 12.5px;
+      color: var(--text-muted);
+      line-height: 1.5;
+    }
+
+    .quick-start-buttons {
+      display: flex;
+      gap: 8px;
+      margin-top: 6px;
+    }
+
+    /* Chat Bubbles (Solid Dark Green) */
+    .msg-group {
+      display: flex;
+      flex-direction: column;
+      max-width: 78%;
+      position: relative;
+    }
+
+    .msg-group.outgoing {
+      align-self: flex-end;
+      align-items: flex-end;
+    }
+
+    .msg-group.incoming {
+      align-self: flex-start;
+      align-items: flex-start;
+    }
+
+    .msg-sender-name {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--mint);
+      margin-bottom: 3px;
+      padding-left: 2px;
+    }
+
+    .bubble-wrapper {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+
+    .msg-group:hover .bubble-del-btn {
+      opacity: 1;
+    }
+
+    .bubble-del-btn {
+      opacity: 0;
+      background: none;
+      border: none;
+      color: var(--text-subtle);
+      cursor: pointer;
+      padding: 4px;
+      font-size: 12px;
+      transition: opacity 0.15s, color 0.15s;
+    }
+
+    .bubble-del-btn:hover {
+      color: var(--danger);
+    }
+
+    .bubble {
+      padding: 10px 14px;
+      border-radius: var(--radius-lg);
+      font-size: 13.5px;
+      line-height: 1.45;
+      word-break: break-word;
+    }
+
+    .msg-group.outgoing .bubble {
+      background: var(--pine-bubble-out);
+      border: 1px solid var(--pine-bubble-out-border);
+      border-bottom-right-radius: 4px;
+      color: #ffffff;
+    }
+
+    .msg-group.incoming .bubble {
+      background: var(--pine-bubble-in);
+      border: 1px solid var(--pine-bubble-in-border);
+      border-bottom-left-radius: 4px;
+      color: var(--text);
+    }
+
+    .bubble-meta {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 4px;
+      font-size: 10.5px;
+      color: var(--text-subtle);
+      margin-top: 4px;
+    }
+
+    .msg-group.outgoing .bubble-meta {
+      color: rgba(255, 255, 255, 0.65);
+    }
+
+    /* File Transfer Card inside Bubble */
+    .file-card {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 6px 0;
+      min-width: 240px;
+    }
+
+    .file-type-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: var(--radius-md);
+      background: var(--pine-card);
+      border: 1px solid var(--pine-card-border-light);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      flex-shrink: 0;
+    }
+
+    .file-details {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .file-name {
+      font-weight: 600;
+      font-size: 13px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .file-subtext {
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    .file-action-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--emerald-btn);
+      color: var(--emerald-btn-text);
+      text-decoration: none;
+      font-size: 11.5px;
+      font-weight: 700;
+      padding: 6px 12px;
+      border-radius: var(--radius-sm);
+      margin-top: 8px;
+      transition: background 0.15s;
+    }
+
+    .file-action-btn:hover {
+      background: var(--emerald-btn-hover);
+    }
+
+    .progress-bar-container {
+      width: 100%;
+      height: 5px;
+      background: rgba(0, 0, 0, 0.45);
+      border-radius: 999px;
+      overflow: hidden;
+      margin-top: 6px;
+    }
+
+    .progress-bar-fill {
+      height: 100%;
+      width: 0%;
+      background: var(--mint);
+      border-radius: 999px;
+      transition: width 0.15s ease;
+    }
+
+    .chat-img-thumb {
+      max-width: 280px;
+      max-height: 240px;
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      display: block;
+      margin-top: 6px;
+      border: 1px solid var(--pine-card-border);
+    }
+
+    /* Input Dock */
+    .input-dock {
+      padding: 10px 20px 14px;
+      background: var(--pine-header);
+      border-top: 1px solid var(--pine-card-border);
+      flex-shrink: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .quick-emojis {
+      display: flex;
+      gap: 6px;
+      align-items: center;
+    }
+
+    .emoji-pill {
+      background: var(--pine-card);
+      border: 1px solid var(--pine-card-border);
+      border-radius: 999px;
+      padding: 2px 8px;
+      font-size: 13px;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+
+    .emoji-pill:hover {
+      background: var(--pine-card-hover);
+    }
+
+    .chat-input-bar {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: var(--pine-input);
+      border: 1.5px solid var(--pine-card-border);
+      border-radius: var(--radius-xl);
+      padding: 6px 10px 6px 14px;
+      transition: border-color 0.2s;
+    }
+
+    .chat-input-bar:focus-within {
+      border-color: var(--mint);
+    }
+
+    .dock-btn {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      padding: 6px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: color 0.15s;
+    }
+
+    .dock-btn:hover {
+      color: var(--mint);
+    }
+
+    .dock-btn svg {
+      width: 18px;
+      height: 18px;
+      fill: currentColor;
+    }
+
+    #chatTextInput {
+      flex: 1;
+      background: transparent;
+      border: none;
+      outline: none;
+      color: var(--text);
+      font-family: inherit;
+      font-size: 14px;
+      line-height: 1.4;
+      padding: 4px 0;
+    }
+
+    .send-submit-btn {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      border: none;
+      outline: none;
+      cursor: pointer;
+      background: var(--emerald-btn);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.15s, transform 0.15s;
+      flex-shrink: 0;
+    }
+
+    .send-submit-btn:hover {
+      background: var(--emerald-btn-hover);
+      transform: scale(1.05);
+    }
+
+    .send-submit-btn svg {
+      width: 15px;
+      height: 15px;
+      fill: var(--emerald-btn-text);
+      margin-left: 2px;
+    }
+
+    /* Full Window Drag Overlay */
+    .drag-overlay {
+      position: absolute;
+      inset: 0;
+      z-index: 999;
+      background: rgba(7, 31, 25, 0.96);
+      border: 3px dashed var(--mint);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      pointer-events: none;
+    }
+
+    .drag-overlay.show { display: flex; }
+
+    .drag-overlay-box {
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .drag-overlay-box svg {
+      width: 50px;
+      height: 50px;
+      fill: var(--mint);
+    }
+
+    /* QR Modal */
+    .modal {
+      position: fixed;
+      inset: 0;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      background: rgba(0, 0, 0, 0.75);
+      z-index: 9999;
       padding: 16px;
-      backdrop-filter: blur(10px);
-    }
-    .row{ display:flex; gap:10px; align-items:center; }
-    .row + .row{ margin-top:10px; }
-    .row.controls{ flex-wrap: wrap; }
-    .row.msg{ }
-    .row.files{ align-items:flex-start; }
-
-    .list{ list-style:none; padding:0; margin:8px 0 0; display:flex; flex-wrap:wrap; gap:8px; }
-    .peer{ display:inline-flex; align-items:center; gap:8px; padding:6px 10px; border-radius:999px; background: rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.14); font-size:12px; }
-    .dot{ width:8px; height:8px; border-radius:50%; background:#f87171; box-shadow:0 0 0 2px rgba(0,0,0,0.15) inset; }
-    .peer.connected .dot{ background:#34d399; }
-    .badge{ padding:2px 8px; border-radius:999px; background: rgba(255,255,255,0.12); border:1px solid rgba(255,255,255,0.16); font-size:12px; color:var(--text); }
-
-    /* Mobile adjustments */
-    @media (max-width: 640px){
-      .container{ padding: 14px 12px 24px; }
-      header{ gap:8px; }
-      .row.controls .input{ flex:1; min-width: 0; }
-      .row.controls .btn{ width:100%; }
-      .qr{ width: min(70vw, 260px); height: auto; aspect-ratio: 1 / 1; margin-top: 6px; }
-      .row.msg{ flex-wrap: wrap; }
-      .row.msg .input{ flex:1; min-width:0; }
-      .row.msg .btn{ width:100%; }
-      .row.files{ flex-direction: column; gap:8px; }
-      .file-label, .dropzone{ width:100%; }
-      #log{ height: 42vh; }
-      #status{ height: 18vh; }
     }
 
-    .input{
-      appearance:none; border:none; outline:none; width:100%;
-      padding: 10px 12px; border-radius: 10px; color: var(--text);
-      background: rgba(255,255,255,0.08);
-      border: 1px solid rgba(255,255,255,0.14);
+    .modal.show { display: flex; }
+
+    .modal-card {
+      background: var(--pine-sidebar);
+      border: 1px solid var(--pine-card-border-light);
+      border-radius: var(--radius-xl);
+      padding: 22px;
+      max-width: 92vw;
+      width: 360px;
+      box-shadow: var(--shadow-lg);
     }
-    .btn{
-      appearance:none; border:none; outline:none; cursor:pointer; white-space:nowrap;
-      padding:10px 14px; border-radius:10px; font-weight:600; color:#0b1020;
-      background: linear-gradient(180deg, var(--accent), #4f8efc);
-      box-shadow: 0 6px 14px rgba(79, 142, 252, .35);
+
+    .modal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 14px;
     }
-    .btn.secondary{ background: rgba(255,255,255,0.10); color: var(--text); box-shadow:none; }
-    .btn:disabled{ opacity:.6; cursor:not-allowed; }
 
-    /* Icon buttons under message box */
-    .iconbar{ display:flex; gap:10px; margin-top:8px; }
-    .icon-btn{ display:inline-flex; align-items:center; gap:6px; padding:8px 10px; border-radius:10px; border:1px dashed rgba(255,255,255,0.25); color:var(--muted); background:transparent; cursor:pointer; }
-    .icon-btn:hover{ border-color: var(--accent); color: var(--text); }
-    .icon-btn input[type=file]{ display:none; }
-    .icon{ width:18px; height:18px; fill: currentColor; display:inline-block; }
-
-    #log{
-      height: 340px; overflow:auto; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
-      background: rgba(0,0,0,0.35); border:1px solid rgba(255,255,255,0.12); padding: 10px; border-radius: 12px; line-height:1.35;
+    .modal-title {
+      font-size: 15px;
+      font-weight: 700;
+      color: #ffffff;
     }
-    #log.dragover{ outline:2px dashed var(--accent); outline-offset:-6px; }
-    #status{
-      height: 140px; overflow:auto; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
-      background: rgba(0,0,0,0.35); border:1px solid rgba(255,255,255,0.12); padding: 10px; border-radius: 12px; line-height:1.35; margin-bottom: 8px;
+
+    .qr-frame {
+      background: #ffffff;
+      padding: 12px;
+      border-radius: var(--radius-md);
+      display: inline-block;
+      margin: 8px auto;
     }
-    #log a{ color: var(--accent-2); text-decoration: none; }
-    .image-preview{ max-width: 220px; border-radius: 10px; margin-top:6px; display:block; box-shadow: 0 6px 18px rgba(0,0,0,.35); }
 
-    /* Activity entries */
-    .log-entry{ position: relative; padding-right: 32px; }
-    .del-btn{ position:absolute; right:6px; top:2px; opacity:.0; transition:opacity .15s ease; background:transparent; border:0; color:var(--muted); cursor:pointer; }
-    .log-entry:hover .del-btn{ opacity:.9; }
-    .del-btn:focus{ opacity:1; outline:1px solid rgba(255,255,255,.2); border-radius:6px; }
-
-    .qr{
-      width: 170px; height:170px; border-radius: 12px; border:1px solid rgba(255,255,255,0.14);
-      background: rgba(255,255,255,0.06); display:block;
+    .qr-frame img {
+      width: 210px;
+      height: 210px;
+      display: block;
     }
-    .label{ color: var(--muted); font-size:12px; margin: 6px 0 2px; }
 
-    /* Modal QR */
-    .modal{ position: fixed; inset:0; display:none; align-items:center; justify-content:center; background: rgba(0,0,0,0.55); z-index: 9999; padding: 16px; }
-    .modal.show{ display:flex; }
-    .modal-card{ background: var(--surface); border:1px solid rgba(255,255,255,0.16); border-radius: 14px; box-shadow: var(--shadow); padding: 12px; max-width: 92vw; }
-    .modal-card img{ width: min(78vw, 340px); height: auto; border-radius:12px; display:block; }
-
-    .dropzone{
-      border: 2px dashed rgba(255,255,255,0.28); border-radius: 12px; padding: 14px; text-align:center; color: var(--muted);
-      transition: all .2s ease; background: rgba(255,255,255,0.06);
+    .qr-address-box {
+      margin-top: 12px;
+      background: var(--pine-input);
+      border: 1px solid var(--pine-card-border);
+      border-radius: var(--radius-md);
+      padding: 10px 12px;
+      text-align: center;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
     }
-    .dropzone.dragover{ border-color: var(--accent); color: var(--text); background: rgba(106,166,255,0.12); }
 
-    .file-label{ display:inline-flex; align-items:center; gap:8px; padding: 10px 12px; border:1px dashed rgba(255,255,255,0.25); border-radius:10px; cursor:pointer; color:var(--muted); }
-    #fileInput{ display:none; }
+    .qr-address-text {
+      font-family: ui-monospace, monospace;
+      font-weight: 700;
+      font-size: 13.5px;
+      color: var(--mint);
+      word-break: break-all;
+      flex: 1;
+      text-align: left;
+    }
 
-    footer{ margin-top:12px; text-align:center; color:var(--muted); font-size:12px; }
+    /* Lightbox Modal */
+    .lightbox {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.9);
+      z-index: 10000;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .lightbox.show { display: flex; }
+
+    .lightbox img {
+      max-width: 90vw;
+      max-height: 85vh;
+      border-radius: var(--radius-md);
+      border: 1px solid var(--pine-card-border);
+    }
+
+    /* System Diagnostics Drawer */
+    .system-drawer {
+      position: absolute;
+      top: 60px;
+      right: 0;
+      width: 340px;
+      bottom: 0;
+      background: var(--pine-sidebar);
+      border-left: 1px solid var(--pine-card-border);
+      z-index: 50;
+      display: none;
+      flex-direction: column;
+      padding: 16px;
+      gap: 12px;
+      box-shadow: var(--shadow-lg);
+    }
+
+    .system-drawer.open { display: flex; }
+
+    .system-drawer-title {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    #sysLogs {
+      flex: 1;
+      overflow-y: auto;
+      background: var(--pine-input);
+      border: 1px solid var(--pine-card-border);
+      border-radius: var(--radius-md);
+      padding: 10px;
+      font-family: ui-monospace, monospace;
+      font-size: 11.5px;
+      color: var(--text-muted);
+      line-height: 1.45;
+    }
+
+    /* Sidebar Backdrop (for mobile) */
+    .sidebar-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.7);
+      z-index: 15;
+      display: none;
+    }
+    .sidebar-backdrop.open {
+      display: block;
+    }
+
+    /* Toast Notification */
+    .toast-popup {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%) translateY(100px);
+      background: var(--pine-card);
+      border: 1px solid var(--mint);
+      color: #ffffff;
+      padding: 10px 18px;
+      border-radius: var(--radius-xl);
+      font-size: 13px;
+      font-weight: 600;
+      box-shadow: var(--shadow-lg);
+      z-index: 99999;
+      opacity: 0;
+      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+      pointer-events: none;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .toast-popup.show {
+      transform: translateX(-50%) translateY(0);
+      opacity: 1;
+    }
+
+    /* Mobile Responsive */
+    @media (max-width: 768px) {
+      .sidebar {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        left: 0;
+        box-shadow: var(--shadow-lg);
+        transform: translateX(-100%);
+      }
+      .sidebar.open { transform: translateX(0); }
+      .sidebar-toggle { display: flex; }
+      .close-sidebar-btn { display: flex !important; }
+      .msg-group { max-width: 88%; }
+      .chat-header { padding: 0 14px; }
+      .message-stream { padding: 14px; }
+      .input-dock { padding: 8px 12px 12px; }
+    }
   </style>
 </head>
 <body>
-  <div class="container">
-    <header>
-      <div>
-        <div class="title">LAN Share</div>
-      </div>
-      <div class="row controls" style="opacity:.85">
-        <script>
-          // prefill name from localStorage as early as possible (noscript fallback handled later)
-          try { document.addEventListener('DOMContentLoaded', () => { const el = document.getElementById('name'); if (el) { el.value = localStorage.getItem('ls_name') || ''; } }); } catch(e){}
-        </script>
-        <span class="label" style="margin:0 6px 0 0">Name</span>
-        <input id="name" class="input" placeholder="Your name" style="width:160px">
-        <span class="label" style="margin:0 6px 0 10px">Room</span>
-        <input id="room" class="input" value="default" style="width:160px">
-        <button id="connect" class="btn">Connect</button>
-        <button id="disconnect" class="btn secondary" disabled>Disconnect</button>
-      </div>
-    </header>
-
-    <div class="grid">
-      <div class="col">
-        <div class="card" id="peersCard">
-          <div class="row" style="justify-content:space-between">
-            <div class="label">Peers</div>
-            <div class="badge" id="peerCount">0</div>
+  <div id="sidebarBackdrop" class="sidebar-backdrop"></div>
+  <div class="app-shell">
+    <!-- Left Contact & Peer Sidebar -->
+    <aside id="appSidebar" class="sidebar">
+      <div class="sidebar-header">
+        <div class="brand">
+          <div class="brand-logo">
+            <svg viewBox="0 0 24 24">
+              <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14.5v-9l6 4.5-6 4.5z"/>
+            </svg>
           </div>
-          <ul id="peersList" class="list"></ul>
-        </div>
-
-        <div class="card">
-          <div class="label">Scan on another device</div>
-          <!-- QR moved to icon bar below -->
-
-          <div class="label" style="margin-top:12px">Message</div>
-          <div class="row msg">
-            <input id="msg" class="input" placeholder="Type message or link">
-            <button id="send" class="btn">Send</button>
-          </div>
-
-          <div class="iconbar">
-            <label for="fileInput" class="icon-btn" title="Choose files" aria-label="Choose files">
-              <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
-                <path d="M21.44 11.05l-9.19 9.19a5.5 5.5 0 11-7.78-7.78l9.19-9.19a3.5 3.5 0 114.95 4.95l-9.19 9.19a1.5 1.5 0 11-2.12-2.12l9.19-9.19a.5.5 0 10-.71-.71l-9.19 9.19a2.5 2.5 0 103.54 3.54l9.19-9.19a4.5 4.5 0 10-6.36-6.36l-9.19 9.19"/>
-              </svg>
-              <input type="file" id="fileInput" multiple>
-            </label>
-            <button id="openQR" class="icon-btn" title="Show QR" aria-label="Show QR">
-              <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
-                <path d="M3 3h8v8H3V3zm2 2v4h4V5H5zm8-2h8v8h-8V3zm2 2v4h4V5h-4zM3 13h8v8H3v-8zm2 2v4h4v-4H5zm12 0h2v2h-2v-2zm-4 4h2v2h-2v-2zm4 0h2v4h-6v-2h4v-2zm4-4h2v6h-2v-6z"/>
-              </svg>
-            </button>
+          <div>
+            <div class="brand-title">LAN Share</div>
+            <div class="brand-version">Direct WebRTC P2P</div>
           </div>
         </div>
+        <button id="closeSidebarBtn" class="dock-btn close-sidebar-btn" style="display:none;" title="Close Sidebar">✕</button>
       </div>
 
-      <div class="col">
-        <div class="card" style="display:flex; flex-direction:column;">
-          <div class="label">Status</div>
-          <div id="status" aria-live="polite"></div>
+      <!-- Current User Profile Card -->
+      <div class="user-card">
+        <div class="user-card-top">
+          <div id="userAvatar" class="user-avatar">U</div>
+          <div class="user-details">
+            <input id="nameInput" class="user-name-input" placeholder="Your Name" value="User" title="Click to change your name" />
+            <div class="user-status-row">
+              <span id="userStatusDot" class="pulse-dot"></span>
+              <span id="userStatusText">Offline</span>
+            </div>
+          </div>
         </div>
-        <div class="card" style="display:flex; flex-direction:column;">
-          <div class="label">Activity</div>
-          <div id="log" aria-live="polite"></div>
+        <div class="user-card-bottom">
+          <div class="room-input-wrap">
+            <span class="room-label">Room</span>
+            <input id="roomInput" class="room-input" value="default" placeholder="default" />
+          </div>
+          <button id="connectBtn" class="connect-btn">Connect</button>
         </div>
       </div>
-    </div>
 
-    <footer>Peer-to-peer over WebRTC. No cloud relay for data.</footer>
+      <!-- Peers in Room -->
+      <div class="sidebar-section">
+        <span>Connected Peers</span>
+        <span id="peerCountBadge" class="peer-badge">0</span>
+      </div>
+
+      <div id="peersContainer" class="peers-scroll">
+        <div id="noPeersPrompt" class="no-peers-msg">
+          No other devices in this room.<br>
+          Open the link on another device or scan the QR code to connect!
+        </div>
+      </div>
+
+      <!-- Network Info Footer -->
+      <div class="sidebar-footer">
+        <div class="network-pill">
+          <div>
+            <div style="font-size:10px; color:var(--text-subtle); font-weight:700;">CURRENT LAN IP</div>
+            <div id="sidebarIpDisplay" class="network-ip">Detecting...</div>
+          </div>
+          <button id="copyIpSidebarBtn" class="icon-btn-ghost" title="Copy LAN URL">📋</button>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Chat Canvas -->
+    <main class="main-chat">
+      <!-- Chat Header -->
+      <header class="chat-header">
+        <div class="chat-header-left">
+          <button id="openSidebarBtn" class="sidebar-toggle" title="Toggle Sidebar">
+            <svg style="width:18px;height:18px;fill:currentColor;" viewBox="0 0 24 24">
+              <path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/>
+            </svg>
+          </button>
+          <div class="room-title-wrap">
+            <div class="room-name-display">
+              <span style="color:var(--mint);">#</span>
+              <span id="headerRoomName">default</span>
+            </div>
+            <div id="headerSubtitle" class="room-subtitle">0 other peers in room</div>
+          </div>
+        </div>
+
+        <div class="chat-header-actions">
+          <button id="toggleSoundBtn" class="action-pill-btn" title="Toggle Sound">
+            <span id="soundIcon">🔊</span>
+          </button>
+
+          <button id="showQrBtn" class="action-pill-btn" title="Show QR Code">
+            <svg viewBox="0 0 24 24">
+              <path d="M3 3h8v8H3V3zm2 2v4h4V5H5zm8-2h8v8h-8V3zm2 2v4h4V5h-4zM3 13h8v8H3v-8zm2 2v4h4v-4H5zm12 0h2v2h-2v-2zm-4 4h2v2h-2v-2zm4 0h2v4h-6v-2h4v-2zm4-4h2v6h-2v-6z"/>
+            </svg>
+            <span>Scan QR</span>
+          </button>
+
+          <button id="toggleDrawerBtn" class="action-pill-btn" title="Diagnostics & Logs">
+            <span>⚙️</span>
+          </button>
+        </div>
+      </header>
+
+      <!-- Message History Stream -->
+      <div id="messagesStream" class="message-stream">
+        <div id="emptyChatPlaceholder" class="empty-chat">
+          <div class="empty-icon-wrap">
+            <svg viewBox="0 0 24 24">
+              <path d="M20 2H4c-1.1 0-1.99.9-1.99 2L2 22l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zM6 9h12v2H6V9zm8 5H6v-2h8v2zm4-6H6V6h12v2z"/>
+            </svg>
+          </div>
+          <div class="empty-title">Ready for P2P Transfers</div>
+          <div class="empty-desc">
+            Connect devices to the same Wi-Fi or mobile hotspot to share files and chat at full local speed.
+          </div>
+          <div class="quick-start-buttons">
+            <button id="quickQrBtn" class="action-pill-btn">📱 Connect Phone</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Input Dock -->
+      <footer class="input-dock">
+        <div class="quick-emojis">
+          <span class="emoji-pill" data-emoji="👋">👋</span>
+          <span class="emoji-pill" data-emoji="👍">👍</span>
+          <span class="emoji-pill" data-emoji="🔥">🔥</span>
+          <span class="emoji-pill" data-emoji="🚀">🚀</span>
+          <span class="emoji-pill" data-emoji="❤️">❤️</span>
+          <span class="emoji-pill" data-emoji="⚡">⚡</span>
+        </div>
+
+        <div class="chat-input-bar">
+          <button type="button" id="attachFileBtn" class="dock-btn" title="Attach file(s)">
+            <svg viewBox="0 0 24 24">
+              <path d="M16.5 6v11.5c0 2.21-1.79 4-4 4s-4-1.79-4-4V5a2.5 2.5 0 015 0v10.5c0 .83-.67 1.5-1.5 1.5s-1.5-.67-1.5-1.5V6H9v9.5a3 3 0 006 0V5c0-2.21-1.79-4-4-4S7 2.79 7 5v12.5c0 3.04 2.46 5.5 5.5 5.5s5.5-2.46 5.5-5.5V6h-1.5z"/>
+            </svg>
+          </button>
+          <input type="file" id="hiddenFileInput" multiple style="display:none;" />
+
+          <button type="button" id="attachPhotoBtn" class="dock-btn" title="Send image/photo">
+            <svg viewBox="0 0 24 24">
+              <path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"/>
+            </svg>
+          </button>
+          <input type="file" id="hiddenPhotoInput" accept="image/*" multiple style="display:none;" />
+
+          <input id="chatTextInput" placeholder="Type a message or paste images (Ctrl+V)..." autocomplete="off" />
+
+          <button id="sendBtn" class="send-submit-btn" title="Send (Enter)">
+            <svg viewBox="0 0 24 24">
+              <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>
+            </svg>
+          </button>
+        </div>
+      </footer>
+
+      <!-- Full Window Drag & Drop Overlay -->
+      <div id="dragDropOverlay" class="drag-overlay">
+        <div class="drag-overlay-box">
+          <svg viewBox="0 0 24 24">
+            <path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM14 13v4h-4v-4H7l5-5 5 5h-3z"/>
+          </svg>
+          <div style="font-size: 20px; font-weight:700; color:#fff;">Drop Files to Send</div>
+          <div style="font-size: 13px; color: var(--text-muted);">Files will be transferred directly to connected peers</div>
+        </div>
+      </div>
+
+      <!-- System Diagnostics Drawer -->
+      <div id="systemDrawer" class="system-drawer">
+        <div class="system-drawer-title">
+          <span>Diagnostics & Controls</span>
+          <button id="closeDrawerBtn" class="icon-btn-ghost">✕</button>
+        </div>
+        <div style="font-size:11px; color:var(--text-muted); display:flex; justify-content:space-between; background:var(--pine-input); padding:8px; border-radius:6px;">
+          <span>Signaling: <strong id="diagSignal" style="color:var(--mint);">Connecting...</strong></span>
+          <span>Peers: <strong id="diagPeers" style="color:var(--mint);">0</strong></span>
+        </div>
+        <div id="sysLogs"></div>
+        <button id="clearChatBtn" class="action-pill-btn" style="width:100%; justify-content:center; color:var(--danger); border-color:var(--danger-border); background:var(--danger-bg);">
+          Clear Local Chat History
+        </button>
+      </div>
+    </main>
   </div>
 
   <!-- QR Modal -->
-  <div id="qrModal" class="modal" aria-hidden="true">
+  <div id="qrModal" class="modal">
     <div class="modal-card">
-      <div class="row" style="justify-content:space-between;align-items:center;margin-bottom:10px;">
-        <div class="label" style="font-size:14px;color:var(--text)">Scan this on your other device</div>
-        <button id="closeQR" class="btn secondary">Close</button>
+      <div class="modal-header">
+        <div class="modal-title">Scan on Mobile Device</div>
+        <button id="closeQrModalBtn" class="icon-btn-ghost">✕</button>
       </div>
-      <img id="qrImage" src="/qr.png" alt="LAN Share QR" />
+      <div style="text-align:center;">
+        <div class="qr-frame">
+          <img id="qrModalImg" src="/qr.png" alt="LAN Share QR" />
+        </div>
+      </div>
+      <div class="qr-address-box">
+        <span id="qrAddressText" class="qr-address-text">Loading...</span>
+        <button id="copyModalUrlBtn" class="action-pill-btn" style="padding:4px 8px; font-size:11px;">Copy</button>
+      </div>
+      <div style="margin-top:10px; font-size:11px; color:var(--text-muted); text-align:center; line-height:1.4;">
+        💡 If connected to a phone hotspot, make sure your phone opens the address shown above!
+      </div>
     </div>
   </div>
 
-  <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
-  <script src="https://unpkg.com/simple-peer@9.11.1/simplepeer.min.js"></script>
+  <!-- Image Lightbox -->
+  <div id="imageLightbox" class="lightbox">
+    <img id="lightboxImg" src="" alt="Full Preview" />
+  </div>
+
+  <!-- Global Toast Notification -->
+  <div id="toastNotification" class="toast-popup"></div>
+
+  <script src="/static/socket.io.min.js"></script>
+  <script src="/static/simplepeer.min.js"></script>
   <script>
-    const $ = (id) => document.getElementById(id);
-    const logBox = $('log');
-    const statusBox = $('status');
-    const dropZone = null;
-    const fileInput = $('fileInput');
-    const qrModal = $('qrModal');
-    const qrOpenBtn = $('openQR');
-    const qrCloseBtn = $('closeQR');
-    const qrImage = $('qrImage');
-
-    // Activity log with persistence per room
-    let history = [];
-    const HISTORY_MAX = 400;
-    const historyKey = () => `ls_history_${(document.getElementById('room').value || 'default').trim()}`;
-    const appendToDom = (html) => {
-      logBox.insertAdjacentHTML('beforeend', `<div>${html}</div>`);
-      logBox.scrollTop = logBox.scrollHeight;
-    };
-    // Status logger (separate panel); safe if panel missing
-    function sys(html){
+    // Audio Chime (Offline, Web Audio API)
+    let soundEnabled = localStorage.getItem('ls_sound') !== '0';
+    function playChime(type = 'message') {
+      if (!soundEnabled) return;
       try {
-        if (statusBox) {
-          statusBox.insertAdjacentHTML('beforeend', `<div>${html}</div>`);
-          statusBox.scrollTop = statusBox.scrollHeight;
+        const ctx = new (window.AudioContext || window.webkitAudioContext)();
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'sine';
+        if (type === 'file') {
+          osc.frequency.setValueAtTime(440, ctx.currentTime);
+          osc.frequency.exponentialRampToValueAtTime(880, ctx.currentTime + 0.15);
         } else {
-          console.log('[STATUS]', html);
+          osc.frequency.setValueAtTime(587.33, ctx.currentTime);
+          osc.frequency.exponentialRampToValueAtTime(880, ctx.currentTime + 0.12);
         }
-      } catch (e) { console.log('[STATUS]', html); }
+        gain.gain.setValueAtTime(0.12, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.22);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start();
+        osc.stop(ctx.currentTime + 0.22);
+      } catch (e) {}
     }
-    const isStatusHtml = (html) => /Connected to signaling server|Data channel ready|Disconnected from signaling|left the room|Waiting for peers|Queued message|Queued image|Queued file/i.test(html || '');
-    const saveHistory = () => { try { localStorage.setItem(historyKey(), JSON.stringify(history.slice(-HISTORY_MAX))); } catch {} };
-    const createId = () => Math.random().toString(36).slice(2) + Date.now().toString(36);
 
-    function renderEntry(e){
-      const mid = e.id || createId();
-      const deletable = e.deletable !== false;
-      const html = `<div class="log-entry" data-mid="${mid}">${e.html}${deletable ? `<button class="del-btn" title="Delete for everyone" data-mid="${mid}">🗑</button>` : ''}</div>`;
-      appendToDom(html);
-      return mid;
-    }
-    function addEntry(html, id, persist=true, deletable=true){
-      const mid = renderEntry({ id, html, deletable });
-      if (persist && !isStatusHtml(html)) {
-        history.push({ ts: Date.now(), html, id: mid, deletable });
-        if (history.length > HISTORY_MAX) history = history.slice(-HISTORY_MAX);
-        saveHistory();
+    const $ = (id) => document.getElementById(id);
+    const messagesStream = $('messagesStream');
+    const emptyPlaceholder = $('emptyChatPlaceholder');
+    const sysLogs = $('sysLogs');
+    const nameInput = $('nameInput');
+    const roomInput = $('roomInput');
+    const connectBtn = $('connectBtn');
+    const chatInput = $('chatTextInput');
+    const sendBtn = $('sendBtn');
+    const fileInput = $('hiddenFileInput');
+    const photoInput = $('hiddenPhotoInput');
+    const dragOverlay = $('dragDropOverlay');
+
+    function getClientId() {
+      let cid = localStorage.getItem('ls_client_id');
+      if (!cid) {
+        cid = 'c_' + Math.random().toString(36).slice(2) + Date.now().toString(36);
+        localStorage.setItem('ls_client_id', cid);
       }
-      return mid;
+      return cid;
     }
-    function deleteEntry(mid, propagate){
-      try { const el = logBox.querySelector(`.log-entry[data-mid="${CSS.escape(mid)}"]`); if (el) el.remove(); } catch {}
-      // Remove from in-memory history
-      history = (history || []).filter(e => e && e.id !== mid);
-      // Also remove from localStorage to prevent it from reappearing
-      try {
-        const stored = localStorage.getItem(historyKey());
-        const arr = stored ? JSON.parse(stored) : [];
-        const filtered = arr.filter(e => e && e.id !== mid);
-        localStorage.setItem(historyKey(), JSON.stringify(filtered));
-      } catch {}
-      if (propagate) {
-        const ids = connectedPeers();
-        for (const pid of ids) sendJsonToPeer(pid, { t: PROTO.DEL, id: mid });
+    const myClientId = getClientId();
+
+    function showToast(msg) {
+      const toast = $('toastNotification');
+      if (!toast) return;
+      toast.textContent = msg;
+      toast.classList.add('show');
+      clearTimeout(window._toastTimer);
+      window._toastTimer = setTimeout(() => {
+        toast.classList.remove('show');
+      }, 2400);
+    }
+
+    function safeCopy(text) {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        return navigator.clipboard.writeText(text).catch(() => fallbackCopy(text));
       }
+      return fallbackCopy(text);
     }
-    // delegate delete button clicks (local only, don't propagate)
-    logBox.addEventListener('click', (e) => {
-      const btn = e.target.closest('.del-btn');
-      if (!btn) return;
-      const mid = btn.getAttribute('data-mid');
-      if (!mid) return;
-      deleteEntry(mid, false);
-    });
-    const restoreHistory = () => {
-      try {
-        const raw = localStorage.getItem(historyKey());
-        const arr = raw ? JSON.parse(raw) : [];
-        // Filter out any previously-saved status/queued lines (from older versions)
-        history = (arr || []).filter(e => e && !isStatusHtml(e.html));
-        // Ensure all entries have unique IDs
-        for (const e of history) {
-          if (!e.id) e.id = createId();
+
+    function fallbackCopy(text) {
+      return new Promise((resolve, reject) => {
+        try {
+          const el = document.createElement('textarea');
+          el.value = text;
+          el.setAttribute('readonly', '');
+          el.style.position = 'fixed';
+          el.style.left = '-9999px';
+          document.body.appendChild(el);
+          el.focus();
+          el.select();
+          const ok = document.execCommand('copy');
+          document.body.removeChild(el);
+          if (ok) resolve(); else reject(new Error('execCommand failed'));
+        } catch (e) {
+          reject(e);
         }
-        // Persist the cleaned history so they don't reappear on next load
-        saveHistory();
-      } catch { history = []; }
-      logBox.innerHTML = '';
-      for (const e of history) renderEntry(e);
-    };
-    const log = (html) => {
-      // Only persist non-status messages in Activity
-      if (!isStatusHtml(html)) {
-        history.push({ ts: Date.now(), html });
-        if (history.length > HISTORY_MAX) history = history.slice(-HISTORY_MAX);
-        saveHistory();
-      }
-      appendToDom(html);
-    };
+      });
+    }
 
-    let socket, peers = {};
+    let currentServerUrl = window.location.origin;
     let myId = null;
-    let myName = '';
-    const incoming = {};
-    const names = {}; // socket.id -> username
-    const outbox = []; // queue items until at least one peer connected
-    const PROTO = { MSG: 'msg', IMG: 'img', FILE: 'file', FILE_END: 'file_end', DEL: 'del' };
+    let myName = (localStorage.getItem('ls_name') || 'User').trim();
+    let currentRoom = 'default';
+    let socket = null;
+    let peers = {};
+    let names = {}; // pid -> name
+    const incomingTransfers = {}; // fileId -> state
+    const outbox = []; // Queued messages and files when peers = 0
+    const PROTO = { MSG: 'msg', IMG: 'img', FILE_START: 'f_start', FILE_CHUNK: 'f_chunk', FILE_END: 'f_end', DEL: 'del' };
     const RTC_CONFIG = { iceServers: [
       { urls: ['stun:stun.l.google.com:19302', 'stun:global.stun.twilio.com:3478'] }
     ]};
 
-    function beginConnect(){
-      if (socket) return; // prevent duplicates
+    function logSys(text) {
+      if (sysLogs) {
+        const time = new Date().toLocaleTimeString();
+        sysLogs.insertAdjacentHTML('beforeend', `<div>[${time}] ${escapeHtml(text)}</div>`);
+        sysLogs.scrollTop = sysLogs.scrollHeight;
+      }
+      const diagSignal = $('diagSignal');
+      if (diagSignal) diagSignal.textContent = socket && socket.connected ? 'Online' : 'Offline';
+    }
+
+    function createId() {
+      return Math.random().toString(36).slice(2) + Date.now().toString(36);
+    }
+
+    function escapeHtml(str) {
+      return (str || '').replace(/[&<>"']/g, c => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]));
+    }
+
+    function formatBytes(bytes) {
+      if (!bytes || bytes === 0) return '0 B';
+      const k = 1024;
+      const sizes = ['B', 'KB', 'MB', 'GB'];
+      const i = Math.floor(Math.log(bytes) / Math.log(k));
+      return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
+    }
+
+    function getTimeString() {
+      const d = new Date();
+      return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    }
+
+    // Server Info & Dynamic IP
+    async function fetchServerInfo() {
+      try {
+        const res = await fetch('/api/info');
+        if (res.ok) {
+          const data = await res.json();
+          currentServerUrl = data.url || window.location.origin;
+          const ipText = $('sidebarIpDisplay');
+          if (ipText) ipText.textContent = currentServerUrl;
+          const qrText = $('qrAddressText');
+          if (qrText) qrText.textContent = currentServerUrl;
+          const qrImg = $('qrModalImg');
+          if (qrImg) qrImg.src = '/qr.png?t=' + Date.now();
+        }
+      } catch (e) {
+        const ipText = $('sidebarIpDisplay');
+        if (ipText) ipText.textContent = window.location.origin;
+      }
+    }
+
+    // Storage per room
+    const historyKey = () => `ls_v2_${(roomInput.value || 'default').trim()}`;
+
+    function saveMessageToHistory(item) {
+      try {
+        const raw = localStorage.getItem(historyKey());
+        const arr = raw ? JSON.parse(raw) : [];
+        arr.push(item);
+        if (arr.length > 300) arr.shift();
+        localStorage.setItem(historyKey(), JSON.stringify(arr));
+      } catch (e) {}
+    }
+
+    function deleteMessageFromHistory(id) {
+      try {
+        const raw = localStorage.getItem(historyKey());
+        const arr = raw ? JSON.parse(raw) : [];
+        const filtered = arr.filter(item => item.id !== id);
+        localStorage.setItem(historyKey(), JSON.stringify(filtered));
+      } catch (e) {}
+    }
+
+    function restoreChatHistory() {
+      messagesStream.innerHTML = '';
+      try {
+        const raw = localStorage.getItem(historyKey());
+        const arr = raw ? JSON.parse(raw) : [];
+        if (arr.length === 0) {
+          if (emptyPlaceholder) messagesStream.appendChild(emptyPlaceholder);
+          return;
+        }
+        for (const item of arr) {
+          renderBubble(item, false);
+        }
+      } catch (e) {
+        if (emptyPlaceholder) messagesStream.appendChild(emptyPlaceholder);
+      }
+    }
+
+    // Render Chat Bubbles
+    function renderBubble(item, save = true) {
+      if (emptyPlaceholder && emptyPlaceholder.parentNode) {
+        emptyPlaceholder.remove();
+      }
+
+      const isMe = item.senderId === myId || item.isMe;
+      const group = document.createElement('div');
+      group.className = `msg-group ${isMe ? 'outgoing' : 'incoming'}`;
+      group.id = `bubble-${item.id}`;
+
+      let contentHtml = '';
+      if (item.type === 'text') {
+        contentHtml = `<div>${escapeHtml(item.text)}</div>`;
+      } else if (item.type === 'image') {
+        contentHtml = `<img src="${item.url}" class="chat-img-thumb" onclick="openLightbox('${item.url}')" alt="Shared Photo" />`;
+      } else if (item.type === 'file') {
+        const isTransferring = !item.done;
+        contentHtml = `
+          <div class="file-card">
+            <div class="file-type-icon">📄</div>
+            <div class="file-details">
+              <div class="file-name" title="${escapeHtml(item.fileName)}">${escapeHtml(item.fileName)}</div>
+              <div class="file-subtext">${formatBytes(item.fileSize)} • <span id="fstatus-${item.id}">${item.done ? 'Completed' : (item.queued ? 'Queued' : 'Transferring...')}</span></div>
+              ${isTransferring ? `
+                <div class="progress-bar-container">
+                  <div class="progress-bar-fill" id="pbar-${item.id}"></div>
+                </div>
+              ` : `
+                <a class="file-action-btn" href="${item.url}" download="${escapeHtml(item.fileName)}">
+                  <span>⬇️</span> Download
+                </a>
+              `}
+            </div>
+          </div>
+        `;
+      }
+
+      group.innerHTML = `
+        ${!isMe ? `<div class="msg-sender-name">${escapeHtml(item.senderName || 'Peer')}</div>` : ''}
+        <div class="bubble-wrapper">
+          ${isMe ? `<button class="bubble-del-btn" title="Delete message" onclick="deleteBubble('${item.id}')">🗑</button>` : ''}
+          <div class="bubble">
+            ${contentHtml}
+            <div class="bubble-meta">
+              <span>${item.time || getTimeString()}</span>
+              ${isMe ? `<span id="check-${item.id}">${item.queued ? '🕒' : '✓✓'}</span>` : ''}
+            </div>
+          </div>
+          ${!isMe ? `<button class="bubble-del-btn" title="Delete message" onclick="deleteBubble('${item.id}')">🗑</button>` : ''}
+        </div>
+      `;
+
+      messagesStream.appendChild(group);
+      messagesStream.scrollTop = messagesStream.scrollHeight;
+
+      if (save) saveMessageToHistory(item);
+    }
+
+    window.deleteBubble = function(id) {
+      const el = $(`bubble-${id}`);
+      if (el) el.remove();
+      deleteMessageFromHistory(id);
+      if (messagesStream.children.length === 0 && emptyPlaceholder) {
+        messagesStream.appendChild(emptyPlaceholder);
+      }
+    };
+
+    function openLightbox(url) {
+      const box = $('imageLightbox');
+      const img = $('lightboxImg');
+      if (box && img) {
+        img.src = url;
+        box.classList.add('show');
+      }
+    }
+
+    $('imageLightbox').onclick = () => {
+      $('imageLightbox').classList.remove('show');
+    };
+
+    // Signaling & Connection
+    function beginConnect() {
+      if (socket) return;
+      currentRoom = (roomInput.value || 'default').trim();
+      myName = (nameInput.value || localStorage.getItem('ls_name') || 'User').trim();
+      localStorage.setItem('ls_name', myName);
+
       socket = io({ transports: ['polling'], forceNew: true });
-
-      const setupHandlers = () => {
-        // Use on() so they're active after every connect
-        socket.off('peers');
-        socket.off('peer-joined');
-        socket.off('peer-left');
-        socket.off('signal');
-
-        socket.on('peers', (list) => {
-          // I am the joiner: I should INITIATE connections to existing peers
-          (list || []).forEach(p => {
-            names[p.id] = p.name || names[p.id];
-            if (!peers[p.id]) createPeer(p.id, true); // initiator
-          });
-          updatePeerList();
-        });
-
-        socket.on('peer-joined', (payload) => {
-          // Someone else joined. The JOINER will initiate connections to us.
-          const { id, name } = (typeof payload === 'string') ? { id: payload, name: undefined } : payload;
-          if (name) names[id] = name;
-          // Do not proactively create a peer here to avoid glare; wait for signals.
-          updatePeerList();
-        });
-
-        socket.on('peer-left', (payload) => {
-          const id = (typeof payload === 'string') ? payload : payload.id;
-          if (peers[id]) peers[id].destroy();
-          delete peers[id];
-          delete names[id];
-          updatePeerList();
-        });
-
-        socket.on('signal', ({ from, data }) => {
-          // If this is the first message from this peer and we didn't initiate, create as non-initiator
-          if (!peers[from]) createPeer(from, false);
-          peers[from] && peers[from].signal(data);
-        });
-      };
 
       socket.on('connect', () => {
         myId = socket.id;
-        // reset known names to avoid duplicates after reconnect
-        for (const k in names) delete names[k];
-        if (myName) names[myId] = myName; else names[myId] = localStorage.getItem('ls_name') || names[myId] || `User-${(myId||'').slice(-4)}`;
-        $('connect').disabled = true;
-        const d = document.getElementById('disconnect'); if (d) d.disabled = false;
-        localStorage.setItem('ls_autoconnect','1');
-        
-        setupHandlers();
-        updatePeerList();
+        $('userStatusDot').className = 'pulse-dot online';
+        $('userStatusText').textContent = 'Connected (Room: #' + currentRoom + ')';
+        connectBtn.textContent = 'Leave';
+        connectBtn.classList.add('disconnect');
+        $('headerRoomName').textContent = currentRoom;
+        logSys('Connected to signaling server as ' + myName + ' (' + myId + ')');
+
+        socket.emit('join-room', { room: currentRoom, name: myName, clientId: myClientId });
       });
 
-      socket.off('disconnect');
+      socket.on('peers', (list) => {
+        // Reset known names to ensure no stale peers
+        names = {};
+        (list || []).forEach(p => {
+          // EXCLUDE MYSELF and my own client sessions from peers list!
+          if (p.id !== myId && p.clientId !== myClientId) {
+            names[p.id] = p.name || `User-${p.id.slice(-4)}`;
+            if (!peers[p.id]) createPeer(p.id, true);
+          }
+        });
+        updatePeersListUi();
+      });
+
+      socket.on('peer-joined', (payload) => {
+        const { id, name, clientId } = (typeof payload === 'string') ? { id: payload, name: undefined, clientId: undefined } : payload;
+        if (id && id !== myId && clientId !== myClientId) {
+          names[id] = name || `User-${id.slice(-4)}`;
+          logSys('Peer entered: ' + (name || id));
+          updatePeersListUi();
+        }
+      });
+
+      socket.on('peer-left', (payload) => {
+        const id = (typeof payload === 'string') ? payload : payload.id;
+        if (id && id !== myId) {
+          logSys('Peer left: ' + (names[id] || id));
+          if (peers[id]) {
+            try { peers[id].destroy(); } catch (e) {}
+            delete peers[id];
+          }
+          delete names[id];
+          updatePeersListUi();
+        }
+      });
+
+      socket.on('peer-renamed', (payload) => {
+        if (payload && payload.id && names[payload.id]) {
+          names[payload.id] = payload.name;
+          updatePeersListUi();
+        }
+      });
+
+      socket.on('signal', ({ from, data }) => {
+        if (from === myId) return;
+        if (!peers[from]) createPeer(from, false);
+        peers[from] && peers[from].signal(data);
+      });
+
       socket.on('disconnect', (reason) => {
-        const d = document.getElementById('disconnect'); if (d) d.disabled = true;
-        $('connect').disabled = false;
-        try { socket.close(); } catch {}
-        socket = null; // allow re-connect via button
-        peers = {}; // datachannels are gone
-        // keep only myself in names to avoid stale entries
-        const me = myId, label = names[myId];
-        for (const k in names) delete names[k];
-        if (me && label) names[me] = label;
-        updatePeerList();
-        sys('🔌 Disconnected from signaling' + (reason ? ` (${reason})` : ''));
+        $('userStatusDot').className = 'pulse-dot';
+        $('userStatusText').textContent = 'Disconnected';
+        connectBtn.textContent = 'Connect';
+        connectBtn.classList.remove('disconnect');
+        logSys('Signaling disconnected: ' + reason);
+        socket = null;
+        for (const pid in peers) {
+          try { peers[pid].destroy(); } catch (e) {}
+        }
+        peers = {};
+        names = {};
+        updatePeersListUi();
       });
 
       socket.on('connect_error', (err) => {
-        sys('⚠️ Connect error: ' + (err && (err.message || err.toString()) || 'unknown'));
+        logSys('Signaling error: ' + (err && err.message));
       });
-      socket.on('reconnect_error', (err) => {
-        sys('⚠️ Reconnect error: ' + (err && (err.message || err.toString()) || 'unknown'));
-      });
-
-      const room = $('room').value || 'default';
-      const name = ($('name').value || localStorage.getItem('ls_name') || '').trim() || `User-${Math.random().toString(36).slice(-4)}`;
-      myName = name;
-      localStorage.setItem('ls_name', name);
-      socket.emit('join-room', { room, name });
-      sys('🔔 Connected to signaling server. Waiting for peers...');
     }
 
-    $('connect').onclick = () => beginConnect();
+    function disconnect() {
+      if (socket) {
+        try { socket.disconnect(); } catch (e) {}
+        socket = null;
+      }
+      for (const pid in peers) {
+        try { peers[pid].destroy(); } catch (e) {}
+      }
+      peers = {};
+      names = {};
+      $('userStatusDot').className = 'pulse-dot';
+      $('userStatusText').textContent = 'Disconnected';
+      connectBtn.textContent = 'Connect';
+      connectBtn.classList.remove('disconnect');
+      $('headerSubtitle').textContent = 'Disconnected';
+      updatePeersListUi();
+    }
 
-    // no longer used for handshake; keep simple creator
+    connectBtn.onclick = () => {
+      if (socket && socket.connected) {
+        disconnect();
+      } else {
+        beginConnect();
+      }
+    };
+
+    // Room Input: Pressing Enter switches room cleanly
+    roomInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        disconnect();
+        beginConnect();
+      }
+    });
+
+    // WebRTC Peer Connection
     function createPeer(id, initiator) {
+      if (id === myId) return; // Never connect to oneself!
+
       const p = new SimplePeer({ initiator, trickle: true, config: RTC_CONFIG });
       peers[id] = p;
 
@@ -444,227 +1702,512 @@
       });
 
       p.on('connect', async () => {
-        updatePeerList();
-        sys(`✅ Data channel ready with ${escapeHtml(displayName(id))}`);
-        // Flush any queued items to this peer
-        try { await flushOutboxToPeer(id); } catch (e) { console.warn('flush queue error', e); }
+        logSys('WebRTC connected with: ' + (names[id] || id));
+        updatePeersListUi();
+        flushOutboxToPeer(id);
       });
-      p.on('close', () => { updatePeerList(); });
-      p.on('error', (e) => { updatePeerList(); console.warn('peer error', id, e); });
+
+      p.on('close', () => {
+        logSys('WebRTC connection closed with: ' + (names[id] || id));
+        updatePeersListUi();
+      });
+
+      p.on('error', (err) => {
+        logSys('WebRTC error with ' + (names[id] || id) + ': ' + (err && err.message));
+        updatePeersListUi();
+      });
 
       p.on('data', data => {
-        const isBinary = (data instanceof ArrayBuffer) || ArrayBuffer.isView(data);
-
-        // If binary arrives but we don't know what it is yet, try decoding to text (it may be JSON message)
-        if (isBinary && !incoming[id]) {
-          try {
-            const view = (data instanceof ArrayBuffer) ? new Uint8Array(data) : new Uint8Array(data.buffer, data.byteOffset, data.byteLength);
-            const maybeText = new TextDecoder().decode(view);
-            try {
-              const obj = JSON.parse(maybeText);
-              if (obj && obj.t) { data = maybeText; }
-            } catch {}
-          } catch {}
-        }
-
-        // Handle string (text/JSON) frames
-        if (typeof data === 'string') {
-          try {
-            const obj = JSON.parse(data);
-            if (obj && obj.t === PROTO.MSG) { addEntry(`💬 ${escapeHtml(obj.from || displayName(id))}: ${escapeHtml(obj.v)}`, obj.id, true, true); return; }
-            if (obj && obj.t === PROTO.IMG) { addEntry(`🖼️ ${escapeHtml(obj.from || displayName(id))}<br><img src="${obj.v}" class="image-preview">`, obj.id, true, true); return; }
-            if (obj && obj.t === PROTO.FILE) {
-              incoming[id] = { expecting: true, name: obj.name, type: obj.type, size: obj.size, received: 0, chunks: [], from: (obj.from || displayName(id)), entryId: obj.id };
-              addEntry(`⬇️ ${escapeHtml(obj.from || displayName(id))} is sending: ${escapeHtml(obj.name)} (${Math.round(obj.size/1024)} KB) ...`, obj.id, true, true);
-              return;
-            }
-            if (obj && obj.t === PROTO.FILE_END) { return; }
-            if (obj && obj.t === PROTO.DEL) { deleteEntry(obj.id, false); return; }
-          } catch {}
-          // Not JSON: plain message (no id) — still add as entry
-          addEntry(`💬 ${escapeHtml(displayName(id))}: ${escapeHtml(data)}`, createId(), true, true);
-          return;
-        }
-
-        // Binary frames (chunks)
-        if (isBinary) {
-          const chunk = (data instanceof ArrayBuffer)
-            ? data
-            : data.buffer.slice(data.byteOffset, data.byteOffset + data.byteLength);
-          const entry = incoming[id];
-          if (entry && entry.expecting) {
-            entry.chunks.push(chunk);
-            entry.received += chunk.byteLength;
-            if (entry.received >= entry.size) {
-              const blob = new Blob(entry.chunks, { type: entry.type || 'application/octet-stream' });
-              const url = URL.createObjectURL(blob);
-              const name = entry.name || 'received_file';
-              const from = entry.from ? `${escapeHtml(entry.from)}: ` : '';
-              const displayName = name.split('/').pop() || name;
-              // Replace previous placeholder with download link
-              const newEntryId = createId();
-              try { const el = logBox.querySelector(`.log-entry[data-mid="${CSS.escape(entry.entryId)}"]`); if (el) el.remove(); } catch {}
-              addEntry(`📥 ${from}<a href="${url}" download="${displayName}" style="color: var(--accent-2); font-weight: 600;">Download ${escapeHtml(displayName)} (${Math.round(entry.size/1024)} KB)</a>`, newEntryId, true, true);
-              incoming[id] = null;
-            }
-          }
-          return;
-        }
+        handleIncomingData(id, data);
       });
     }
 
-    $('send').onclick = async () => {
-      const data = ($('msg').value || '').trim();
-      if (!data) return;
-      const ids = connectedPeers();
-      const mid = createId();
-      const payload = { t: PROTO.MSG, id: mid, v: data, from: myName };
-      if (ids.length === 0) {
-        outbox.push({ kind: 'msg', payload });
-        addEntry('🕒 Queued message — waiting for peer to connect...', createId(), false, true);
-      } else {
-        for (const pid of ids) sendJsonToPeer(pid, payload);
+    // Packet & Protocol Handler
+    function handleIncomingData(id, data) {
+      const isBinary = (data instanceof ArrayBuffer) || ArrayBuffer.isView(data);
+
+      if (!isBinary && typeof data === 'string') {
+        try {
+          const packet = JSON.parse(data);
+
+          if (packet.t === PROTO.MSG) {
+            renderBubble({
+              id: packet.id,
+              type: 'text',
+              text: packet.v,
+              senderId: id,
+              senderName: packet.from || names[id] || 'Peer',
+              time: getTimeString(),
+              isMe: false
+            });
+            playChime('message');
+            return;
+          }
+
+          if (packet.t === PROTO.IMG) {
+            renderBubble({
+              id: packet.id,
+              type: 'image',
+              url: packet.v,
+              senderId: id,
+              senderName: packet.from || names[id] || 'Peer',
+              time: getTimeString(),
+              isMe: false
+            });
+            playChime('file');
+            return;
+          }
+
+          if (packet.t === PROTO.FILE_START) {
+            incomingTransfers[packet.id] = {
+              fileId: packet.id,
+              fileName: packet.name,
+              fileSize: packet.size,
+              fileType: packet.type,
+              senderName: packet.from || names[id] || 'Peer',
+              received: 0,
+              chunks: []
+            };
+
+            renderBubble({
+              id: packet.id,
+              type: 'file',
+              fileName: packet.name,
+              fileSize: packet.size,
+              senderId: id,
+              senderName: packet.from || names[id] || 'Peer',
+              time: getTimeString(),
+              done: false,
+              isMe: false
+            }, false);
+
+            logSys(`Receiving ${packet.name} (${formatBytes(packet.size)}) from ${packet.from || id}`);
+            return;
+          }
+
+          if (packet.t === PROTO.FILE_END) {
+            const transfer = incomingTransfers[packet.id];
+            if (transfer) {
+              const blob = new Blob(transfer.chunks, { type: transfer.fileType || 'application/octet-stream' });
+              const blobUrl = URL.createObjectURL(blob);
+              finishFileBubble(packet.id, blobUrl, transfer.fileName, transfer.fileSize, transfer.fileType);
+              delete incomingTransfers[packet.id];
+              playChime('file');
+              logSys(`Transfer completed: ${transfer.fileName}`);
+            }
+            return;
+          }
+        } catch (e) {}
       }
-      addEntry('You: ' + escapeHtml(data), mid, true, true);
-      $('msg').value = '';
-    };
 
-    // Enter to send in message box (Shift+Enter for newline)
-    const msgInput = $('msg');
-    if (msgInput) msgInput.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter' && !e.shiftKey) {
-        e.preventDefault();
-        $('send').click();
+      if (isBinary) {
+        const chunk = (data instanceof ArrayBuffer) ? data : data.buffer.slice(data.byteOffset, data.byteOffset + data.byteLength);
+        const transferKeys = Object.keys(incomingTransfers);
+        if (transferKeys.length > 0) {
+          const transfer = incomingTransfers[transferKeys[transferKeys.length - 1]];
+          transfer.chunks.push(chunk);
+          transfer.received += chunk.byteLength;
+          updateProgressBar(transfer.fileId, (transfer.received / transfer.fileSize) * 100);
+        }
       }
-    });
-
-    if (fileInput) fileInput.onchange = async e => {
-      const files = Array.from(e.target.files || []);
-      for (const file of files) await handleFile(file);
-      e.target.value = '';
-    };
-
-    // Drag & drop support
-
-    async function handleFile(file){
-      if (!file) return;
-      const ids = connectedPeers();
-      const mid = createId();
-      if (ids.length === 0) {
-        outbox.push({ kind: 'file', file, id: mid });
-        addEntry(`🕒 Queued file: ${escapeHtml(file.name)} (${Math.round(file.size/1024)} KB)`, createId(), false, true);
-      } else {
-        for (const pid of ids) await sendFileToPeer(pid, file, mid);
-      }
-      addEntry(`📁 Sent file: ${escapeHtml(file.name)} (${Math.round(file.size / 1024)} KB)`, mid, true, true);
     }
 
-    function connectedPeers(){
+    function updateProgressBar(id, percent) {
+      const pbar = $(`pbar-${id}`);
+      if (pbar) {
+        pbar.style.width = Math.min(100, Math.max(0, percent)) + '%';
+      }
+    }
+
+    function finishFileBubble(id, url, name, size, type) {
+      const bubbleEl = $(`bubble-${id}`);
+      if (bubbleEl) {
+        const isImg = type && type.startsWith('image/');
+        const fileCard = bubbleEl.querySelector('.file-card');
+        if (fileCard) {
+          if (isImg) {
+            fileCard.innerHTML = `<img src="${url}" class="chat-img-thumb" onclick="openLightbox('${url}')" alt="${escapeHtml(name)}" />`;
+          } else {
+            const sub = fileCard.querySelector('.file-subtext');
+            if (sub) sub.textContent = `${formatBytes(size)} • Completed`;
+            const pbar = fileCard.querySelector('.progress-bar-container');
+            if (pbar) pbar.remove();
+            const btn = document.createElement('a');
+            btn.className = 'file-action-btn';
+            btn.href = url;
+            btn.download = name;
+            btn.innerHTML = '<span>⬇️</span> Download';
+            fileCard.querySelector('.file-details').appendChild(btn);
+          }
+        }
+      }
+    }
+
+    function connectedPeerIds() {
       return Object.keys(peers).filter(id => peers[id] && peers[id].connected && id !== myId);
     }
 
-    function sendJsonToPeer(id, obj){
+    function sendJsonToPeer(id, obj) {
       const p = peers[id];
       if (!p || !p.connected) return false;
-      try { p.send(JSON.stringify(obj)); return true; } catch { return false; }
+      try { p.send(JSON.stringify(obj)); return true; } catch (e) { return false; }
     }
 
-    async function sendFileToPeer(id, file, providedId){
-      const p = peers[id];
-      if (!p || !p.connected) return false;
-      // header
-      sendJsonToPeer(id, { t: PROTO.FILE, id: (providedId || createId()), name: file.name, type: file.type || 'application/octet-stream', size: file.size, from: myName });
+    // Outbox: Auto-Flush when a peer connects!
+    async function flushOutboxToPeer(peerId) {
+      if (outbox.length === 0) return;
+      logSys(`Flushing ${outbox.length} queued item(s) to peer ${names[peerId] || peerId}`);
+
+      while (outbox.length > 0) {
+        const item = outbox.shift();
+        if (item.kind === 'msg') {
+          sendJsonToPeer(peerId, item.payload);
+          const check = $(`check-${item.payload.id}`);
+          if (check) check.textContent = '✓✓';
+        } else if (item.kind === 'file') {
+          await streamFileToPeer(peerId, item.file, item.fileId);
+        }
+      }
+    }
+
+    // Stream a file to a peer with backpressure handling
+    async function streamFileToPeer(peerId, file, fileId) {
+      const p = peers[peerId];
+      if (!p || !p.connected) return;
+
+      sendJsonToPeer(peerId, {
+        t: PROTO.FILE_START,
+        id: fileId,
+        name: file.name,
+        size: file.size,
+        type: file.type || 'application/octet-stream',
+        from: myName
+      });
+
       const CHUNK_SIZE = 64 * 1024;
-      for (let offset = 0; offset < file.size; offset += CHUNK_SIZE) {
+      let offset = 0;
+      while (offset < file.size) {
+        while (p._channel && p._channel.bufferedAmount > 4 * 1024 * 1024) {
+          await new Promise(r => setTimeout(r, 20));
+        }
         const chunk = await file.slice(offset, offset + CHUNK_SIZE).arrayBuffer();
         p.send(chunk);
+        offset += chunk.byteLength;
+        updateProgressBar(fileId, (offset / file.size) * 100);
       }
-      sendJsonToPeer(id, { t: PROTO.FILE_END, name: file.name });
-      return true;
+
+      sendJsonToPeer(peerId, { t: PROTO.FILE_END, id: fileId, name: file.name });
     }
 
-    async function flushOutboxToPeer(id){
-      if (!peers[id] || !peers[id].connected) return;
-      for (const item of outbox) {
-        if (item.kind === 'msg') sendJsonToPeer(id, item.payload);
-        else if (item.kind === 'file') await sendFileToPeer(id, item.file, item.id);
+    async function sendFile(file) {
+      if (!file) return;
+      const peerList = connectedPeerIds();
+      const fileId = createId();
+      const hasPeers = peerList.length > 0;
+
+      renderBubble({
+        id: fileId,
+        type: 'file',
+        fileName: file.name,
+        fileSize: file.size,
+        senderId: myId,
+        senderName: myName,
+        time: getTimeString(),
+        done: false,
+        queued: !hasPeers,
+        isMe: true
+      }, false);
+
+      if (!hasPeers) {
+        outbox.push({ kind: 'file', file, fileId });
+        logSys(`Queued file ${file.name} — will send as soon as a peer connects`);
+        return;
       }
+
+      for (const pid of peerList) {
+        await streamFileToPeer(pid, file, fileId);
+      }
+
+      const localUrl = URL.createObjectURL(file);
+      finishFileBubble(fileId, localUrl, file.name, file.size, file.type);
+      logSys(`Sent file ${file.name} to ${peerList.length} peer(s)`);
     }
 
-    function toBase64(file) {
-      return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onload = () => resolve(reader.result);
-        reader.onerror = reject;
-        reader.readAsDataURL(file);
+    async function sendTextMessage(text) {
+      const msg = (text || '').trim();
+      if (!msg) return;
+      const msgId = createId();
+      const peerList = connectedPeerIds();
+      const hasPeers = peerList.length > 0;
+
+      const payload = { t: PROTO.MSG, id: msgId, v: msg, from: myName };
+
+      if (!hasPeers) {
+        outbox.push({ kind: 'msg', payload });
+        logSys('Message queued — waiting for peer to connect...');
+      } else {
+        for (const pid of peerList) {
+          sendJsonToPeer(pid, payload);
+        }
+      }
+
+      renderBubble({
+        id: msgId,
+        type: 'text',
+        text: msg,
+        senderId: myId,
+        senderName: myName,
+        time: getTimeString(),
+        queued: !hasPeers,
+        isMe: true
       });
     }
 
-    function escapeHtml(str){
-      return (str||'').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;','\'':'&#39;'}[c]));
+    // Update Peers List (EXCLUDES SELF!)
+    function updatePeersListUi() {
+      const container = $('peersContainer');
+      const badge = $('peerCountBadge');
+      const diagPeers = $('diagPeers');
+      const headerSubtitle = $('headerSubtitle');
+
+      // EXCLUDE self from peer IDs!
+      const activeIds = Object.keys(names).filter(pid => pid !== myId);
+
+      if (badge) badge.textContent = String(activeIds.length);
+      if (diagPeers) diagPeers.textContent = String(activeIds.length);
+      if (headerSubtitle) {
+        headerSubtitle.textContent = activeIds.length === 0
+          ? '0 other peers in room'
+          : `${activeIds.length} peer(s) online • WebRTC Direct`;
+      }
+
+      if (activeIds.length === 0) {
+        container.innerHTML = `
+          <div id="noPeersPrompt" class="no-peers-msg">
+            No other devices in this room.<br>
+            Open the link on another device or scan the QR code to connect!
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = activeIds.map(pid => {
+        const isConnected = !!(peers[pid] && peers[pid].connected);
+        const pName = names[pid] || `User-${pid.slice(-4)}`;
+        const initial = (pName.trim()[0] || 'U').toUpperCase();
+        return `
+          <div class="peer-item">
+            <div class="peer-avatar">${escapeHtml(initial)}</div>
+            <div class="peer-info">
+              <div class="peer-name">${escapeHtml(pName)}</div>
+              <div class="peer-status">
+                <span class="pulse-dot ${isConnected ? 'online' : ''}"></span>
+                <span>${isConnected ? 'P2P Connected' : 'Signaling'}</span>
+              </div>
+            </div>
+            <span class="peer-state-tag ${isConnected ? '' : 'pending'}">${isConnected ? 'Online' : 'Pending'}</span>
+          </div>
+        `;
+      }).join('');
     }
 
-    // Disconnect button: leave room and stop signaling
-    const discBtn = document.getElementById('disconnect');
-    if (discBtn) discBtn.onclick = () => {
-      try { localStorage.removeItem('ls_autoconnect'); } catch{}
-      if (socket) {
-        try { socket.disconnect(); } catch {}
+    // Wire Inputs and Buttons
+    $('attachFileBtn').onclick = () => fileInput.click();
+    $('attachPhotoBtn').onclick = () => photoInput.click();
+
+    sendBtn.onclick = () => {
+      const text = chatInput.value;
+      if (text.trim()) {
+        sendTextMessage(text);
+        chatInput.value = '';
       }
-      socket = null; myId = null;
-      // tear down peers
-      for (const pid in peers) { try { peers[pid].destroy(); } catch {} }
-      peers = {}; updatePeerList();
-      $('connect').disabled = false; discBtn.disabled = true;
-      sys('👋 You left the room.');
     };
 
-    // Auto-reconnect after refresh if user didn't explicitly disconnect
-    document.addEventListener('DOMContentLoaded', () => {
-      try { restoreHistory(); } catch {}
-      try {
-        const roomInput = document.getElementById('room');
-        roomInput && roomInput.addEventListener('input', () => restoreHistory());
-      } catch {}
-      try { if (localStorage.getItem('ls_autoconnect') === '1') beginConnect(); } catch {}
-      // Drag & drop over Activity log
-      try {
-        ['dragenter','dragover'].forEach(ev => logBox.addEventListener(ev, e => { e.preventDefault(); logBox.classList.add('dragover'); }));
-        ['dragleave','drop'].forEach(ev => logBox.addEventListener(ev, e => { e.preventDefault(); logBox.classList.remove('dragover'); }));
-        logBox.addEventListener('drop', async e => {
-          const files = Array.from(e.dataTransfer?.files || []);
-          for (const file of files) await handleFile(file);
-        });
-      } catch {}
-      // QR wiring
-      try {
-        if (qrOpenBtn) qrOpenBtn.onclick = () => { if (qrModal) qrModal.classList.add('show'); };
-        if (qrCloseBtn) qrCloseBtn.onclick = () => { if (qrModal) qrModal.classList.remove('show'); };
-        if (qrModal) qrModal.addEventListener('click', (e) => { if (e.target === qrModal) qrModal.classList.remove('show'); });
-        document.addEventListener('keydown', (e) => { if (e.key === 'Escape') qrModal && qrModal.classList.remove('show'); });
-        // Hide button if qr not available
-        if (qrImage) {
-          qrImage.addEventListener('error', () => { if (qrOpenBtn) qrOpenBtn.style.display = 'none'; if (qrModal) qrModal.classList.remove('show'); });
-        }
-      } catch {}
+    chatInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        sendBtn.click();
+      }
     });
 
-    function short(id) { return (id || '').slice(-6) || id; }
-    function displayName(pid){ return (names[pid] && names[pid].trim()) ? names[pid].trim() : `User-${short(pid)}`; }
-    function updatePeerList(){
-      const list = document.getElementById('peersList');
-      const count = document.getElementById('peerCount');
-      // Show all known users including self
-      const ids = Array.from(new Set([...(Object.keys(names)||[]), myId].filter(Boolean)));
-      const items = ids.map(pid => {
-        const isMe = pid === myId;
-        const connected = isMe ? true : !!(peers[pid] && peers[pid].connected);
-        const n = escapeHtml(displayName(pid)) + (isMe ? ' (you)' : '');
-        return `<li class=\"peer ${connected ? 'connected' : ''}\"><span class=\"dot\"></span><span>${n}</span>${connected ? '<span style=\\"color:var(--muted)\\"\">'+(isMe?'online':'connected')+'</span>' : '<span style=\\"color:var(--muted)\\"\">signaling</span>'}</li>`;
-      });
-      list.innerHTML = items.join('');
-      count.textContent = String(ids.length);
+    fileInput.onchange = (e) => {
+      const files = Array.from(e.target.files || []);
+      files.forEach(f => sendFile(f));
+      e.target.value = '';
+    };
+
+    photoInput.onchange = (e) => {
+      const files = Array.from(e.target.files || []);
+      files.forEach(f => sendFile(f));
+      e.target.value = '';
+    };
+
+    // Quick emoji pills
+    document.querySelectorAll('.emoji-pill').forEach(pill => {
+      pill.onclick = () => {
+        chatInput.value += pill.getAttribute('data-emoji');
+        chatInput.focus();
+      };
+    });
+
+    // Sound toggle
+    $('toggleSoundBtn').onclick = () => {
+      soundEnabled = !soundEnabled;
+      localStorage.setItem('ls_sound', soundEnabled ? '1' : '0');
+      $('soundIcon').textContent = soundEnabled ? '🔊' : '🔇';
+      showToast(soundEnabled ? 'Sound enabled' : 'Sound muted');
+    };
+    $('soundIcon').textContent = soundEnabled ? '🔊' : '🔇';
+
+    // QR Modal Controls
+    const qrModal = $('qrModal');
+    const openQr = () => {
+      fetchServerInfo();
+      qrModal.classList.add('show');
+    };
+    const closeQr = () => qrModal.classList.remove('show');
+
+    $('showQrBtn').onclick = openQr;
+    $('quickQrBtn').onclick = openQr;
+    $('closeQrModalBtn').onclick = closeQr;
+    qrModal.onclick = (e) => { if (e.target === qrModal) closeQr(); };
+
+    // Copy IP buttons
+    $('copyIpSidebarBtn').onclick = () => {
+      if (currentServerUrl) {
+        safeCopy(currentServerUrl).then(() => {
+          showToast('Copied LAN URL to clipboard: ' + currentServerUrl);
+          $('copyIpSidebarBtn').textContent = '✅';
+          setTimeout(() => { $('copyIpSidebarBtn').textContent = '📋'; }, 2000);
+        }).catch(() => {
+          showToast('URL: ' + currentServerUrl);
+        });
+      }
+    };
+
+    $('copyModalUrlBtn').onclick = () => {
+      if (currentServerUrl) {
+        safeCopy(currentServerUrl).then(() => {
+          showToast('Copied address to clipboard!');
+          $('copyModalUrlBtn').textContent = 'Copied!';
+          setTimeout(() => { $('copyModalUrlBtn').textContent = 'Copy'; }, 2000);
+        }).catch(() => {
+          showToast('Copy failed.');
+        });
+      }
+    };
+
+    // Clipboard Paste (Ctrl+V) for screenshots and files
+    window.addEventListener('paste', (e) => {
+      const items = (e.clipboardData || e.originalEvent.clipboardData).items;
+      for (const item of items) {
+        if (item.kind === 'file') {
+          const file = item.getAsFile();
+          if (file) {
+            sendFile(file);
+          }
+        }
+      }
+    });
+
+    // Drag & Drop Fullscreen Overlay
+    let dragCounter = 0;
+    window.addEventListener('dragenter', (e) => {
+      e.preventDefault();
+      dragCounter++;
+      dragOverlay.classList.add('show');
+    });
+
+    window.addEventListener('dragleave', (e) => {
+      e.preventDefault();
+      dragCounter--;
+      if (dragCounter <= 0) {
+        dragCounter = 0;
+        dragOverlay.classList.remove('show');
+      }
+    });
+
+    window.addEventListener('dragover', (e) => e.preventDefault());
+
+    window.addEventListener('drop', (e) => {
+      e.preventDefault();
+      dragCounter = 0;
+      dragOverlay.classList.remove('show');
+      const files = Array.from(e.dataTransfer?.files || []);
+      files.forEach(f => sendFile(f));
+    });
+
+    // Diagnostics Drawer
+    const drawer = $('systemDrawer');
+    $('toggleDrawerBtn').onclick = () => drawer.classList.toggle('open');
+    $('closeDrawerBtn').onclick = () => drawer.classList.remove('open');
+    $('clearChatBtn').onclick = () => {
+      localStorage.removeItem(historyKey());
+      restoreChatHistory();
+      drawer.classList.remove('open');
+      showToast('Chat history cleared');
+    };
+
+    // Mobile Sidebar Toggles & Backdrop
+    const sidebar = $('appSidebar');
+    const sidebarBackdrop = $('sidebarBackdrop');
+    const openSidebar = () => {
+      sidebar.classList.add('open');
+      if (sidebarBackdrop) sidebarBackdrop.classList.add('open');
+    };
+    const closeSidebar = () => {
+      sidebar.classList.remove('open');
+      if (sidebarBackdrop) sidebarBackdrop.classList.remove('open');
+    };
+    $('openSidebarBtn').onclick = openSidebar;
+    $('closeSidebarBtn').onclick = closeSidebar;
+    if (sidebarBackdrop) sidebarBackdrop.onclick = closeSidebar;
+
+    // Escape key closes modals & drawer
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        closeQr();
+        $('imageLightbox').classList.remove('show');
+        drawer.classList.remove('open');
+        closeSidebar();
+      }
+    });
+
+    // Name input save & live update
+    function handleNameChange() {
+      const newName = (nameInput.value || 'User').trim();
+      if (newName && newName !== myName) {
+        myName = newName;
+        localStorage.setItem('ls_name', myName);
+        $('userAvatar').textContent = (myName[0] || 'U').toUpperCase();
+        if (socket && socket.connected) {
+          socket.emit('update-name', { name: myName });
+          logSys('Updated name to: ' + myName);
+        }
+      }
     }
+
+    nameInput.addEventListener('change', handleNameChange);
+    nameInput.addEventListener('blur', handleNameChange);
+    nameInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        nameInput.blur();
+      }
+    });
+
+    // Initialize
+    document.addEventListener('DOMContentLoaded', () => {
+      const savedName = localStorage.getItem('ls_name');
+      if (savedName) {
+        nameInput.value = savedName;
+        myName = savedName;
+      }
+      $('userAvatar').textContent = (myName[0] || 'U').toUpperCase();
+
+      fetchServerInfo();
+      restoreChatHistory();
+      beginConnect();
+    });
   </script>
 </body>
 </html>

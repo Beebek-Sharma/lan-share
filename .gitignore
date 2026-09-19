@@ -1,0 +1,14 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Runtime PID files
+*.pid
+lan_share_server.pid
+
+# Local editor & OS files
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

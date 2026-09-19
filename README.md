@@ -1,96 +1,156 @@
-# LAN Share (Extension + Native Host + Python Signaling)
+# LAN Share (WebRTC Direct P2P + Extension Launcher)
 
-A minimal local WebRTC "LAN Share" app with:
+A fast, high-speed, local peer-to-peer file sharing and chat application designed to work **100% offline** over local Wi-Fi networks or mobile hotspots.
 
-- A Chrome extension that starts the local Python signaling server via Native Messaging and opens the web app.
-- A Python Flask + Socket.IO server that serves a simple client and acts as a signaling relay for WebRTC peers.
-- OS-specific native host launchers (Windows `.bat`, Unix `.sh`).
+Built with direct **WebRTC DataChannels** (simple-peer), a **Python Flask + Socket.IO** signaling server, and a sleek **Chrome / Edge Extension Launcher** with Native Messaging.
 
-## Project Layout
+---
 
-- `server.py` – Flask + Socket.IO signaling server (port 5000 by default)
-- `static/client.html` – Simple WebRTC client (connect, chat, send images/files via P2P)
-- `extension/` – Chrome extension UI
-  - `manifest.json` – Permissions and service worker
-  - `popup.html` – Popup UI (Start Server)
-  - `popup.js` – Start flow w/ native messaging + polling
-  - `background.js` – Minimal service worker
-- `native-host/` – Native messaging manifests and launchers
-  - `lan_share_host_windows.json` – Windows native host manifest
-  - `lan_share_host_unix.json` – Unix native host manifest (edit paths)
-  - `start_server.bat` – Windows launcher (spawns Python, prints `{ "started": true }`)
-  - `start_server.sh` – Unix launcher (spawns Python in background)
-  - `register_native_host_windows.reg` – Helper registry file for Chrome (Current User)
+## Key Highlights
+
+- **100% Offline Capable**: Zero internet required. All client libraries (`socket.io.min.js`, `simplepeer.min.js`) are bundled locally within `/static/`. Transfers work at full Wi-Fi / Hotspot hardware speeds.
+- **Solid Dark Green Theme (`#071f19`)**: Clean, distraction-free modern UI inspired by Telegram and WhatsApp Web. Pure solid colors with no blurry gradients or visual haze.
+- **Chunked File Streaming with Flow Control**: Transfers files of any size with chunk-level backpressure management (`bufferedAmount` throttling) and real-time progress bars.
+- **Queued Outbox**: Messages or files sent before a peer enters the room are held in a local outbox and automatically transmitted as soon as a peer connects.
+- **Dynamic IP & Instant QR Codes**: Automatically detects network interface changes (e.g. connecting to a phone's mobile hotspot) and generates fresh QR codes on the fly via `/api/info` and `/qr.png`.
+- **Clipboard & Media Sharing**: Paste screenshots directly from the clipboard (<kbd>Ctrl+V</kbd>), drag & drop files into the window, inspect photos in a full lightbox, and toggle audio chimes.
+- **Multi-Tier Reliable Server Stop**: Stop button utilizes in-process HTTP signals (`/api/stop`), Win32 process termination, and PowerShell sweeps to guarantee instantaneous server shutdown.
+
+---
 
 ## Screenshots
 
-Quick visual reference for the extension and web client (images are in the `Photo/` folder):
+<div align="center">
+  <p><strong>Desktop Web Client</strong></p>
+  <img src="Photo/desktop.png" alt="Desktop client" width="700">
+</div>
 
-### Extension Popup
-Modern popup UI with the Start/Stop controls and QR code.
+<br>
 
-<img src="Photo/extension.png" alt="Extension popup" width="400">
+<div align="center">
+  <table>
+    <tr>
+      <td align="center"><strong>Mobile Web Interface</strong></td>
+      <td align="center"><strong>Extension Popup</strong></td>
+    </tr>
+    <tr>
+      <td><img src="Photo/phone.png" alt="Phone interface" width="340"></td>
+      <td><img src="Photo/extension.png" alt="Extension popup" width="340"></td>
+    </tr>
+  </table>
+</div>
 
-### Phone Interface
-Responsive web UI shown on a smartphone.
+---
 
-<img src="Photo/phone.png" alt="Phone interface" width="400">
+## Project Structure
 
-### Desktop Client
-Desktop view of the web client.
+```
+lan-share/
+├── server.py                        # Flask + Socket.IO signaling relay & dynamic QR server
+├── requirements.txt                 # Python dependencies
+├── static/
+│   ├── client.html                  # Full P2P messaging & file transfer web client
+│   ├── socket.io.min.js             # Localized Socket.IO client (offline)
+│   └── simplepeer.min.js            # Localized SimplePeer WebRTC client (offline)
+├── extension/                       # Chrome & Edge Extension
+│   ├── manifest.json                # Extension manifest v3
+│   ├── popup.html                   # Extension popup UI (Solid Dark Green theme)
+│   ├── popup.js                     # Server launcher & monitor
+│   └── background.js                # Minimal service worker
+├── native-host/                     # Native Messaging Host
+│   ├── lan_share_host.py            # Python native host (start/stop server, PID tracker)
+│   ├── lan_share_host_windows.json  # Chrome native host manifest
+│   ├── start_server.bat             # Windows launcher wrapper
+│   ├── register_native_host_windows.reg # Registry entry for Google Chrome
+│   └── register_native_host_edge.reg    # Registry entry for Microsoft Edge
+└── Photo/                           # Visual assets & screenshots
+```
 
-<img src="Photo/desktop.png" alt="Desktop client" width="400">
+---
 
+## Quick Start (Direct Server)
 
-## Quick Start (Windows)
+### 1. Prerequisites
+Ensure Python 3.10+ is installed:
+```bash
+python --version
+```
 
-1. Install Python 3.13 (or your version). Note its path, e.g.
-   `C:\\Users\\<you>\\AppData\\Local\\Programs\\Python\\Python313\\python.exe`.
+Install the required packages:
+```bash
+pip install -r requirements.txt
+```
 
-2. Edit `native-host/start_server.bat` and set:
-   - `PYTHON_EXE` to your Python path (already set for the example user)
-   - `PROJECT_DIR` to the project folder (e.g., `D:\\lan share`)
+### 2. Run the Signaling Server
+```bash
+python server.py
+```
+By default, the server will bind to `0.0.0.0:5000` and display your local network IP:
+```
+📱 QR code saved as lan_share_qr.png (points to http://192.168.x.x:5000/)
+🔗 Open on other devices: http://192.168.x.x:5000/
+```
 
-3. Register the native host with Chrome:
-   - Double-click `native-host/register_native_host_windows.reg` and accept the prompt, or
-   - Manually create the registry key:
-     - `HKEY_CURRENT_USER\Software\Google\Chrome\NativeMessagingHosts\lan_share_host`
-     - Default value: `d:\\lan share\\native-host\\lan_share_host_windows.json`
+### 3. Open on Devices
+- **Desktop**: Visit `http://localhost:5000/` in your browser.
+- **Phone / Other PCs**: Connect to the same Wi-Fi or mobile hotspot and open `http://<your-lan-ip>:5000/` or scan the QR code.
+- Ensure both devices join the same room name (default is `default`).
 
-4. Verify the batch works:
-   - Open Command Prompt and run:
-     ```cmd
-     "d:\\lan share\\native-host\\start_server.bat"
-     ```
-   - You should see `{"started": true}` and the server should start.
+---
 
-5. Load the extension:
-   - Open `chrome://extensions`, enable Developer mode.
-   - Click "Load unpacked" and select the `extension/` folder.
-   - Click the extension icon → "Start Server". It should open `http://localhost:5000`.
+## Browser Extension Setup (Chrome & Edge)
 
-## Quick Start (Linux/macOS)
+The included browser extension allows you to start, monitor, and stop the LAN Share server directly from your browser toolbar.
 
-1. Edit `native-host/start_server.sh` and set `PYTHON_BIN` and `PROJECT_DIR`.
-2. Update `native-host/lan_share_host_unix.json`:
-   - Set `path` to the absolute path of `start_server.sh`.
-   - Ensure `allowed_origins` uses your extension ID.
-3. Register the native host (example for Chromium on Linux):
-   - Copy/ln the JSON to: `~/.config/chromium/NativeMessagingHosts/lan_share_host.json`.
-   - Or for Chrome: `~/.config/google-chrome/NativeMessagingHosts/lan_share_host.json`.
+### 1. Register the Native Messaging Host
+Open the `native-host/` folder:
+- **For Google Chrome**: Double-click `register_native_host_windows.reg` and click **Yes**.
+- **For Microsoft Edge**: Double-click `register_native_host_edge.reg` and click **Yes**.
+
+*(If your repository is not at `D:\lan share`, open the `.reg` and `.json` files in a text editor and update the paths to match your folder location).*
+
+### 2. Load the Extension
+1. Open Chrome or Edge and navigate to `chrome://extensions` or `edge://extensions`.
+2. Enable **Developer mode** (toggle in the top-right or sidebar).
+3. Click **Load unpacked** and select the `extension/` directory.
+4. Copy the newly generated **Extension ID** (e.g. `icbldnkgbmdahlbjhnbhljhkdpenpmnh`).
+5. Ensure your extension ID is listed in `native-host/lan_share_host_windows.json` under `"allowed_origins"`.
+
+### 3. Use the Extension
+- Click the **LAN Share** icon in your extensions toolbar.
+- Click **Start Server** to launch the server and open the web app.
+- Click **Stop Server** to terminate the server.
+
+---
+
+## Mobile Hotspot Usage (Zero Internet)
+
+1. Turn on your smartphone's **Portable Hotspot** (Mobile Data can be turned **OFF**).
+2. Connect your laptop to the smartphone's Wi-Fi hotspot.
+3. Start the LAN Share server on your laptop.
+4. In the web app, click **Scan QR** or look at the detected IP in the bottom-left sidebar.
+5. On your phone, open your mobile browser and navigate to the address shown.
+6. Share files, images, and messages at full Wi-Fi speed without using any mobile data.
+
+---
 
 ## Troubleshooting
 
-- Extension popup shows: "Failed to contact native host" – Check registry value points exactly to the JSON and that `start_server.bat` runs manually. Restart Chrome after changes.
-- Button text is garbled – `popup.html` includes `<meta charset="utf-8">`.
-- Server not reachable – `popup.js` polls `http://localhost:5000`; ensure firewall allows local connections and no other process uses 5000.
-- Phone cannot access server – Open the server URL printed in console (uses local IP). Port forward or stay on same LAN.
+- **Windows Firewall blocking mobile connections**:
+  Windows often classifies mobile hotspots as "Public Networks". If other devices cannot reach port `5000`, run this command in PowerShell (Run as Administrator):
+  ```powershell
+  New-NetFirewallRule -DisplayName "LAN Share (Port 5000)" -Direction Inbound -LocalPort 5000 -Protocol TCP -Action Allow -Profile Any
+  ```
+- **Stopping server reports port busy**:
+  The server supports a direct HTTP stop endpoint (`/api/stop`) as well as native host taskkill. If a port is held by an old session, restart the server via the extension or run:
+  ```powershell
+  Get-NetTCPConnection -LocalPort 5000 -ErrorAction SilentlyContinue | ForEach-Object { Stop-Process -Id $_.OwningProcess -Force }
+  ```
+- **Clipboard copying on mobile**:
+  HTTP endpoints restrict the modern asynchronous Clipboard API on mobile. LAN Share includes an automatic `document.execCommand` fallback so the 📋 button works seamlessly everywhere.
 
-## Security Notes
-
-- This is LAN-only by design. There is no authentication and CORS is `*`.
-- Do not expose this server to the internet without adding authentication and transport security.
+---
 
 ## License
 
-MIT (c) 2025
+MIT License © 2025-2026 [Beebek Sharma](https://github.com/Beebek-Sharma)

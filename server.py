@@ -1,69 +1,165 @@
-# server.py
-from flask import Flask, send_from_directory, request
-from flask_socketio import SocketIO, join_room, emit
+from flask import Flask, send_from_directory, request, jsonify, send_file
+from flask_socketio import SocketIO, join_room, emit, disconnect
 import qrcode
 import os
 import socket
+import sys
 import argparse
+import io
 from collections import defaultdict
 
+# Ensure UTF-8 output encoding for console output on Windows
+if sys.platform == 'win32':
+    try:
+        if sys.stdout and hasattr(sys.stdout, 'reconfigure'):
+            sys.stdout.reconfigure(encoding='utf-8', errors='replace')
+        if sys.stderr and hasattr(sys.stderr, 'reconfigure'):
+            sys.stderr.reconfigure(encoding='utf-8', errors='replace')
+    except Exception:
+        pass
+
 app = Flask(__name__, static_folder='static')
-socketio = SocketIO(app, cors_allowed_origins="*", async_mode="threading")
+socketio = SocketIO(app, cors_allowed_origins="*", async_mode="threading", ping_timeout=8, ping_interval=4)
 
 # Track usernames per room so clients can show names
 rooms = defaultdict(dict)  # room -> { sid: name }
 sid_to_room = {}
 
 def get_local_ip():
-    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     try:
-        # doesn't actually send packets; used to determine local IP
-        s.connect(("8.8.8.8", 80))
-        ip = s.getsockname()[0]
-    finally:
-        s.close()
-    return ip
+        s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        try:
+            # doesn't actually send packets; used to determine local IP route
+            s.connect(("8.8.8.8", 80))
+            ip = s.getsockname()[0]
+        finally:
+            s.close()
+        return ip
+    except Exception:
+        try:
+            ips = [ip for ip in socket.gethostbyname_ex(socket.gethostname())[2] if not ip.startswith('127.') and not ip.startswith('169.254.')]
+            if ips:
+                return ips[0]
+        except Exception:
+            pass
+        return "127.0.0.1"
 
 @app.route('/')
 def index():
     return send_from_directory('static', 'client.html')
 
+import threading
+import time
+
+@app.route('/api/stop', methods=['POST', 'GET'])
+def api_stop():
+    def shutdown():
+        time.sleep(0.3)
+        os._exit(0)
+    threading.Thread(target=shutdown, daemon=True).start()
+    return jsonify({ "stopped": True, "message": "Server shutting down" })
+
+@app.route('/api/info')
+def api_info():
+    ip = get_local_ip()
+    port = request.host.split(':')[1] if ':' in request.host else 5000
+    all_ips = []
+    try:
+        all_ips = [i for i in socket.gethostbyname_ex(socket.gethostname())[2] if not i.startswith('127.') and not i.startswith('169.254.')]
+    except Exception:
+        pass
+    return jsonify({
+        "ip": ip,
+        "port": port,
+        "url": f"http://{ip}:{port}/",
+        "all_ips": all_ips
+    })
+
 @app.route('/qr.png')
 def qr_image():
-    # Serve the generated QR code file if present
+    # Dynamically generate QR code for the current active network IP
     try:
-        return send_from_directory('.', 'lan_share_qr.png')
+        ip = get_local_ip()
+        port = request.host.split(':')[1] if ':' in request.host else 5000
+        url = f"http://{ip}:{port}/"
+        img = qrcode.make(url)
+        buf = io.BytesIO()
+        img.save(buf, format='PNG')
+        buf.seek(0)
+        return send_file(buf, mimetype='image/png')
     except Exception:
-        return ('', 404)
+        try:
+            return send_from_directory('.', 'lan_share_qr.png')
+        except Exception:
+            return ('', 404)
 
 @socketio.on('join-room')
 def handle_join(data):
     room = data.get('room', 'default')
     name = data.get('name') or f"User-{request.sid[-4:]}"
+    client_id = data.get('clientId')
     join_room(room)
-    rooms[room][request.sid] = name
+
+    # If this client_id is already in rooms[room] under another (stale/previous) sid, evict it immediately
+    if client_id:
+        stale_sids = [s for s, info in list(rooms[room].items()) if isinstance(info, dict) and info.get('clientId') == client_id and s != request.sid]
+        for stale_sid in stale_sids:
+            rooms[room].pop(stale_sid, None)
+            sid_to_room.pop(stale_sid, None)
+            emit('peer-left', { 'id': stale_sid }, room=room, include_self=False)
+            try:
+                disconnect(stale_sid)
+            except Exception:
+                pass
+
+    rooms[room][request.sid] = { 'name': name, 'clientId': client_id }
     sid_to_room[request.sid] = room
-    # Send existing peers to the joiner (id + name)
-    current = [{ 'id': sid, 'name': nm } for sid, nm in rooms[room].items() if sid != request.sid]
+
+    # Send existing peers to the joiner (excluding this client and any of its previous sids)
+    current = []
+    for sid, info in rooms[room].items():
+        if sid == request.sid:
+            continue
+        c_id = info.get('clientId') if isinstance(info, dict) else None
+        if client_id and c_id == client_id:
+            continue
+        nm = info.get('name') if isinstance(info, dict) else info
+        current.append({ 'id': sid, 'name': nm, 'clientId': c_id })
+
     emit('peers', current)
     # Notify others about this joiner
-    emit('peer-joined', { 'id': request.sid, 'name': name }, room=room, include_self=False)
+    emit('peer-joined', { 'id': request.sid, 'name': name, 'clientId': client_id }, room=room, include_self=False)
 
 @socketio.on('signal')
 def handle_signal(data):
     to = data.get('to')
     emit('signal', data, to=to)
 
+@socketio.on('update-name')
+def handle_update_name(data):
+    new_name = (data.get('name') or '').strip()
+    if new_name and request.sid in sid_to_room:
+        room = sid_to_room[request.sid]
+        if isinstance(rooms[room].get(request.sid), dict):
+            rooms[room][request.sid]['name'] = new_name
+        else:
+            rooms[room][request.sid] = { 'name': new_name }
+        emit('peer-renamed', { 'id': request.sid, 'name': new_name }, room=room, include_self=False)
+
 @socketio.on('disconnect')
 def handle_disconnect():
     sid = request.sid
     room = sid_to_room.pop(sid, None)
     name = None
-    if room:
-        name = rooms[room].pop(sid, None)
+    if room and sid in rooms[room]:
+        entry = rooms[room].pop(sid, None)
+        if isinstance(entry, dict):
+            name = entry.get('name')
+        else:
+            name = entry
         if not rooms[room]:
             rooms.pop(room, None)
-    payload = { 'id': sid, 'name': name } if name else sid
+    payload = { 'id': sid, 'name': name } if name else { 'id': sid }
     if room:
         emit('peer-left', payload, room=room, include_self=False)
     else:

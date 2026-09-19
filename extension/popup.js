@@ -32,18 +32,15 @@ async function waitForServer(url = 'http://localhost:5000', timeout = 5000, inte
   const deadline = Date.now() + timeout;
   while (Date.now() < deadline) {
     try {
-      // Use short timeout per attempt
       await fetchWithTimeout(url, { method: 'GET', mode: 'no-cors' }, 800);
       return true;
     } catch (e) {
-      // wait and retry
       await new Promise(r => setTimeout(r, interval));
     }
   }
   return false;
 }
 
-// Quick ping helper that returns boolean
 function getPort() {
   const el = document.getElementById('port');
   const p = parseInt(el && el.value, 10);
@@ -60,108 +57,197 @@ async function isServerUp() {
   }
 }
 
-// Wire Open Web App and Stop buttons
+// UI State Manager
+let currentLanUrl = '';
+
+async function updateUiState() {
+  const up = await isServerUp();
+  const openBtn = document.getElementById('openApp');
+  const stopBtn = document.getElementById('stopServer');
+  const startBtn = document.getElementById('startServer');
+  const badge = document.getElementById('serverBadge');
+  const badgeText = document.getElementById('badgeText');
+  const ipCard = document.getElementById('ipCard');
+  const ipDisplay = document.getElementById('ipDisplay');
+  const status = document.getElementById('status');
+
+  if (openBtn) openBtn.disabled = !up;
+  if (stopBtn) stopBtn.disabled = !up;
+
+  if (up) {
+    if (badge) badge.className = 'status-indicator running';
+    if (badgeText) badgeText.textContent = 'Running';
+    // Try to fetch server info for LAN IP
+    try {
+      const port = getPort();
+      const res = await fetchWithTimeout(`http://localhost:${port}/api/info`, {}, 800);
+      if (res.ok) {
+        const data = await res.json();
+        currentLanUrl = data.url || `http://localhost:${port}`;
+        if (ipDisplay) ipDisplay.textContent = currentLanUrl;
+        if (ipCard) ipCard.classList.add('show');
+      }
+    } catch {
+      const port = getPort();
+      currentLanUrl = `http://localhost:${port}`;
+      if (ipDisplay) ipDisplay.textContent = currentLanUrl;
+      if (ipCard) ipCard.classList.add('show');
+    }
+  } else {
+    if (badge) badge.className = 'status-indicator';
+    if (badgeText) badgeText.textContent = 'Offline';
+    if (ipCard) ipCard.classList.remove('show');
+  }
+}
+
+// Wire elements
 const openBtn = document.getElementById('openApp');
 const stopBtn = document.getElementById('stopServer');
+const startBtn = document.getElementById('startServer');
+const portInput = document.getElementById('port');
+const copyIpBtn = document.getElementById('copyIpBtn');
+
+if (copyIpBtn) {
+  copyIpBtn.onclick = () => {
+    if (currentLanUrl) {
+      const copyPromise = (navigator.clipboard && navigator.clipboard.writeText)
+        ? navigator.clipboard.writeText(currentLanUrl)
+        : new Promise((res, rej) => {
+            const ta = document.createElement('textarea');
+            ta.value = currentLanUrl;
+            document.body.appendChild(ta);
+            ta.select();
+            document.execCommand('copy');
+            document.body.removeChild(ta);
+            res();
+          });
+
+      copyPromise.then(() => {
+        copyIpBtn.textContent = '✅';
+        setTimeout(() => { copyIpBtn.textContent = '📋'; }, 2000);
+      }).catch(() => {});
+    }
+  };
+}
+
 if (openBtn) {
   openBtn.onclick = () => {
     const port = getPort();
     chrome.tabs.create({ url: `http://localhost:${port}` });
   };
 }
+
 if (stopBtn) {
   stopBtn.onclick = async () => {
     const status = document.getElementById('status');
+    const port = getPort();
     stopBtn.disabled = true;
     status.innerText = 'Stopping server...';
+
+    // 1. Direct HTTP stop signal
     try {
-      const resp = await sendNativeMessage({ action: 'stop' });
+      fetch(`http://localhost:${port}/api/stop`, { method: 'POST', mode: 'no-cors' }).catch(() => {});
+    } catch (e) {}
+
+    // 2. Native host stop
+    try {
+      const resp = await sendNativeMessage({ action: 'stop', port });
       if (resp && resp.stopped) {
-        status.innerText = 'Server stopped.';
+        status.innerText = 'Server stopped successfully.';
       } else {
-        status.innerText = 'Could not stop server.';
-        console.warn('Stop response:', resp);
+        await new Promise(r => setTimeout(r, 400));
+        const closed = !(await isServerUp());
+        if (closed) {
+          status.innerText = 'Server stopped successfully.';
+        } else {
+          const errDetail = resp && resp.error ? ` (${resp.error})` : '';
+          status.innerText = `Could not stop server${errDetail}.`;
+        }
       }
     } catch (e) {
-      console.error('stop error:', e && (e.message || e.toString()), e);
-      status.innerText = 'Failed to contact native host for stop.';
+      await new Promise(r => setTimeout(r, 500));
+      const closed = !(await isServerUp());
+      if (closed) {
+        status.innerText = 'Server stopped successfully.';
+      } else {
+        const detail = e && (e.message || e.toString());
+        status.innerText = `Failed to contact native host: ${detail}`;
+      }
     }
-    const up = await isServerUp();
-    if (openBtn) openBtn.disabled = !up;
-    stopBtn.disabled = !up;
+    await updateUiState();
   };
 }
 
-// Initialize button enabled states
-isServerUp().then(up => {
-  if (openBtn) openBtn.disabled = !up;
-  if (stopBtn) stopBtn.disabled = !up;
-});
+if (startBtn) {
+  startBtn.onclick = async () => {
+    const status = document.getElementById('status');
+    const port = getPort();
+    const originalLabel = startBtn.innerHTML;
+    startBtn.disabled = true;
+    startBtn.innerHTML = '<span>⏳</span> Starting...';
+    status.innerText = 'Checking running server...';
 
-// Re-evaluate when port changes
-const portInput = document.getElementById('port');
+    // Quick check: if already up
+    try {
+      await fetchWithTimeout(`http://localhost:${port}`, { method: 'GET', mode: 'no-cors' }, 700);
+      chrome.tabs.create({ url: `http://localhost:${port}` });
+      status.innerText = 'Server already running — opened web app.';
+      startBtn.disabled = false;
+      startBtn.innerHTML = originalLabel;
+      await updateUiState();
+      return;
+    } catch (e) {}
+
+    status.innerText = 'Starting server via native host...';
+    try {
+      if (portInput) portInput.disabled = true;
+      const resp = await sendNativeMessage({ action: 'start', port });
+      if (!resp || !resp.started) {
+        const errDetail = resp && resp.error ? ` (${resp.error})` : '';
+        status.innerText = `Native host did not start server${errDetail}.`;
+        console.warn('Native host start response:', resp);
+        startBtn.disabled = false;
+        startBtn.innerHTML = originalLabel;
+        if (portInput) portInput.disabled = false;
+        await updateUiState();
+        return;
+      }
+
+      status.innerText = 'Waiting for server to be ready...';
+      const up = await waitForServer(`http://localhost:${port}`, 8000, 300);
+      if (up) {
+        status.innerText = 'Server ready — opened web app.';
+        chrome.tabs.create({ url: `http://localhost:${port}` });
+        startBtn.disabled = false;
+        startBtn.innerHTML = originalLabel;
+      } else {
+        status.innerText = 'Server timed out during startup.';
+        console.warn('Server startup timed out');
+        startBtn.disabled = false;
+        startBtn.innerHTML = originalLabel;
+      }
+    } catch (err) {
+      const detail = (err && (err.message || err.toString())) || '';
+      status.innerText = `Native host error: ${detail || 'check registration'}`;
+      console.error('sendNativeMessage start error:', detail, err);
+      startBtn.disabled = false;
+      startBtn.innerHTML = originalLabel;
+    }
+    if (portInput) portInput.disabled = false;
+    await updateUiState();
+  };
+}
+
 if (portInput) {
-  portInput.addEventListener('input', async () => {
-    const up = await isServerUp();
-    if (openBtn) openBtn.disabled = !up;
-    if (stopBtn) stopBtn.disabled = !up;
+  portInput.addEventListener('input', () => {
+    updateUiState();
   });
 }
 
-document.getElementById('startServer').onclick = async () => {
+// Initial state check
+updateUiState().then(() => {
   const status = document.getElementById('status');
-  const btn = document.getElementById('startServer');
-  const portInput = document.getElementById('port');
-  const originalLabel = btn.innerText;
-  btn.disabled = true;
-  btn.innerText = 'Working...';
-  status.innerText = 'Checking for running server...';
-
-  // Quick check: if server already up, open it
-  const port = getPort();
-  try {
-    await fetchWithTimeout(`http://localhost:${port}`, { method: 'GET', mode: 'no-cors' }, 700);
-    chrome.tabs.create({ url: `http://localhost:${port}` });
-  status.innerText = 'Server already running — opened web app.';
-  btn.disabled = false;
-  btn.innerText = originalLabel;
-  return;
-  } catch (e) {
-    // Not running (or short timeout), proceed to start
+  if (status && status.innerText === 'Checking server status...') {
+    status.innerText = 'Ready';
   }
-
-  status.innerText = 'Starting server via native host...';
-  try {
-    if (portInput) portInput.disabled = true;
-    const resp = await sendNativeMessage({ action: 'start', port });
-    if (!resp || !resp.started) {
-      status.innerText = 'Native host responded but did not start the server.';
-  console.warn('Native host response:', resp);
-  btn.disabled = false;
-  btn.innerText = originalLabel;
-      if (portInput) portInput.disabled = false;
-  return;
-    }
-
-    status.innerText = 'Server starting — waiting for it to become available...';
-    const up = await waitForServer(`http://localhost:${port}`, 8000, 300);
-    if (up) {
-      status.innerText = 'Server ready — opening web app.';
-      chrome.tabs.create({ url: `http://localhost:${port}` });
-      btn.disabled = false;
-      btn.innerText = originalLabel;
-    } else {
-      status.innerText = 'Server did not respond within timeout. Try checking the native host logs.';
-      console.warn('Server not responding after native host start.');
-      btn.disabled = false;
-      btn.innerText = originalLabel;
-    }
-  } catch (err) {
-    const detail = (err && (err.message || err.toString())) || '';
-    status.innerText = `Failed to contact native host${detail ? ` — ${detail}` : ''}. Make sure it is installed and registered.`;
-    console.error('sendNativeMessage error:', detail, err);
-    btn.disabled = false;
-    btn.innerText = originalLabel;
-  }
-  if (portInput) portInput.disabled = false;
-};
+});

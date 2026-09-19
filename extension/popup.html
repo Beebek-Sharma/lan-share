@@ -1,131 +1,271 @@
 <!doctype html>
-<html>
+<html lang="en">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>LAN Share Launcher</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
     :root {
-      --bg: #0b1020;
-      --surface: rgba(255,255,255,0.06);
-      --text: #e6e8ef;
-      --muted: #a7adbd;
-      --accent: #6aa6ff;
-      --accent-2: #6efacc;
-      --danger: #ff6b6b;
-      --success: #34d399;
+      --bg: #071f19;
+      --surface: #0b2b22;
+      --surface-hover: #10382d;
+      --surface-card: #09261f;
+      --border: #134437;
+      --border-strong: #1b5b4a;
+      --pine-input: #041410;
+      --emerald: #10b981;
+      --emerald-hover: #34d399;
+      --emerald-light: #34d399;
+      --emerald-text: #032017;
+      --text: #ecfdf5;
+      --text-muted: #8ea799;
+      --danger: #f87171;
+      --danger-border: #641c23;
+      --danger-bg: #2d0e12;
+      --danger-hover: #45151c;
+      --radius-lg: 12px;
+      --radius-md: 8px;
     }
-    @media (prefers-color-scheme: light) {
-      :root {
-        --bg: #ecf1ff;
-        --surface: rgba(0,0,0,0.06);
-        --text: #0b1020;
-        --muted: #4b5567;
-      }
-    }
-    * { box-sizing: border-box; }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
     body {
-      margin: 0;
-      padding: 16px;
       width: 320px;
-      font-family: 'Inter', system-ui;
-      background: linear-gradient(135deg, var(--bg), rgba(11, 16, 32, 0.8));
+      padding: 18px;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      user-select: none;
+    }
+
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 14px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .brand-icon {
+      width: 34px;
+      height: 34px;
+      border-radius: 10px;
+      background: var(--surface);
+      border: 1px solid var(--border-strong);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .brand-icon svg {
+      width: 18px;
+      height: 18px;
+      fill: var(--emerald-light);
+    }
+
+    .title {
+      font-size: 16px;
+      font-weight: 700;
+      letter-spacing: -0.2px;
+      color: #ffffff;
+      line-height: 1.2;
+    }
+
+    .subtitle {
+      font-size: 11px;
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+
+    .status-indicator {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 10px;
+      border-radius: 999px;
+      background: var(--surface-card);
+      border: 1px solid var(--border);
+      font-size: 11px;
+      font-weight: 600;
+    }
+
+    .status-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: #64748b;
+      transition: all 0.3s ease;
+    }
+
+    .status-indicator.running .status-dot {
+      background: var(--emerald-light);
+      box-shadow: 0 0 8px var(--emerald);
+      animation: pulse 2s infinite ease-in-out;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.65; transform: scale(0.9); }
+    }
+
+    .ip-card {
+      display: none;
+      align-items: center;
+      justify-content: space-between;
+      background: var(--surface);
+      border: 1px solid var(--border-strong);
+      border-radius: var(--radius-md);
+      padding: 9px 12px;
+      margin-bottom: 12px;
+      font-size: 11.5px;
+    }
+
+    .ip-card.show {
+      display: flex;
+    }
+
+    .ip-label {
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+
+    .ip-val {
+      color: var(--emerald-light);
+      font-weight: 700;
+      font-family: ui-monospace, SFMono-Regular, monospace;
+    }
+
+    .ip-copy {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      padding: 2px 5px;
+      font-size: 13px;
+      border-radius: 4px;
+      transition: color 0.15s;
+    }
+
+    .ip-copy:hover {
       color: var(--text);
     }
-    .header {
-      margin-bottom: 16px;
-    }
-    .title {
-      font-size: 20px;
-      font-weight: 700;
-      margin: 0 0 4px;
-      letter-spacing: 0.2px;
-    }
-    .subtitle {
-      font-size: 12px;
-      color: var(--muted);
-      margin: 0;
-    }
-    .port-input-group {
-      margin-bottom: 14px;
+
+    .port-box {
       display: flex;
-      gap: 8px;
       align-items: center;
+      justify-content: space-between;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 8px 12px;
+      margin-bottom: 12px;
     }
+
     .port-label {
       font-size: 12px;
-      color: var(--muted);
-      font-weight: 500;
-      min-width: 40px;
+      color: var(--text-muted);
+      font-weight: 600;
     }
+
     #port {
-      appearance: none;
-      border: none;
+      background: var(--pine-input);
+      border: 1px solid var(--border);
       outline: none;
-      padding: 8px 10px;
-      border-radius: 8px;
-      background: rgba(255,255,255,0.08);
-      border: 1px solid rgba(255,255,255,0.14);
       color: var(--text);
-      font-family: 'Inter', system-ui;
-      font-size: 14px;
-      width: 80px;
+      font-family: ui-monospace, monospace;
+      font-size: 13px;
+      font-weight: 600;
+      width: 72px;
+      padding: 5px 8px;
+      border-radius: 6px;
+      text-align: right;
+      transition: border-color 0.2s;
     }
-    button {
+
+    #port:focus {
+      border-color: var(--emerald);
+    }
+
+    .actions {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    button.btn {
       appearance: none;
       border: none;
       outline: none;
       cursor: pointer;
       width: 100%;
-      padding: 12px 16px;
-      margin-top: 8px;
-      font-size: 14px;
+      padding: 10px 14px;
+      font-size: 13px;
       font-weight: 600;
-      border-radius: 10px;
-      font-family: 'Inter', system-ui;
-      transition: all 0.2s ease;
-      white-space: nowrap;
+      border-radius: var(--radius-md);
+      font-family: inherit;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: background 0.15s, transform 0.15s, border-color 0.15s;
     }
+
     #startServer {
-      background: linear-gradient(135deg, var(--accent), #4f8efc);
-      color: #0b1020;
-      box-shadow: 0 4px 12px rgba(106, 166, 255, 0.3);
+      background: var(--emerald);
+      color: var(--emerald-text);
+      font-weight: 700;
     }
+
     #startServer:hover:not(:disabled) {
+      background: var(--emerald-hover);
       transform: translateY(-1px);
-      box-shadow: 0 6px 16px rgba(106, 166, 255, 0.4);
     }
+
     #openApp {
-      background: rgba(110, 250, 204, 0.15);
-      color: var(--accent-2);
-      border: 1px solid rgba(110, 250, 204, 0.3);
+      background: var(--surface);
+      color: var(--emerald-light);
+      border: 1px solid var(--border);
     }
+
     #openApp:hover:not(:disabled) {
-      background: rgba(110, 250, 204, 0.25);
-      border-color: rgba(110, 250, 204, 0.5);
+      background: var(--surface-hover);
+      border-color: var(--border-strong);
+      transform: translateY(-1px);
     }
+
     #stopServer {
-      background: rgba(255, 107, 107, 0.15);
+      background: var(--danger-bg);
       color: var(--danger);
-      border: 1px solid rgba(255, 107, 107, 0.3);
+      border: 1px solid var(--danger-border);
     }
+
     #stopServer:hover:not(:disabled) {
-      background: rgba(255, 107, 107, 0.25);
-      border-color: rgba(255, 107, 107, 0.5);
+      background: var(--danger-hover);
+      transform: translateY(-1px);
     }
-    button:disabled {
-      opacity: 0.5;
+
+    button.btn:disabled {
+      opacity: 0.38;
       cursor: not-allowed;
+      transform: none !important;
+      box-shadow: none !important;
     }
+
     #status {
       margin-top: 12px;
-      padding: 10px 12px;
-      background: rgba(255,255,255,0.04);
-      border: 1px solid rgba(255,255,255,0.08);
-      border-radius: 8px;
-      font-size: 12px;
-      color: var(--muted);
-      line-height: 1.4;
+      padding: 8px 12px;
+      background: var(--pine-input);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      font-size: 11.5px;
+      color: var(--text-muted);
+      line-height: 1.35;
       min-height: 32px;
       display: flex;
       align-items: center;
@@ -134,17 +274,48 @@
 </head>
 <body>
   <div class="header">
-    <h1 class="title">LAN Share</h1>
-    <p class="subtitle">Fast peer-to-peer file sharing</p>
+    <div class="brand">
+      <div class="brand-icon">
+        <svg viewBox="0 0 24 24">
+          <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14.5v-9l6 4.5-6 4.5z"/>
+        </svg>
+      </div>
+      <div>
+        <h1 class="title">LAN Share</h1>
+        <p class="subtitle">Direct P2P File Transfer</p>
+      </div>
+    </div>
+    <div id="serverBadge" class="status-indicator">
+      <span class="status-dot"></span>
+      <span id="badgeText">Offline</span>
+    </div>
   </div>
-  <div class="port-input-group">
-    <label class="port-label" for="port">Port:</label>
+
+  <div id="ipCard" class="ip-card">
+    <span class="ip-label">LAN:</span>
+    <span id="ipDisplay" class="ip-val">http://...</span>
+    <button id="copyIpBtn" class="ip-copy" title="Copy URL">📋</button>
+  </div>
+
+  <div class="port-box">
+    <label class="port-label" for="port">Local Port</label>
     <input id="port" type="number" min="1" max="65535" value="5000">
   </div>
-  <button id="startServer">🚀 Start Server</button>
-  <button id="openApp" disabled>🔗 Open Web App</button>
-  <button id="stopServer" disabled>🛑 Stop Server</button>
-  <div id="status">Ready</div>
+
+  <div class="actions">
+    <button id="startServer" class="btn">
+      <span>🚀</span> Start Server
+    </button>
+    <button id="openApp" class="btn" disabled>
+      <span>🌐</span> Open Web App
+    </button>
+    <button id="stopServer" class="btn" disabled>
+      <span>🛑</span> Stop Server
+    </button>
+  </div>
+
+  <div id="status">Checking server status...</div>
+
   <script src="popup.js"></script>
 </body>
 </html>

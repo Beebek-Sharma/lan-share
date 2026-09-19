@@ -1,4 +1,4 @@
 Windows Registry Editor Version 5.00
 
 [HKEY_CURRENT_USER\Software\Microsoft\Edge\NativeMessagingHosts\lan_share_host]
-@="D:\\lan-share-extends\\native-host\\lan_share_host_windows.json"
+@="D:\\lan share\\native-host\\lan_share_host_windows.json"
