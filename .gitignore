@@ -3,12 +3,15 @@ __pycache__/
 *.py[cod]
 *$py.class
 
-# Runtime PID files
+# Runtime PID and log files
 *.pid
 lan_share_server.pid
+*.log
+lan_share_qr.png
 
 # Local editor & OS files
 .vscode/
 .idea/
 .DS_Store
 Thumbs.db
+

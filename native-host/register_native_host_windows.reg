@@ -1,4 +1,4 @@
 Windows Registry Editor Version 5.00
 
 [HKEY_CURRENT_USER\Software\Google\Chrome\NativeMessagingHosts\lan_share_host]
-@="D:\\lan share\\native-host\\lan_share_host_windows.json"
+@="D:\\projects\\lan share\\native-host\\lan_share_host_windows.json"

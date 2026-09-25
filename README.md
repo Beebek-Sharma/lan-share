@@ -106,22 +106,20 @@ By default, the server will bind to `0.0.0.0:5000` and display your local networ
 
 ---
 
-## Browser Extension Setup (Chrome & Edge)
+## Browser Extension Setup (Chrome, Edge & Brave)
 
 The included browser extension allows you to start, monitor, and stop the LAN Share server directly from your browser toolbar.
 
 ### 1. Register the Native Messaging Host
 Open the `native-host/` folder:
-- **For Google Chrome**: Double-click `register_native_host_windows.reg` and click **Yes**.
-- **For Microsoft Edge**: Double-click `register_native_host_edge.reg` and click **Yes**.
-
-*(If your repository is not at `D:\lan share`, open the `.reg` and `.json` files in a text editor and update the paths to match your folder location).*
+- **Automatic (Recommended)**: Double-click `install_native_host.cmd`. It automatically detects your project path and registers the native host for **Google Chrome**, **Microsoft Edge**, **Brave Browser**, and **Chromium**.
+- **Manual**: Double-click `register_native_host_windows.reg`, `register_native_host_edge.reg`, or `register_native_host_brave.reg` and click **Yes**.
 
 ### 2. Load the Extension
-1. Open Chrome or Edge and navigate to `chrome://extensions` or `edge://extensions`.
+1. Open your browser and navigate to `chrome://extensions`, `edge://extensions`, or `brave://extensions`.
 2. Enable **Developer mode** (toggle in the top-right or sidebar).
 3. Click **Load unpacked** and select the `extension/` directory.
-4. Copy the newly generated **Extension ID** (e.g. `icbldnkgbmdahlbjhnbhljhkdpenpmnh`).
+4. Copy the newly generated **Extension ID** (e.g. `bolgcfjflofmejbacpjeolmgcicpblac`).
 5. Ensure your extension ID is listed in `native-host/lan_share_host_windows.json` under `"allowed_origins"`.
 
 ### 3. Use the Extension
