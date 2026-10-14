@@ -3,103 +3,156 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
-  <title>LAN Share — Fast Peer-to-Peer Transfer</title>
-  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Manrope:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <title>LAN Share — Direct P2P Transfer & Calling</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500;600&family=Manrope:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <script>
     (function () {
       try {
-        var pref = localStorage.getItem('lan-share-theme') || 'light';
+        var params = new URLSearchParams(window.location.search);
+        var pref = params.get('theme') || localStorage.getItem('lan-share-theme') || 'light';
         document.documentElement.setAttribute('data-theme', pref);
+        if (params.get('mobile') === '1') {
+          document.documentElement.classList.add('mobile-emulated');
+        }
       } catch (e) {}
     })();
   </script>
   <style>
+    /* ==========================================================================
+       DESIGN SYSTEM:
+       - LIGHT THEME: Screenshot 2 Liquid Glassmorphism + Screenshot 4 Neumorphism
+       - DARK THEME: Screenshot 3 Stealth Matte Carbon Obsidian Spatial Theme
+       - MOBILE HEADER & ICONS: Screenshot 1 (Phone, Camera, Sound, QR, Gear)
+       ========================================================================== */
+
     :root, [data-theme="light"] {
-      /* Portfolio Light Theme (bibekksharma.com.np) */
-      --pine-bg: #f7faf8;
-      --pine-sidebar: #edf3ef;
-      --pine-header: rgba(247, 250, 248, 0.94);
-      --pine-card: #ffffff;
-      --pine-card-hover: #f1f6f3;
-      --pine-card-border: rgba(23, 77, 61, 0.12);
-      --pine-card-border-light: rgba(23, 77, 61, 0.22);
-      --pine-input: #ffffff;
-      --pine-bubble-out: linear-gradient(135deg, rgba(29, 82, 66, 0.92) 0%, rgba(23, 77, 61, 0.8) 100%);
-      --pine-bubble-out-border: rgba(23, 77, 61, 0.25);
-      --pine-bubble-in: #ffffff;
-      --pine-bubble-in-border: rgba(23, 77, 61, 0.12);
-      --emerald-btn: linear-gradient(135deg, rgba(29, 82, 66, 0.92) 0%, rgba(23, 77, 61, 0.78) 100%);
-      --emerald-btn-hover: linear-gradient(135deg, rgba(35, 99, 79, 0.98) 0%, rgba(29, 82, 66, 0.86) 100%);
+      /* Liquid Glassmorphism Light Tokens */
+      --pine-bg: #edf3f7;
+      --pine-sidebar: rgba(243, 247, 250, 0.85);
+      --pine-header: rgba(255, 255, 255, 0.72);
+      --pine-card: rgba(255, 255, 255, 0.75);
+      --pine-card-hover: rgba(255, 255, 255, 0.95);
+      --pine-card-border: rgba(255, 255, 255, 0.92);
+      --pine-card-border-light: rgba(255, 255, 255, 0.75);
+      --pine-input: rgba(255, 255, 255, 0.82);
+      --pine-input-border: rgba(255, 255, 255, 0.95);
+
+      /* Liquid Glass Bubbles */
+      --pine-bubble-out: linear-gradient(135deg, rgba(20, 83, 45, 0.92) 0%, rgba(15, 68, 37, 0.82) 100%);
+      --pine-bubble-out-border: rgba(255, 255, 255, 0.35);
+      --pine-bubble-out-shadow: 0 8px 22px rgba(20, 83, 45, 0.22), inset 0 1.5px 2px rgba(255, 255, 255, 0.4);
+      --pine-bubble-in: rgba(255, 255, 255, 0.82);
+      --pine-bubble-in-border: rgba(255, 255, 255, 0.95);
+      --pine-bubble-in-shadow: 0 6px 18px rgba(0, 0, 0, 0.04), inset 0 1.5px 2px #ffffff;
+
+      /* Primary Liquid Glass Capsule */
+      --emerald-btn: linear-gradient(135deg, #10b981 0%, #059669 100%);
+      --emerald-btn-hover: linear-gradient(135deg, #059669 0%, #047857 100%);
       --emerald-btn-text: #ffffff;
-      --mint: #14634d;
-      --mint-glow: rgba(20, 99, 77, 0.35);
-      --text: #111815;
-      --text-muted: #4e5c56;
-      --text-subtle: #73827b;
-      --heading-color: #111815;
+      --emerald-btn-shadow: 0 4px 14px rgba(16, 185, 129, 0.35), inset 0 1px 1px rgba(255, 255, 255, 0.6);
+
+      --mint: #15803d;
+      --mint-glow: rgba(21, 128, 61, 0.25);
+      --text: #1e293b;
+      --text-muted: #64748b;
+      --text-subtle: #94a3b8;
+      --heading-color: #0f172a;
+
+      /* Header Action Circle Buttons (Screenshot 1) */
+      --btn-phone-color: #16a34a;
+      --btn-phone-bg: rgba(255, 255, 255, 0.85);
+      --btn-video-color: #2563eb;
+      --btn-video-bg: rgba(255, 255, 255, 0.85);
+      --btn-action-color: #475569;
+      --btn-action-bg: rgba(255, 255, 255, 0.8);
+
       --danger: #dc2626;
-      --danger-bg: #fef2f2;
-      --danger-border: rgba(239, 68, 68, 0.3);
+      --danger-bg: rgba(254, 242, 242, 0.88);
+      --danger-border: rgba(239, 68, 68, 0.25);
       --danger-hover: #fee2e2;
-      --radius-xl: 16px;
-      --radius-lg: 12px;
-      --radius-md: 8px;
-      --radius-sm: 6px;
-      --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.04);
-      --shadow-lg: 0 16px 40px -4px rgba(23, 77, 61, 0.12);
-      --tag-bg: rgba(23, 77, 61, 0.08);
-      --tag-color: #14634d;
-      --drag-overlay-bg: rgba(247, 250, 248, 0.96);
-      --modal-bg: #ffffff;
-      --toast-bg: #ffffff;
-      --toast-text: #111815;
-      --toast-border: #14634d;
-      --progress-track: rgba(23, 77, 61, 0.12);
+      --radius-xl: 18px;
+      --radius-lg: 14px;
+      --radius-md: 10px;
+      --radius-sm: 8px;
+      --shadow-sm: -2px -2px 6px rgba(255, 255, 255, 0.9), 3px 4px 10px rgba(0, 0, 0, 0.05), inset 0 1px 1.5px #ffffff;
+      --shadow-lg: 0 20px 45px rgba(0, 0, 0, 0.08), 0 4px 12px rgba(0, 0, 0, 0.03);
+      --tag-bg: rgba(21, 128, 61, 0.08);
+      --tag-color: #15803d;
+      --drag-overlay-bg: rgba(237, 243, 247, 0.94);
+      --modal-bg: rgba(255, 255, 255, 0.88);
+      --toast-bg: rgba(255, 255, 255, 0.95);
+      --toast-text: #0f172a;
+      --toast-border: rgba(255, 255, 255, 0.95);
+      --progress-track: rgba(0, 0, 0, 0.06);
+      --backdrop-blur: blur(24px) saturate(190%);
       --font-main: 'Manrope', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
       --font-mono: 'DM Mono', ui-monospace, SFMono-Regular, monospace;
     }
 
     [data-theme="dark"] {
-      /* Solid Dark Green Theme */
-      --pine-bg: #071f19;
-      --pine-sidebar: #041611;
-      --pine-header: #0a2720;
-      --pine-card: #0c3027;
-      --pine-card-hover: #113c31;
-      --pine-card-border: #154538;
-      --pine-card-border-light: #1d5c4b;
-      --pine-input: #04120e;
-      --pine-bubble-out: #114336;
-      --pine-bubble-out-border: #1a5c4b;
-      --pine-bubble-in: #09261f;
-      --pine-bubble-in-border: #113b30;
-      --emerald-btn: #10b981;
-      --emerald-btn-hover: #34d399;
-      --emerald-btn-text: #022016;
+      /* Stealth Matte Carbon & Obsidian Spatial Theme (Screenshot 3) */
+      --pine-bg: #111417;
+      --pine-sidebar: #13171b;
+      --pine-header: rgba(19, 23, 27, 0.88);
+      
+      /* Spatial Raised Hex/Card Depth */
+      --pine-card: linear-gradient(145deg, #1d2127 0%, #15181d 100%);
+      --pine-card-hover: linear-gradient(145deg, #232830 0%, #181c22 100%);
+      --pine-card-border: rgba(255, 255, 255, 0.08);
+      --pine-card-border-light: rgba(255, 255, 255, 0.14);
+      
+      /* Recessed Wells */
+      --pine-input: #0c0e11;
+      --pine-input-border: rgba(255, 255, 255, 0.06);
+      
+      /* Spatial Bubbles */
+      --pine-bubble-out: linear-gradient(145deg, #0f3d30 0%, #09261e 100%);
+      --pine-bubble-out-border: rgba(52, 211, 153, 0.3);
+      --pine-bubble-out-shadow: 4px 6px 16px rgba(0, 0, 0, 0.6), inset 0 1px 1px rgba(255, 255, 255, 0.1);
+      --pine-bubble-in: linear-gradient(145deg, #1b1f25 0%, #14171d 100%);
+      --pine-bubble-in-border: rgba(255, 255, 255, 0.075);
+      --pine-bubble-in-shadow: 4px 6px 16px rgba(0, 0, 0, 0.55), -2px -2px 6px rgba(255, 255, 255, 0.025);
+      
+      /* Glowing Core Primary Button */
+      --emerald-btn: linear-gradient(145deg, #10b981 0%, #059669 100%);
+      --emerald-btn-hover: linear-gradient(145deg, #34d399 0%, #10b981 100%);
+      --emerald-btn-text: #04140e;
+      --emerald-btn-shadow: 0 0 16px rgba(16, 185, 129, 0.4), 4px 6px 16px rgba(0, 0, 0, 0.5);
+      
       --mint: #34d399;
       --mint-glow: #34d399;
-      --text: #ecfdf5;
-      --text-muted: #8ea799;
-      --text-subtle: #567367;
+      --text: #f1f5f9;
+      --text-muted: #94a3b8;
+      --text-subtle: #64748b;
       --heading-color: #ffffff;
+
+      /* Header Action Circle Buttons (Screenshot 3 Stealth Carbon + Neon Core) */
+      --btn-phone-color: #34d399;
+      --btn-phone-bg: linear-gradient(145deg, #1c2621 0%, #141c18 100%);
+      --btn-video-color: #38bdf8;
+      --btn-video-bg: linear-gradient(145deg, #17242c 0%, #121a20 100%);
+      --btn-action-color: #94a3b8;
+      --btn-action-bg: linear-gradient(145deg, #1f242b 0%, #16191e 100%);
+
       --danger: #f87171;
       --danger-bg: #2d0e12;
       --danger-border: #641c23;
       --danger-hover: #50181e;
-      --radius-xl: 16px;
-      --radius-lg: 12px;
-      --radius-md: 8px;
-      --radius-sm: 6px;
-      --shadow-sm: 0 4px 14px rgba(0,0,0,0.4);
-      --shadow-lg: 0 16px 36px rgba(0,0,0,0.55);
-      --tag-bg: rgba(0, 0, 0, 0.3);
+      --radius-xl: 18px;
+      --radius-lg: 14px;
+      --radius-md: 10px;
+      --radius-sm: 8px;
+      --shadow-sm: 4px 5px 12px rgba(0, 0, 0, 0.65), -2px -2px 6px rgba(255, 255, 255, 0.035);
+      --shadow-lg: 10px 16px 36px rgba(0, 0, 0, 0.8);
+      --tag-bg: rgba(52, 211, 153, 0.12);
       --tag-color: #34d399;
-      --drag-overlay-bg: rgba(7, 31, 25, 0.96);
-      --modal-bg: #041611;
-      --toast-bg: #0c3027;
+      --drag-overlay-bg: rgba(17, 20, 23, 0.96);
+      --modal-bg: linear-gradient(145deg, #191d23 0%, #121519 100%);
+      --toast-bg: #1c2026;
       --toast-text: #ffffff;
       --toast-border: #34d399;
-      --progress-track: rgba(0, 0, 0, 0.45);
+      --progress-track: #0c0e11;
+      --backdrop-blur: blur(20px);
       --font-main: 'Manrope', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
       --font-mono: 'DM Mono', ui-monospace, SFMono-Regular, monospace;
     }
@@ -113,15 +166,16 @@
       color: var(--text);
       display: flex;
       flex-direction: column;
+      transition: background 0.25s, color 0.25s;
     }
 
     /* Scrollbars */
     ::-webkit-scrollbar { width: 6px; height: 6px; }
     ::-webkit-scrollbar-track { background: transparent; }
-    ::-webkit-scrollbar-thumb { background: var(--pine-card-border); border-radius: 999px; }
+    ::-webkit-scrollbar-thumb { background: rgba(148, 163, 184, 0.3); border-radius: 999px; }
     ::-webkit-scrollbar-thumb:hover { background: var(--mint); }
 
-    /* Main App Container */
+    /* App Shell Layout */
     .app-shell {
       display: flex;
       height: 100vh;
@@ -135,12 +189,14 @@
       width: 320px;
       min-width: 300px;
       background: var(--pine-sidebar);
+      backdrop-filter: var(--backdrop-blur);
+      -webkit-backdrop-filter: var(--backdrop-blur);
       border-right: 1px solid var(--pine-card-border);
       display: flex;
       flex-direction: column;
       height: 100%;
       flex-shrink: 0;
-      transition: transform 0.25s ease;
+      transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
       z-index: 20;
     }
 
@@ -164,7 +220,8 @@
       height: 36px;
       border-radius: var(--radius-md);
       background: var(--pine-card);
-      border: 1px solid var(--pine-card-border-light);
+      border: 1px solid var(--pine-card-border);
+      box-shadow: var(--shadow-sm);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -197,6 +254,7 @@
       background: var(--pine-card);
       border: 1px solid var(--pine-card-border);
       border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-sm);
       display: flex;
       flex-direction: column;
       gap: 10px;
@@ -209,11 +267,12 @@
     }
 
     .user-avatar {
-      width: 36px;
-      height: 36px;
+      width: 38px;
+      height: 38px;
       border-radius: 50%;
       background: var(--pine-card);
       border: 1.5px solid var(--mint);
+      box-shadow: var(--shadow-sm);
       color: var(--mint);
       font-weight: 700;
       font-size: 14px;
@@ -265,7 +324,7 @@
 
     .pulse-dot.online {
       background: var(--mint);
-      box-shadow: 0 0 6px var(--mint);
+      box-shadow: 0 0 8px var(--mint);
     }
 
     .user-card-bottom {
@@ -280,10 +339,11 @@
       align-items: center;
       gap: 6px;
       background: var(--pine-input);
-      border: 1px solid var(--pine-card-border);
+      border: 1px solid var(--pine-input-border);
       border-radius: var(--radius-sm);
-      padding: 5px 8px;
+      padding: 6px 10px;
       font-size: 12px;
+      box-shadow: inset 0 1px 2px rgba(0,0,0,0.03);
     }
 
     .room-label {
@@ -291,6 +351,7 @@
       font-weight: 700;
       font-size: 10px;
       text-transform: uppercase;
+      letter-spacing: 0.5px;
     }
 
     .room-input {
@@ -309,13 +370,14 @@
       border: none;
       outline: none;
       cursor: pointer;
-      padding: 6px 14px;
+      padding: 7px 14px;
       border-radius: var(--radius-sm);
       font-weight: 600;
       font-size: 12px;
       font-family: inherit;
       color: var(--emerald-btn-text);
       background: var(--emerald-btn);
+      box-shadow: var(--emerald-btn-shadow);
       transition: background 0.15s, transform 0.15s;
     }
 
@@ -328,10 +390,7 @@
       background: var(--danger-bg);
       color: var(--danger);
       border: 1px solid var(--danger-border);
-    }
-
-    .connect-btn.disconnect:hover {
-      background: #50181e;
+      box-shadow: none;
     }
 
     /* Peers Section */
@@ -374,12 +433,14 @@
       border-radius: var(--radius-md);
       background: var(--pine-card);
       border: 1px solid var(--pine-card-border);
-      transition: border-color 0.15s;
+      box-shadow: var(--shadow-sm);
+      transition: all 0.18s;
     }
 
     .peer-item:hover {
       border-color: var(--pine-card-border-light);
       background: var(--pine-card-hover);
+      transform: translateY(-1px);
     }
 
     .peer-avatar {
@@ -455,15 +516,16 @@
       align-items: center;
       justify-content: space-between;
       background: var(--pine-input);
-      border: 1px solid var(--pine-card-border);
+      border: 1px solid var(--pine-input-border);
       border-radius: var(--radius-md);
       padding: 7px 10px;
       font-size: 11.5px;
+      box-shadow: inset 0 1px 2px rgba(0,0,0,0.03);
     }
 
     .network-ip {
       color: var(--mint);
-      font-family: ui-monospace, SFMono-Regular, monospace;
+      font-family: var(--font-mono);
       font-weight: 600;
     }
 
@@ -493,15 +555,19 @@
       background: var(--pine-bg);
     }
 
-    /* Chat Header */
+    /* ==========================================================================
+       CHAT HEADER & CIRCULAR ACTION BUTTONS (Matching Screenshot 1)
+       ========================================================================== */
     .chat-header {
-      height: 60px;
-      padding: 0 20px;
+      height: 64px;
+      padding: 0 18px;
       display: flex;
       align-items: center;
       justify-content: space-between;
       border-bottom: 1px solid var(--pine-card-border);
       background: var(--pine-header);
+      backdrop-filter: var(--backdrop-blur);
+      -webkit-backdrop-filter: var(--backdrop-blur);
       flex-shrink: 0;
       z-index: 10;
     }
@@ -514,14 +580,6 @@
 
     .sidebar-toggle {
       display: none;
-      background: var(--pine-card);
-      border: 1px solid var(--pine-card-border);
-      border-radius: var(--radius-md);
-      color: var(--text);
-      cursor: pointer;
-      padding: 6px;
-      align-items: center;
-      justify-content: center;
     }
 
     .room-title-wrap {
@@ -531,10 +589,11 @@
 
     .room-name-display {
       font-weight: 700;
-      font-size: 16px;
+      font-size: 17px;
       display: flex;
       align-items: center;
       gap: 6px;
+      letter-spacing: -0.2px;
     }
 
     .room-subtitle {
@@ -545,42 +604,70 @@
     .chat-header-actions {
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 7px;
     }
 
-    .action-pill-btn {
-      appearance: none;
-      background: var(--pine-card);
-      border: 1px solid var(--pine-card-border);
-      border-radius: var(--radius-md);
-      color: var(--text);
-      cursor: pointer;
-      font-size: 12px;
-      font-family: inherit;
-      font-weight: 600;
-      padding: 6px 12px;
-      display: flex;
+    /* Circular Mobile & Header Buttons matching Screenshot 1 */
+    .header-circle-btn {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      display: inline-flex;
       align-items: center;
-      gap: 6px;
+      justify-content: center;
+      background: var(--btn-action-bg);
+      border: 1px solid var(--pine-card-border);
+      color: var(--btn-action-color);
       box-shadow: var(--shadow-sm);
-      transition: all 0.15s ease;
+      cursor: pointer;
+      position: relative;
+      transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+      flex-shrink: 0;
+      padding: 0;
+      outline: none;
     }
 
-    .action-pill-btn:hover {
-      background: var(--pine-card-hover);
-      border-color: var(--pine-card-border-light);
-      transform: translateY(-1px);
-    }
-
-    .action-pill-btn svg {
-      width: 14px;
-      height: 14px;
+    .header-circle-btn svg {
+      width: 17px;
+      height: 17px;
       fill: currentColor;
+      transition: transform 0.18s;
     }
 
-    .theme-toggle-btn {
-      font-size: 13px;
-      padding: 6px 10px;
+    .header-circle-btn:hover {
+      transform: translateY(-2px) scale(1.05);
+      border-color: var(--pine-card-border-light);
+    }
+
+    .header-circle-btn:active {
+      transform: translateY(0) scale(0.96);
+    }
+
+    /* Audio Call Button (Green Phone Receiver) */
+    .header-circle-btn.call-audio {
+      color: var(--btn-phone-color);
+      background: var(--btn-phone-bg);
+    }
+    .header-circle-btn.call-audio:hover {
+      box-shadow: 0 0 14px rgba(34, 197, 94, 0.4), var(--shadow-sm);
+    }
+
+    /* Video Call Button (Blue Video Camera) */
+    .header-circle-btn.call-video {
+      color: var(--btn-video-color);
+      background: var(--btn-video-bg);
+    }
+    .header-circle-btn.call-video:hover {
+      box-shadow: 0 0 14px rgba(56, 189, 248, 0.4), var(--shadow-sm);
+    }
+
+    /* Sound Broadcast Button */
+    .header-circle-btn.sound-btn {
+      color: var(--btn-action-color);
+    }
+
+    .header-circle-btn.theme-toggle-btn {
+      font-size: 15px;
     }
 
     /* Message Stream */
@@ -607,19 +694,20 @@
     }
 
     .empty-icon-wrap {
-      width: 60px;
-      height: 60px;
+      width: 64px;
+      height: 64px;
       border-radius: var(--radius-xl);
       background: var(--pine-card);
-      border: 1px solid var(--pine-card-border-light);
+      border: 1px solid var(--pine-card-border);
+      box-shadow: var(--shadow-sm);
       display: flex;
       align-items: center;
       justify-content: center;
     }
 
     .empty-icon-wrap svg {
-      width: 28px;
-      height: 28px;
+      width: 30px;
+      height: 30px;
       fill: var(--mint);
     }
 
@@ -641,7 +729,31 @@
       margin-top: 6px;
     }
 
-    /* Chat Bubbles (Solid Dark Green) */
+    /* System Status Pill (Matching Screenshot 1: Connected to bright_hawk) */
+    .system-status-pill {
+      align-self: center;
+      margin: 8px auto;
+      padding: 5px 16px;
+      border-radius: 999px;
+      background: var(--pine-card);
+      border: 1px solid var(--pine-card-border);
+      box-shadow: var(--shadow-sm);
+      font-size: 12px;
+      font-family: var(--font-mono);
+      font-weight: 500;
+      color: var(--text-muted);
+      letter-spacing: 0.2px;
+      backdrop-filter: var(--backdrop-blur);
+      -webkit-backdrop-filter: var(--backdrop-blur);
+      animation: fadeIn 0.3s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(4px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Chat Bubbles */
     .msg-group {
       display: flex;
       flex-direction: column;
@@ -660,11 +772,11 @@
     }
 
     .msg-sender-name {
-      font-size: 11px;
-      font-weight: 600;
+      font-size: 11.5px;
+      font-weight: 700;
       color: var(--mint);
-      margin-bottom: 3px;
-      padding-left: 2px;
+      margin-bottom: 4px;
+      padding-left: 4px;
     }
 
     .bubble-wrapper {
@@ -693,16 +805,19 @@
     }
 
     .bubble {
-      padding: 10px 14px;
+      padding: 10px 15px;
       border-radius: var(--radius-lg);
       font-size: 13.5px;
       line-height: 1.45;
       word-break: break-word;
+      backdrop-filter: var(--backdrop-blur);
+      -webkit-backdrop-filter: var(--backdrop-blur);
     }
 
     .msg-group.outgoing .bubble {
       background: var(--pine-bubble-out);
       border: 1px solid var(--pine-bubble-out-border);
+      box-shadow: var(--pine-bubble-out-shadow);
       border-bottom-right-radius: 4px;
       color: #ffffff;
     }
@@ -710,6 +825,7 @@
     .msg-group.incoming .bubble {
       background: var(--pine-bubble-in);
       border: 1px solid var(--pine-bubble-in-border);
+      box-shadow: var(--pine-bubble-in-shadow);
       border-bottom-left-radius: 4px;
       color: var(--text);
     }
@@ -719,13 +835,13 @@
       align-items: center;
       justify-content: flex-end;
       gap: 4px;
-      font-size: 10.5px;
+      font-size: 10px;
       color: var(--text-subtle);
       margin-top: 4px;
     }
 
     .msg-group.outgoing .bubble-meta {
-      color: rgba(255, 255, 255, 0.65);
+      color: rgba(255, 255, 255, 0.7);
     }
 
     /* File Transfer Card inside Bubble */
@@ -742,7 +858,8 @@
       height: 40px;
       border-radius: var(--radius-md);
       background: var(--pine-card);
-      border: 1px solid var(--pine-card-border-light);
+      border: 1px solid var(--pine-card-border);
+      box-shadow: var(--shadow-sm);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -775,6 +892,7 @@
       gap: 6px;
       background: var(--emerald-btn);
       color: var(--emerald-btn-text);
+      box-shadow: var(--emerald-btn-shadow);
       text-decoration: none;
       font-size: 11.5px;
       font-weight: 700;
@@ -813,12 +931,17 @@
       display: block;
       margin-top: 6px;
       border: 1px solid var(--pine-card-border);
+      box-shadow: var(--shadow-sm);
     }
 
-    /* Input Dock */
+    /* ==========================================================================
+       BOTTOM INPUT DOCK & REACTION PILLS (Matching Screenshot 1)
+       ========================================================================== */
     .input-dock {
       padding: 10px 20px 14px;
       background: var(--pine-header);
+      backdrop-filter: var(--backdrop-blur);
+      -webkit-backdrop-filter: var(--backdrop-blur);
       border-top: 1px solid var(--pine-card-border);
       flex-shrink: 0;
       display: flex;
@@ -828,37 +951,45 @@
 
     .quick-emojis {
       display: flex;
-      gap: 6px;
+      gap: 7px;
       align-items: center;
+      overflow-x: auto;
+      padding-bottom: 2px;
     }
 
     .emoji-pill {
       background: var(--pine-card);
       border: 1px solid var(--pine-card-border);
+      box-shadow: var(--shadow-sm);
       border-radius: 999px;
-      padding: 2px 8px;
-      font-size: 13px;
+      padding: 3px 10px;
+      font-size: 14px;
       cursor: pointer;
-      transition: background 0.15s;
+      transition: all 0.15s;
+      flex-shrink: 0;
+      user-select: none;
     }
 
     .emoji-pill:hover {
       background: var(--pine-card-hover);
+      transform: translateY(-1px) scale(1.08);
     }
 
     .chat-input-bar {
       display: flex;
       align-items: center;
-      gap: 10px;
+      gap: 8px;
       background: var(--pine-input);
-      border: 1.5px solid var(--pine-card-border);
-      border-radius: var(--radius-xl);
-      padding: 6px 10px 6px 14px;
-      transition: border-color 0.2s;
+      border: 1.5px solid var(--pine-input-border);
+      border-radius: 999px;
+      padding: 5px 8px 5px 14px;
+      box-shadow: var(--shadow-sm);
+      transition: all 0.2s;
     }
 
     .chat-input-bar:focus-within {
       border-color: var(--mint);
+      box-shadow: 0 0 14px var(--mint-glow), var(--shadow-sm);
     }
 
     .dock-btn {
@@ -879,8 +1010,8 @@
     }
 
     .dock-btn svg {
-      width: 18px;
-      height: 18px;
+      width: 19px;
+      height: 19px;
       fill: currentColor;
     }
 
@@ -891,7 +1022,7 @@
       outline: none;
       color: var(--text);
       font-family: inherit;
-      font-size: 14px;
+      font-size: 13.5px;
       line-height: 1.4;
       padding: 4px 0;
     }
@@ -904,6 +1035,7 @@
       outline: none;
       cursor: pointer;
       background: var(--emerald-btn);
+      box-shadow: var(--emerald-btn-shadow);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -913,7 +1045,7 @@
 
     .send-submit-btn:hover {
       background: var(--emerald-btn-hover);
-      transform: scale(1.05);
+      transform: scale(1.06);
     }
 
     .send-submit-btn svg {
@@ -923,7 +1055,7 @@
       margin-left: 2px;
     }
 
-    /* Full Window Drag Overlay */
+    /* Drag Overlay */
     .drag-overlay {
       position: absolute;
       inset: 0;
@@ -952,15 +1084,16 @@
       fill: var(--mint);
     }
 
-    /* QR Modal */
+    /* Modals Base */
     .modal {
       position: fixed;
       inset: 0;
       display: none;
       align-items: center;
       justify-content: center;
-      background: rgba(0, 0, 0, 0.6);
-      backdrop-filter: blur(8px);
+      background: rgba(0, 0, 0, 0.65);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
       z-index: 9999;
       padding: 16px;
     }
@@ -969,12 +1102,14 @@
 
     .modal-card {
       background: var(--modal-bg);
-      border: 1px solid var(--pine-card-border-light);
+      border: 1.5px solid var(--pine-card-border);
       border-radius: var(--radius-xl);
       padding: 22px;
       max-width: 92vw;
       width: 360px;
       box-shadow: var(--shadow-lg);
+      backdrop-filter: var(--backdrop-blur);
+      -webkit-backdrop-filter: var(--backdrop-blur);
     }
 
     .modal-header {
@@ -996,6 +1131,7 @@
       border-radius: var(--radius-md);
       display: inline-block;
       margin: 8px auto;
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
     }
 
     .qr-frame img {
@@ -1007,7 +1143,7 @@
     .qr-address-box {
       margin-top: 12px;
       background: var(--pine-input);
-      border: 1px solid var(--pine-card-border);
+      border: 1px solid var(--pine-input-border);
       border-radius: var(--radius-md);
       padding: 10px 12px;
       text-align: center;
@@ -1018,7 +1154,7 @@
     }
 
     .qr-address-text {
-      font-family: ui-monospace, monospace;
+      font-family: var(--font-mono);
       font-weight: 700;
       font-size: 13.5px;
       color: var(--mint);
@@ -1051,11 +1187,13 @@
     /* System Diagnostics Drawer */
     .system-drawer {
       position: absolute;
-      top: 60px;
+      top: 64px;
       right: 0;
       width: 340px;
       bottom: 0;
       background: var(--pine-sidebar);
+      backdrop-filter: var(--backdrop-blur);
+      -webkit-backdrop-filter: var(--backdrop-blur);
       border-left: 1px solid var(--pine-card-border);
       z-index: 50;
       display: none;
@@ -1082,10 +1220,10 @@
       flex: 1;
       overflow-y: auto;
       background: var(--pine-input);
-      border: 1px solid var(--pine-card-border);
+      border: 1px solid var(--pine-input-border);
       border-radius: var(--radius-md);
       padding: 10px;
-      font-family: ui-monospace, monospace;
+      font-family: var(--font-mono);
       font-size: 11.5px;
       color: var(--text-muted);
       line-height: 1.45;
@@ -1096,12 +1234,11 @@
       position: fixed;
       inset: 0;
       background: rgba(0, 0, 0, 0.7);
+      backdrop-filter: blur(4px);
       z-index: 15;
       display: none;
     }
-    .sidebar-backdrop.open {
-      display: block;
-    }
+    .sidebar-backdrop.open { display: block; }
 
     /* Toast Notification */
     .toast-popup {
@@ -1110,7 +1247,7 @@
       left: 50%;
       transform: translateX(-50%) translateY(100px);
       background: var(--toast-bg);
-      border: 1px solid var(--toast-border);
+      border: 1.5px solid var(--toast-border);
       color: var(--toast-text);
       padding: 10px 18px;
       border-radius: var(--radius-xl);
@@ -1124,10 +1261,374 @@
       display: flex;
       align-items: center;
       gap: 8px;
+      backdrop-filter: var(--backdrop-blur);
+      -webkit-backdrop-filter: var(--backdrop-blur);
     }
     .toast-popup.show {
       transform: translateX(-50%) translateY(0);
       opacity: 1;
+    }
+
+    /* ==========================================================================
+       CALL SYSTEM MODALS & HUD (Audio & Video)
+       ========================================================================== */
+    .call-overlay-modal {
+      position: fixed;
+      inset: 0;
+      background: rgba(10, 14, 18, 0.82);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      z-index: 10001;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+    }
+
+    .call-overlay-modal.show { display: flex; }
+
+    /* Incoming Call Box */
+    .incoming-call-card {
+      background: var(--modal-bg);
+      border: 1.5px solid var(--pine-card-border);
+      box-shadow: var(--shadow-lg);
+      border-radius: 28px;
+      padding: 32px 28px;
+      width: 340px;
+      max-width: 92vw;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+      backdrop-filter: var(--backdrop-blur);
+      -webkit-backdrop-filter: var(--backdrop-blur);
+    }
+
+    .call-avatar-container {
+      position: relative;
+      width: 90px;
+      height: 90px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 6px;
+    }
+
+    .call-avatar-circle {
+      width: 72px;
+      height: 72px;
+      border-radius: 50%;
+      background: var(--pine-card);
+      border: 2px solid var(--mint);
+      box-shadow: var(--shadow-sm);
+      color: var(--mint);
+      font-size: 28px;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 2;
+    }
+
+    .call-avatar-circle.large {
+      width: 96px;
+      height: 96px;
+      font-size: 38px;
+    }
+
+    /* Pulsating Halo Rings */
+    .pulse-ring {
+      position: absolute;
+      inset: 0;
+      border-radius: 50%;
+      border: 2px solid var(--mint);
+      opacity: 0.8;
+      animation: ripple 2s infinite ease-out;
+    }
+
+    .pulse-ring.ring-2 { animation-delay: 0.6s; }
+    .pulse-ring.ring-3 { animation-delay: 1.2s; }
+
+    @keyframes ripple {
+      0% { transform: scale(0.8); opacity: 0.9; }
+      100% { transform: scale(1.65); opacity: 0; }
+    }
+
+    .call-peer-title {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--heading-color);
+    }
+
+    .call-peer-subtitle {
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+
+    .incoming-actions {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-top: 10px;
+      width: 100%;
+    }
+
+    .call-action-btn {
+      flex: 1;
+      padding: 12px 16px;
+      border-radius: 999px;
+      border: none;
+      font-weight: 700;
+      font-size: 13.5px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: all 0.18s;
+      outline: none;
+    }
+
+    .call-action-btn.accept {
+      background: #16a34a;
+      color: #ffffff;
+      box-shadow: 0 6px 18px rgba(22, 163, 74, 0.45);
+    }
+    .call-action-btn.accept:hover {
+      background: #15803d;
+      transform: translateY(-2px);
+    }
+
+    .call-action-btn.decline {
+      background: #dc2626;
+      color: #ffffff;
+      box-shadow: 0 6px 18px rgba(220, 38, 38, 0.4);
+    }
+    .call-action-btn.decline:hover {
+      background: #b91c1c;
+      transform: translateY(-2px);
+    }
+
+    .call-action-btn svg {
+      width: 18px;
+      height: 18px;
+      fill: currentColor;
+    }
+
+    /* Active Call HUD Window */
+    .call-hud-window {
+      background: var(--modal-bg);
+      border: 1.5px solid var(--pine-card-border);
+      border-radius: 24px;
+      box-shadow: var(--shadow-lg);
+      width: 520px;
+      max-width: 95vw;
+      height: 480px;
+      max-height: 85vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      backdrop-filter: var(--backdrop-blur);
+      -webkit-backdrop-filter: var(--backdrop-blur);
+    }
+
+    .call-hud-header {
+      padding: 14px 20px;
+      border-bottom: 1px solid var(--pine-card-border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: var(--pine-header);
+    }
+
+    .call-badge-wrap {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .call-type-badge {
+      font-size: 11.5px;
+      font-weight: 700;
+      padding: 3px 10px;
+      border-radius: 999px;
+      background: var(--tag-bg);
+      color: var(--tag-color);
+      border: 1px solid var(--pine-card-border);
+    }
+
+    .call-status-indicator {
+      font-size: 12px;
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+
+    .call-timer-display {
+      font-family: var(--font-mono);
+      font-weight: 700;
+      font-size: 14px;
+      color: var(--mint);
+    }
+
+    .call-hud-body {
+      flex: 1;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      background: var(--pine-bg);
+    }
+
+    /* Audio Call Stage & Waveform */
+    .audio-call-stage {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+      padding: 24px;
+      width: 100%;
+    }
+
+    .audio-avatar-wrap {
+      position: relative;
+    }
+
+    .audio-waveform-bars {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      height: 40px;
+      margin-top: 10px;
+    }
+
+    .wave-bar {
+      width: 5px;
+      height: 12px;
+      border-radius: 999px;
+      background: var(--mint);
+      animation: waveDance 1.2s infinite ease-in-out;
+    }
+
+    .wave-bar.b1 { animation-delay: 0.1s; }
+    .wave-bar.b2 { animation-delay: 0.3s; }
+    .wave-bar.b3 { animation-delay: 0.5s; }
+    .wave-bar.b4 { animation-delay: 0.2s; }
+    .wave-bar.b5 { animation-delay: 0.4s; }
+    .wave-bar.b6 { animation-delay: 0.15s; }
+    .wave-bar.b7 { animation-delay: 0.35s; }
+
+    @keyframes waveDance {
+      0%, 100% { height: 8px; opacity: 0.4; }
+      50% { height: 36px; opacity: 1; }
+    }
+
+    /* Video Call Stage & PIP */
+    .video-call-stage {
+      position: absolute;
+      inset: 0;
+      background: #000000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    .remote-video-feed {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .local-pip-container {
+      position: absolute;
+      bottom: 16px;
+      right: 16px;
+      width: 120px;
+      height: 90px;
+      border-radius: 12px;
+      overflow: hidden;
+      border: 1.5px solid rgba(255, 255, 255, 0.4);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6);
+      background: #111417;
+      z-index: 5;
+    }
+
+    .local-video-feed {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transform: scaleX(-1);
+    }
+
+    .pip-label {
+      position: absolute;
+      bottom: 4px;
+      left: 6px;
+      font-size: 9px;
+      background: rgba(0, 0, 0, 0.6);
+      color: #ffffff;
+      padding: 1px 5px;
+      border-radius: 4px;
+    }
+
+    /* Call Control Dock */
+    .call-hud-controls {
+      padding: 14px 20px;
+      border-top: 1px solid var(--pine-card-border);
+      background: var(--pine-header);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+    }
+
+    .call-ctrl-btn {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      border: 1px solid var(--pine-card-border);
+      background: var(--pine-card);
+      box-shadow: var(--shadow-sm);
+      color: var(--text);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      transition: all 0.18s;
+      outline: none;
+    }
+
+    .call-ctrl-btn:hover {
+      transform: translateY(-2px) scale(1.06);
+    }
+
+    .call-ctrl-btn.muted {
+      background: #ef4444;
+      color: #ffffff;
+      border-color: #ef4444;
+    }
+
+    .call-ctrl-btn.end-call {
+      background: #dc2626;
+      color: #ffffff;
+      width: 52px;
+      height: 52px;
+      box-shadow: 0 6px 20px rgba(220, 38, 38, 0.45);
+    }
+
+    .call-ctrl-btn.end-call svg {
+      width: 22px;
+      height: 22px;
+      fill: #ffffff;
+    }
+
+    .call-ctrl-btn.end-call:hover {
+      background: #b91c1c;
+      transform: translateY(-2px) scale(1.08);
     }
 
     /* Mobile Responsive */
@@ -1141,13 +1642,47 @@
         transform: translateX(-100%);
       }
       .sidebar.open { transform: translateX(0); }
-      .sidebar-toggle { display: flex; }
+      .sidebar-toggle { display: inline-flex; }
       .close-sidebar-btn { display: flex !important; }
       .msg-group { max-width: 88%; }
-      .chat-header { padding: 0 14px; }
-      .message-stream { padding: 14px; }
-      .input-dock { padding: 8px 12px 12px; }
+      .chat-header { padding: 0 10px; height: 56px; }
+      .chat-header-left { gap: 6px; flex-shrink: 0; min-width: 0; }
+      .room-name-display { font-size: 15px; }
+      .room-subtitle { display: none !important; }
+      .chat-header-actions { gap: 5px; flex-shrink: 0; }
+      .header-circle-btn { width: 32px; height: 32px; }
+      .header-circle-btn svg { width: 15px; height: 15px; }
+      .chat-header .theme-toggle-btn { display: none !important; }
+      .message-stream { padding: 12px; }
+      .input-dock { padding: 6px 10px 12px; width: 100%; box-sizing: border-box; }
+      .chat-input-bar { width: 100%; box-sizing: border-box; padding: 4px 6px 4px 10px; gap: 6px; }
+      #chatTextInput { min-width: 0; flex: 1; font-size: 13px; }
+    /* Mobile Emulated Frame */
+    html.mobile-emulated .app-shell,
+    html.mobile-emulated .main-chat {
+      width: 390px !important;
+      max-width: 390px !important;
+      overflow-x: hidden !important;
     }
+    html.mobile-emulated .sidebar {
+      position: absolute !important;
+      top: 0; bottom: 0; left: 0;
+      transform: translateX(-100%);
+    }
+    html.mobile-emulated .sidebar-toggle { display: inline-flex !important; }
+    html.mobile-emulated .chat-header { padding: 0 10px !important; height: 56px !important; }
+    html.mobile-emulated .chat-header-left { gap: 6px !important; flex-shrink: 0 !important; min-width: 0 !important; }
+    html.mobile-emulated .room-name-display { font-size: 15px !important; }
+    html.mobile-emulated .room-subtitle { display: none !important; }
+    html.mobile-emulated .chat-header-actions { gap: 5px !important; flex-shrink: 0 !important; }
+    html.mobile-emulated .header-circle-btn { width: 32px !important; height: 32px !important; }
+    html.mobile-emulated .header-circle-btn svg { width: 15px !important; height: 15px !important; }
+    html.mobile-emulated .chat-header .theme-toggle-btn { display: none !important; }
+    html.mobile-emulated .input-dock { padding: 6px 10px 12px !important; width: 100% !important; box-sizing: border-box !important; }
+    html.mobile-emulated .chat-input-bar { width: 100% !important; box-sizing: border-box !important; padding: 4px 6px 4px 10px !important; gap: 6px !important; }
+    html.mobile-emulated #chatTextInput { min-width: 0 !important; flex: 1 !important; font-size: 13px !important; }
+    html.mobile-emulated .dock-btn { padding: 4px !important; flex-shrink: 0 !important; }
+    html.mobile-emulated .send-submit-btn { width: 32px !important; height: 32px !important; flex-shrink: 0 !important; }
   </style>
 </head>
 <body>
@@ -1218,41 +1753,63 @@
 
     <!-- Main Chat Canvas -->
     <main class="main-chat">
-      <!-- Chat Header -->
+      <!-- Chat Header (Matching Screenshot 1) -->
       <header class="chat-header">
         <div class="chat-header-left">
-          <button id="openSidebarBtn" class="sidebar-toggle" title="Toggle Sidebar">
-            <svg style="width:18px;height:18px;fill:currentColor;" viewBox="0 0 24 24">
+          <button id="openSidebarBtn" class="sidebar-toggle header-circle-btn" title="Toggle Sidebar">
+            <svg viewBox="0 0 24 24">
               <path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/>
             </svg>
           </button>
           <div class="room-title-wrap">
             <div class="room-name-display">
-              <span style="color:var(--mint);">#</span>
+              <span style="color:var(--mint); font-weight:800;">#</span>
               <span id="headerRoomName">default</span>
             </div>
             <div id="headerSubtitle" class="room-subtitle">0 other peers in room</div>
           </div>
         </div>
 
+        <!-- Header Actions: Sound, Audio Call, Video Call, QR, Settings, Theme (Screenshot 1 order) -->
         <div class="chat-header-actions">
-          <button id="themeToggleBtn" class="action-pill-btn theme-toggle-btn" title="Toggle Theme (Light / Dark)">
-            <span id="themeIcon">☀️</span>
+          <!-- 1. Sound / Broadcast Horn -->
+          <button id="toggleSoundBtn" class="header-circle-btn sound-btn" title="Toggle Sound Chimes">
+            <svg viewBox="0 0 24 24">
+              <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/>
+            </svg>
           </button>
 
-          <button id="toggleSoundBtn" class="action-pill-btn" title="Toggle Sound">
-            <span id="soundIcon">🔊</span>
+          <!-- 2. Audio Call Button (Green Phone Receiver) -->
+          <button id="callAudioBtn" class="header-circle-btn call-audio" title="Start Audio Call">
+            <svg viewBox="0 0 24 24">
+              <path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"/>
+            </svg>
           </button>
 
-          <button id="showQrBtn" class="action-pill-btn" title="Show QR Code">
+          <!-- 3. Video Call Button (Blue Video Camera) -->
+          <button id="callVideoBtn" class="header-circle-btn call-video" title="Start Video Call">
+            <svg viewBox="0 0 24 24">
+              <path d="M17 10.5V7c0-.55-.45-1-1-1H4c-.55 0-1 .45-1 1v10c0 .55.45 1 1 1h12c.55 0 1-.45 1-1v-3.5l4 4v-11l-4 4z"/>
+            </svg>
+          </button>
+
+          <!-- 4. QR Code Button -->
+          <button id="showQrBtn" class="header-circle-btn" title="Show QR Code">
             <svg viewBox="0 0 24 24">
               <path d="M3 3h8v8H3V3zm2 2v4h4V5H5zm8-2h8v8h-8V3zm2 2v4h4V5h-4zM3 13h8v8H3v-8zm2 2v4h4v-4H5zm12 0h2v2h-2v-2zm-4 4h2v2h-2v-2zm4 0h2v4h-6v-2h4v-2zm4-4h2v6h-2v-6z"/>
             </svg>
-            <span>Scan QR</span>
           </button>
 
-          <button id="toggleDrawerBtn" class="action-pill-btn" title="Diagnostics & Logs">
-            <span>⚙️</span>
+          <!-- 5. Settings / Diagnostics Drawer Button -->
+          <button id="toggleDrawerBtn" class="header-circle-btn" title="Diagnostics & Controls">
+            <svg viewBox="0 0 24 24">
+              <path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/>
+            </svg>
+          </button>
+
+          <!-- 6. Theme Toggle (Sun / Moon) -->
+          <button id="themeToggleBtn" class="header-circle-btn theme-toggle-btn" title="Toggle Light / Dark Theme">
+            <span id="themeIcon">☀️</span>
           </button>
         </div>
       </header>
@@ -1265,22 +1822,22 @@
               <path d="M20 2H4c-1.1 0-1.99.9-1.99 2L2 22l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zM6 9h12v2H6V9zm8 5H6v-2h8v2zm4-6H6V6h12v2z"/>
             </svg>
           </div>
-          <div class="empty-title">Ready for P2P Transfers</div>
+          <div class="empty-title">Ready for P2P Transfers & Calling</div>
           <div class="empty-desc">
-            Connect devices to the same Wi-Fi or mobile hotspot to share files and chat at full local speed.
+            Connect devices to the same Wi-Fi or mobile hotspot to share files, text, and voice/video call at full local speed.
           </div>
           <div class="quick-start-buttons">
-            <button id="quickQrBtn" class="action-pill-btn">📱 Connect Phone</button>
+            <button id="quickQrBtn" class="connect-btn" style="font-size:12px; padding:8px 16px;">📱 Connect Phone</button>
           </div>
         </div>
       </div>
 
-      <!-- Input Dock -->
+      <!-- Input Dock (Screenshot 1: Emojis + Clip + Photo + Input + Send Button) -->
       <footer class="input-dock">
         <div class="quick-emojis">
-          <span class="emoji-pill" data-emoji="👋">👋</span>
-          <span class="emoji-pill" data-emoji="👍">👍</span>
           <span class="emoji-pill" data-emoji="🔥">🔥</span>
+          <span class="emoji-pill" data-emoji="👍">👍</span>
+          <span class="emoji-pill" data-emoji="👏">👏</span>
           <span class="emoji-pill" data-emoji="🚀">🚀</span>
           <span class="emoji-pill" data-emoji="❤️">❤️</span>
           <span class="emoji-pill" data-emoji="⚡">⚡</span>
@@ -1328,12 +1885,15 @@
           <span>Diagnostics & Controls</span>
           <button id="closeDrawerBtn" class="icon-btn-ghost">✕</button>
         </div>
-        <div style="font-size:11px; color:var(--text-muted); display:flex; justify-content:space-between; background:var(--pine-input); padding:8px; border-radius:6px;">
+        <div style="font-size:11px; color:var(--text-muted); display:flex; justify-content:space-between; background:var(--pine-input); padding:8px; border-radius:6px; border:1px solid var(--pine-input-border);">
           <span>Signaling: <strong id="diagSignal" style="color:var(--mint);">Connecting...</strong></span>
           <span>Peers: <strong id="diagPeers" style="color:var(--mint);">0</strong></span>
         </div>
         <div id="sysLogs"></div>
-        <button id="clearChatBtn" class="action-pill-btn" style="width:100%; justify-content:center; color:var(--danger); border-color:var(--danger-border); background:var(--danger-bg);">
+        <button id="drawerThemeBtn" class="connect-btn" style="width:100%; justify-content:center; margin-bottom:8px;">
+          🌓 Switch Theme (Light / Dark)
+        </button>
+        <button id="clearChatBtn" class="connect-btn" style="width:100%; justify-content:center; color:var(--danger); border-color:var(--danger-border); background:var(--danger-bg); box-shadow:none;">
           Clear Local Chat History
         </button>
       </div>
@@ -1354,10 +1914,10 @@
       </div>
       <div class="qr-address-box">
         <span id="qrAddressText" class="qr-address-text">Loading...</span>
-        <button id="copyModalUrlBtn" class="action-pill-btn" style="padding:4px 8px; font-size:11px;">Copy</button>
+        <button id="copyModalUrlBtn" class="connect-btn" style="padding:4px 10px; font-size:11px;">Copy</button>
       </div>
       <div style="margin-top:10px; font-size:11px; color:var(--text-muted); text-align:center; line-height:1.4;">
-        💡 If connected to a phone hotspot, make sure your phone opens the address shown above!
+        💡 If connected to a phone hotspot, open the address shown above!
       </div>
     </div>
   </div>
@@ -1367,18 +1927,120 @@
     <img id="lightboxImg" src="" alt="Full Preview" />
   </div>
 
+  <!-- ==========================================================================
+       CALL SYSTEM MODALS:
+       1. Incoming Call Dialog
+       2. Active Call HUD (Audio Waveform & Video Feeds)
+       ========================================================================== -->
+
+  <!-- 1. Incoming Call Modal -->
+  <div id="incomingCallModal" class="call-overlay-modal">
+    <div class="incoming-call-card">
+      <div class="call-avatar-container">
+        <div class="pulse-ring"></div>
+        <div class="pulse-ring ring-2"></div>
+        <div class="pulse-ring ring-3"></div>
+        <div id="incCallerAvatar" class="call-avatar-circle">P</div>
+      </div>
+      <div id="incCallerName" class="call-peer-title">Peer Name</div>
+      <div id="incCallType" class="call-peer-subtitle">Incoming Audio Call...</div>
+      <div class="incoming-actions">
+        <button id="declineCallBtn" class="call-action-btn decline" title="Decline Call">
+          <svg viewBox="0 0 24 24"><path d="M12 10.59L6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41 17.59 5z"/></svg>
+          <span>Decline</span>
+        </button>
+        <button id="acceptCallBtn" class="call-action-btn accept" title="Accept Call">
+          <svg viewBox="0 0 24 24"><path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"/></svg>
+          <span>Accept</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 2. Active Call HUD Modal (Audio & Video) -->
+  <div id="callModal" class="call-overlay-modal">
+    <div class="call-hud-window">
+      <!-- Call Top Header -->
+      <div class="call-hud-header">
+        <div class="call-badge-wrap">
+          <span id="callTypeBadge" class="call-type-badge">📞 Audio Call</span>
+          <span id="callStatusIndicator" class="call-status-indicator">Connecting...</span>
+        </div>
+        <div id="callTimer" class="call-timer-display">00:00</div>
+      </div>
+
+      <!-- Call Content Area -->
+      <div class="call-hud-body">
+        <!-- Audio Call Mode View -->
+        <div id="audioCallView" class="audio-call-stage">
+          <div class="audio-avatar-wrap">
+            <div id="callPeerAvatar" class="call-avatar-circle large">P</div>
+          </div>
+          <div id="callPeerName" class="call-peer-title">Peer Name</div>
+          
+          <!-- Live Audio Waveform (Screenshot 3 style) -->
+          <div class="audio-waveform-bars">
+            <span class="wave-bar b1"></span>
+            <span class="wave-bar b2"></span>
+            <span class="wave-bar b3"></span>
+            <span class="wave-bar b4"></span>
+            <span class="wave-bar b5"></span>
+            <span class="wave-bar b6"></span>
+            <span class="wave-bar b7"></span>
+          </div>
+        </div>
+
+        <!-- Video Call Mode View -->
+        <div id="videoCallView" class="video-call-stage" style="display:none;">
+          <video id="remoteVideo" class="remote-video-feed" autoplay playsinline></video>
+          <div class="local-pip-container">
+            <video id="localVideo" class="local-video-feed" autoplay playsinline muted></video>
+            <div class="pip-label">You</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Call Control Dock -->
+      <div class="call-hud-controls">
+        <button id="callMicBtn" class="call-ctrl-btn" title="Mute / Unmute Microphone">
+          <span id="callMicIcon">🎙️</span>
+        </button>
+        <button id="callCamBtn" class="call-ctrl-btn" title="Toggle Camera">
+          <span id="callCamIcon">📹</span>
+        </button>
+        <button id="callSpeakerBtn" class="call-ctrl-btn" title="Toggle Audio Output">
+          <span id="callSpeakerIcon">🔊</span>
+        </button>
+        <button id="callEndBtn" class="call-ctrl-btn end-call" title="End Call">
+          <svg viewBox="0 0 24 24"><path d="M12 9c-1.6 0-3.15.25-4.6.72v3.1c0 .39-.23.74-.56.9-.98.49-1.87 1.12-2.66 1.85-.18.18-.43.28-.7.28-.28 0-.53-.11-.71-.29L.29 13.08c-.18-.17-.29-.42-.29-.7 0-.28.11-.53.29-.71C3.34 8.78 7.46 7 12 7s8.66 1.78 11.71 4.67c.18.18.29.43.29.71 0 .28-.11.53-.29.71l-2.48 2.48c-.18.18-.43.29-.71.29-.27 0-.52-.11-.7-.28-.79-.74-1.69-1.36-2.67-1.85-.33-.16-.56-.5-.56-.9v-3.1C15.15 9.25 13.6 9 12 9z"/></svg>
+        </button>
+      </div>
+    </div>
+  </div>
+
   <!-- Global Toast Notification -->
   <div id="toastNotification" class="toast-popup"></div>
 
   <script src="/static/socket.io.min.js"></script>
   <script src="/static/simplepeer.min.js"></script>
   <script>
-    // Audio Chime (Offline, Web Audio API)
+    // Audio Chime & Ringtones (Offline Web Audio API)
     let soundEnabled = localStorage.getItem('ls_sound') !== '0';
+    let audioCtx = null;
+    function getAudioContext() {
+      if (!audioCtx) {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      }
+      if (audioCtx.state === 'suspended') {
+        audioCtx.resume();
+      }
+      return audioCtx;
+    }
+
     function playChime(type = 'message') {
       if (!soundEnabled) return;
       try {
-        const ctx = new (window.AudioContext || window.webkitAudioContext)();
+        const ctx = getAudioContext();
         const osc = ctx.createOscillator();
         const gain = ctx.createGain();
         osc.type = 'sine';
@@ -1395,6 +2057,78 @@
         gain.connect(ctx.destination);
         osc.start();
         osc.stop(ctx.currentTime + 0.22);
+      } catch (e) {}
+    }
+
+    let activeRingtoneTimer = null;
+    let activeRingtoneNodes = [];
+
+    function stopRingtones() {
+      if (activeRingtoneTimer) {
+        clearInterval(activeRingtoneTimer);
+        activeRingtoneTimer = null;
+      }
+      activeRingtoneNodes.forEach(node => {
+        try { node.stop(); } catch(e) {}
+        try { node.disconnect(); } catch(e) {}
+      });
+      activeRingtoneNodes = [];
+    }
+
+    function startRingbackTone() {
+      stopRingtones();
+      if (!soundEnabled) return;
+      try {
+        const ctx = getAudioContext();
+        function playRingbackChime() {
+          const osc1 = ctx.createOscillator();
+          const osc2 = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc1.type = 'sine';
+          osc2.type = 'sine';
+          osc1.frequency.setValueAtTime(440, ctx.currentTime);
+          osc2.frequency.setValueAtTime(480, ctx.currentTime);
+          gain.gain.setValueAtTime(0, ctx.currentTime);
+          gain.gain.linearRampToValueAtTime(0.08, ctx.currentTime + 0.05);
+          gain.gain.setValueAtTime(0.08, ctx.currentTime + 1.2);
+          gain.gain.linearRampToValueAtTime(0.001, ctx.currentTime + 1.4);
+          osc1.connect(gain);
+          osc2.connect(gain);
+          gain.connect(ctx.destination);
+          osc1.start();
+          osc2.start();
+          osc1.stop(ctx.currentTime + 1.4);
+          osc2.stop(ctx.currentTime + 1.4);
+          activeRingtoneNodes.push(osc1, osc2, gain);
+        }
+        playRingbackChime();
+        activeRingtoneTimer = setInterval(playRingbackChime, 3200);
+      } catch (e) {}
+    }
+
+    function startIncomingRingtone() {
+      stopRingtones();
+      if (!soundEnabled) return;
+      try {
+        const ctx = getAudioContext();
+        const notes = [523.25, 659.25, 783.99, 1046.50]; // C5, E5, G5, C6
+        function playIncomingChime() {
+          notes.forEach((freq, i) => {
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(freq, ctx.currentTime + i * 0.16);
+            gain.gain.setValueAtTime(0.12, ctx.currentTime + i * 0.16);
+            gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + i * 0.16 + 0.35);
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            osc.start(ctx.currentTime + i * 0.16);
+            osc.stop(ctx.currentTime + i * 0.16 + 0.36);
+            activeRingtoneNodes.push(osc, gain);
+          });
+        }
+        playIncomingChime();
+        activeRingtoneTimer = setInterval(playIncomingChime, 2400);
       } catch (e) {}
     }
 
@@ -1563,6 +2297,18 @@
       }
     }
 
+    // Render Centered Status Pill (Screenshot 1: Connected to bright_hawk)
+    function renderStatusPill(text) {
+      if (emptyPlaceholder && emptyPlaceholder.parentNode) {
+        emptyPlaceholder.remove();
+      }
+      const pill = document.createElement('div');
+      pill.className = 'system-status-pill';
+      pill.textContent = text;
+      messagesStream.appendChild(pill);
+      messagesStream.scrollTop = messagesStream.scrollHeight;
+    }
+
     // Render Chat Bubbles
     function renderBubble(item, save = true) {
       if (emptyPlaceholder && emptyPlaceholder.parentNode) {
@@ -1666,10 +2412,8 @@
       });
 
       socket.on('peers', (list) => {
-        // Reset known names to ensure no stale peers
         names = {};
         (list || []).forEach(p => {
-          // EXCLUDE MYSELF and my own client sessions from peers list!
           if (p.id !== myId && p.clientId !== myClientId) {
             names[p.id] = p.name || `User-${p.id.slice(-4)}`;
             if (!peers[p.id]) createPeer(p.id, true);
@@ -1681,8 +2425,10 @@
       socket.on('peer-joined', (payload) => {
         const { id, name, clientId } = (typeof payload === 'string') ? { id: payload, name: undefined, clientId: undefined } : payload;
         if (id && id !== myId && clientId !== myClientId) {
-          names[id] = name || `User-${id.slice(-4)}`;
-          logSys('Peer entered: ' + (name || id));
+          const peerName = name || `User-${id.slice(-4)}`;
+          names[id] = peerName;
+          logSys('Peer entered: ' + peerName);
+          renderStatusPill(`Connected to ${peerName}`);
           updatePeersListUi();
         }
       });
@@ -1690,13 +2436,18 @@
       socket.on('peer-left', (payload) => {
         const id = (typeof payload === 'string') ? payload : payload.id;
         if (id && id !== myId) {
-          logSys('Peer left: ' + (names[id] || id));
+          const peerName = names[id] || id;
+          logSys('Peer left: ' + peerName);
+          renderStatusPill(`${peerName} left the room`);
           if (peers[id]) {
             try { peers[id].destroy(); } catch (e) {}
             delete peers[id];
           }
           delete names[id];
           updatePeersListUi();
+          if (currentCall && currentCall.peerId === id) {
+            endCall(false);
+          }
         }
       });
 
@@ -1759,7 +2510,6 @@
       }
     };
 
-    // Room Input: Pressing Enter switches room cleanly
     roomInput.addEventListener('keydown', (e) => {
       if (e.key === 'Enter') {
         disconnect();
@@ -1769,7 +2519,7 @@
 
     // WebRTC Peer Connection
     function createPeer(id, initiator) {
-      if (id === myId) return; // Never connect to oneself!
+      if (id === myId) return;
 
       const p = new SimplePeer({ initiator, trickle: true, config: RTC_CONFIG });
       peers[id] = p;
@@ -1780,7 +2530,9 @@
       });
 
       p.on('connect', async () => {
-        logSys('WebRTC connected with: ' + (names[id] || id));
+        const peerName = names[id] || id;
+        logSys('WebRTC connected with: ' + peerName);
+        renderStatusPill(`Connected to ${peerName}`);
         updatePeersListUi();
         flushOutboxToPeer(id);
       });
@@ -1798,6 +2550,18 @@
       p.on('data', data => {
         handleIncomingData(id, data);
       });
+
+      p.on('stream', remoteStream => {
+        logSys('Received live media stream from ' + (names[id] || id));
+        if (currentCall) {
+          currentCall.remoteStream = remoteStream;
+          const remoteVid = $('remoteVideo');
+          if (remoteVid) {
+            remoteVid.srcObject = remoteStream;
+            remoteVid.play().catch(() => {});
+          }
+        }
+      });
     }
 
     // Packet & Protocol Handler
@@ -1808,6 +2572,7 @@
         try {
           const packet = JSON.parse(data);
 
+          // Chat Message
           if (packet.t === PROTO.MSG) {
             renderBubble({
               id: packet.id,
@@ -1822,6 +2587,7 @@
             return;
           }
 
+          // Photo / Image
           if (packet.t === PROTO.IMG) {
             renderBubble({
               id: packet.id,
@@ -1836,6 +2602,7 @@
             return;
           }
 
+          // File Transfer Start
           if (packet.t === PROTO.FILE_START) {
             incomingTransfers[packet.id] = {
               fileId: packet.id,
@@ -1863,6 +2630,7 @@
             return;
           }
 
+          // File Transfer End
           if (packet.t === PROTO.FILE_END) {
             const transfer = incomingTransfers[packet.id];
             if (transfer) {
@@ -1873,6 +2641,64 @@
               playChime('file');
               logSys(`Transfer completed: ${transfer.fileName}`);
             }
+            return;
+          }
+
+          // ==========================================
+          // CALL PROTOCOL SIGNALS
+          // ==========================================
+          if (packet.t === 'call_req') {
+            const callerName = packet.callerName || names[id] || 'Peer';
+            const callType = packet.callType || 'audio';
+
+            currentCall = {
+              active: false,
+              isInitiator: false,
+              callType: callType,
+              peerId: id,
+              peerName: callerName,
+              localStream: null,
+              remoteStream: null,
+              startTime: null,
+              timerInterval: null
+            };
+
+            $('incCallerAvatar').textContent = (callerName.trim()[0] || 'P').toUpperCase();
+            $('incCallerName').textContent = callerName;
+            $('incCallType').textContent = callType === 'video' ? '📹 Incoming Video Call...' : '📞 Incoming Audio Call...';
+            $('incomingCallModal').classList.add('show');
+            startIncomingRingtone();
+            logSys(`Incoming ${callType} call from ${callerName}`);
+            return;
+          }
+
+          if (packet.t === 'call_acc') {
+            stopRingtones();
+            if (currentCall) {
+              currentCall.active = true;
+              $('callStatusIndicator').textContent = 'Connected';
+              startCallTimer();
+              const p = peers[currentCall.peerId];
+              if (p && currentCall.localStream && p.addStream) {
+                try { p.addStream(currentCall.localStream); } catch(e) {}
+              }
+            }
+            logSys('Call connected!');
+            showToast('Call connected');
+            return;
+          }
+
+          if (packet.t === 'call_rej') {
+            stopRingtones();
+            endCall(false);
+            showToast('Call was declined by peer');
+            return;
+          }
+
+          if (packet.t === 'call_end') {
+            stopRingtones();
+            endCall(false);
+            showToast('Call ended by peer');
             return;
           }
         } catch (e) {}
@@ -1931,7 +2757,7 @@
       try { p.send(JSON.stringify(obj)); return true; } catch (e) { return false; }
     }
 
-    // Outbox: Auto-Flush when a peer connects!
+    // Outbox: Auto-Flush when peer connects
     async function flushOutboxToPeer(peerId) {
       if (outbox.length === 0) return;
       logSys(`Flushing ${outbox.length} queued item(s) to peer ${names[peerId] || peerId}`);
@@ -1948,7 +2774,7 @@
       }
     }
 
-    // Stream a file to a peer with backpressure handling
+    // Stream a file to peer
     async function streamFileToPeer(peerId, file, fileId) {
       const p = peers[peerId];
       if (!p || !p.connected) return;
@@ -1998,7 +2824,7 @@
 
       if (!hasPeers) {
         outbox.push({ kind: 'file', file, fileId });
-        logSys(`Queued file ${file.name} — will send as soon as a peer connects`);
+        logSys(`Queued file ${file.name} — will send as soon as peer connects`);
         return;
       }
 
@@ -2041,14 +2867,13 @@
       });
     }
 
-    // Update Peers List (EXCLUDES SELF!)
+    // Update Peers List
     function updatePeersListUi() {
       const container = $('peersContainer');
       const badge = $('peerCountBadge');
       const diagPeers = $('diagPeers');
       const headerSubtitle = $('headerSubtitle');
 
-      // EXCLUDE self from peer IDs!
       const activeIds = Object.keys(names).filter(pid => pid !== myId);
 
       if (badge) badge.textContent = String(activeIds.length);
@@ -2089,7 +2914,223 @@
       }).join('');
     }
 
-    // Wire Inputs and Buttons
+    // ==========================================================================
+    // CALL ENGINE IMPLEMENTATION (Audio & Video Calling)
+    // ==========================================================================
+    let currentCall = null;
+
+    async function initiateCall(callType) {
+      const pids = connectedPeerIds();
+      if (pids.length === 0) {
+        showToast('⚠️ No other devices in room! Scan QR or open link on another phone.');
+        return;
+      }
+      const targetPid = pids[0];
+      const peerName = names[targetPid] || 'Peer';
+
+      let localStream = null;
+      try {
+        if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+          localStream = await navigator.mediaDevices.getUserMedia({
+            audio: true,
+            video: callType === 'video' ? { width: { ideal: 640 }, height: { ideal: 480 } } : false
+          });
+        }
+      } catch (err) {
+        logSys('Media device note: ' + err.message);
+        showToast('Note: Starting audio-simulated session');
+      }
+
+      currentCall = {
+        active: false,
+        isInitiator: true,
+        callType: callType,
+        peerId: targetPid,
+        peerName: peerName,
+        localStream: localStream,
+        remoteStream: null,
+        startTime: null,
+        timerInterval: null
+      };
+
+      openCallHud(callType, peerName, 'Calling...');
+      if (localStream && callType === 'video') {
+        const localVid = $('localVideo');
+        if (localVid) localVid.srcObject = localStream;
+      }
+
+      startRingbackTone();
+
+      sendJsonToPeer(targetPid, {
+        t: 'call_req',
+        callType: callType,
+        callerId: myId,
+        callerName: myName
+      });
+      logSys(`Initiated ${callType} call to ${peerName}`);
+    }
+
+    function openCallHud(callType, peerName, statusText) {
+      const modal = $('callModal');
+      const badge = $('callTypeBadge');
+      const nameEl = $('callPeerName');
+      const avatarEl = $('callPeerAvatar');
+      const statusEl = $('callStatusIndicator');
+      const timerEl = $('callTimer');
+      const audioStage = $('audioCallView');
+      const videoStage = $('videoCallView');
+      const camBtn = $('callCamBtn');
+
+      if (badge) badge.textContent = callType === 'video' ? '📹 Video Call' : '📞 Audio Call';
+      if (nameEl) nameEl.textContent = peerName;
+      if (avatarEl) avatarEl.textContent = (peerName.trim()[0] || 'P').toUpperCase();
+      if (statusEl) statusEl.textContent = statusText || 'Connecting...';
+      if (timerEl) timerEl.textContent = '00:00';
+
+      if (callType === 'video') {
+        if (audioStage) audioStage.style.display = 'none';
+        if (videoStage) videoStage.style.display = 'flex';
+        if (camBtn) camBtn.style.display = 'inline-flex';
+      } else {
+        if (audioStage) audioStage.style.display = 'flex';
+        if (videoStage) videoStage.style.display = 'none';
+        if (camBtn) camBtn.style.display = 'none';
+      }
+
+      modal.classList.add('show');
+    }
+
+    function startCallTimer() {
+      if (currentCall && currentCall.timerInterval) clearInterval(currentCall.timerInterval);
+      const timerEl = $('callTimer');
+      const start = Date.now();
+      if (currentCall) currentCall.startTime = start;
+      const interval = setInterval(() => {
+        const elapsed = Math.floor((Date.now() - start) / 1000);
+        const mins = String(Math.floor(elapsed / 60)).padStart(2, '0');
+        const secs = String(elapsed % 60).padStart(2, '0');
+        if (timerEl) timerEl.textContent = `${mins}:${secs}`;
+      }, 1000);
+      if (currentCall) currentCall.timerInterval = interval;
+    }
+
+    function endCall(notify = true) {
+      stopRingtones();
+      if (currentCall) {
+        if (currentCall.timerInterval) clearInterval(currentCall.timerInterval);
+        if (notify && currentCall.peerId) {
+          sendJsonToPeer(currentCall.peerId, { t: 'call_end' });
+        }
+        if (currentCall.localStream) {
+          try {
+            currentCall.localStream.getTracks().forEach(t => t.stop());
+          } catch(e) {}
+        }
+        const p = peers[currentCall.peerId];
+        if (p && currentCall.localStream && p.removeStream) {
+          try { p.removeStream(currentCall.localStream); } catch(e) {}
+        }
+        logSys(`Call ended with ${currentCall.peerName}`);
+        renderStatusPill(`Call ended with ${currentCall.peerName}`);
+        currentCall = null;
+      }
+      $('callModal').classList.remove('show');
+      $('incomingCallModal').classList.remove('show');
+      const remoteVid = $('remoteVideo');
+      if (remoteVid) remoteVid.srcObject = null;
+      const localVid = $('localVideo');
+      if (localVid) localVid.srcObject = null;
+    }
+
+    // Call Buttons Wireup
+    $('callAudioBtn').onclick = () => initiateCall('audio');
+    $('callVideoBtn').onclick = () => initiateCall('video');
+
+    $('acceptCallBtn').onclick = async () => {
+      stopRingtones();
+      $('incomingCallModal').classList.remove('show');
+      if (!currentCall) return;
+
+      const callType = currentCall.callType;
+      let localStream = null;
+      try {
+        if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+          localStream = await navigator.mediaDevices.getUserMedia({
+            audio: true,
+            video: callType === 'video' ? { width: { ideal: 640 }, height: { ideal: 480 } } : false
+          });
+        }
+      } catch (err) {
+        logSys('Mic/Cam note: ' + err.message);
+      }
+
+      currentCall.active = true;
+      currentCall.localStream = localStream;
+
+      openCallHud(callType, currentCall.peerName, 'Connected');
+      if (localStream && callType === 'video') {
+        const localVid = $('localVideo');
+        if (localVid) localVid.srcObject = localStream;
+      }
+      startCallTimer();
+
+      sendJsonToPeer(currentCall.peerId, { t: 'call_acc', callType: callType });
+
+      const p = peers[currentCall.peerId];
+      if (p && localStream && p.addStream) {
+        try { p.addStream(localStream); } catch(e) {}
+      }
+      logSys(`Accepted ${callType} call from ${currentCall.peerName}`);
+      renderStatusPill(`In ${callType} call with ${currentCall.peerName}`);
+    };
+
+    $('declineCallBtn').onclick = () => {
+      stopRingtones();
+      $('incomingCallModal').classList.remove('show');
+      if (currentCall) {
+        sendJsonToPeer(currentCall.peerId, { t: 'call_rej', reason: 'declined' });
+        currentCall = null;
+      }
+    };
+
+    $('callEndBtn').onclick = () => {
+      endCall(true);
+      showToast('Call ended');
+    };
+
+    $('callMicBtn').onclick = () => {
+      if (currentCall && currentCall.localStream) {
+        const audioTrack = currentCall.localStream.getAudioTracks()[0];
+        if (audioTrack) {
+          audioTrack.enabled = !audioTrack.enabled;
+          $('callMicIcon').textContent = audioTrack.enabled ? '🎙️' : '🔇';
+          $('callMicBtn').classList.toggle('muted', !audioTrack.enabled);
+          showToast(audioTrack.enabled ? 'Microphone unmuted' : 'Microphone muted');
+        }
+      }
+    };
+
+    $('callCamBtn').onclick = () => {
+      if (currentCall && currentCall.localStream) {
+        const vidTrack = currentCall.localStream.getVideoTracks()[0];
+        if (vidTrack) {
+          vidTrack.enabled = !vidTrack.enabled;
+          $('callCamIcon').textContent = vidTrack.enabled ? '📹' : '🚫';
+          $('callCamBtn').classList.toggle('muted', !vidTrack.enabled);
+          showToast(vidTrack.enabled ? 'Camera turned on' : 'Camera turned off');
+        }
+      }
+    };
+
+    $('callSpeakerBtn').onclick = () => {
+      soundEnabled = !soundEnabled;
+      localStorage.setItem('ls_sound', soundEnabled ? '1' : '0');
+      $('callSpeakerIcon').textContent = soundEnabled ? '🔊' : '🔇';
+      $('callSpeakerBtn').classList.toggle('muted', !soundEnabled);
+      showToast(soundEnabled ? 'Speaker unmuted' : 'Speaker muted');
+    };
+
+    // Chat Inputs & Buttons
     $('attachFileBtn').onclick = () => fileInput.click();
     $('attachPhotoBtn').onclick = () => photoInput.click();
 
@@ -2120,7 +3161,7 @@
       e.target.value = '';
     };
 
-    // Quick emoji pills
+    // Quick emoji pills (Screenshot 1: 🔥 👍 👏 🚀 ❤️ ⚡)
     document.querySelectorAll('.emoji-pill').forEach(pill => {
       pill.onclick = () => {
         chatInput.value += pill.getAttribute('data-emoji');
@@ -2132,10 +3173,8 @@
     $('toggleSoundBtn').onclick = () => {
       soundEnabled = !soundEnabled;
       localStorage.setItem('ls_sound', soundEnabled ? '1' : '0');
-      $('soundIcon').textContent = soundEnabled ? '🔊' : '🔇';
       showToast(soundEnabled ? 'Sound enabled' : 'Sound muted');
     };
-    $('soundIcon').textContent = soundEnabled ? '🔊' : '🔇';
 
     // QR Modal Controls
     const qrModal = $('qrModal');
@@ -2286,20 +3325,28 @@
       }
     }
 
+    function toggleCurrentTheme() {
+      const cur = document.documentElement.getAttribute('data-theme') || 'light';
+      const next = cur === 'light' ? 'dark' : 'light';
+      localStorage.setItem('lan-share-theme', next);
+      updateThemeToggle(next);
+      showToast(next === 'light' ? 'Switched to Light Glassmorphism Theme' : 'Switched to Matte Carbon Dark Theme');
+    }
+
     const themeToggleBtn = $('themeToggleBtn');
     if (themeToggleBtn) {
-      themeToggleBtn.onclick = () => {
-        const cur = document.documentElement.getAttribute('data-theme') || 'light';
-        const next = cur === 'light' ? 'dark' : 'light';
-        localStorage.setItem('lan-share-theme', next);
-        updateThemeToggle(next);
-        showToast(next === 'light' ? 'Switched to Light Theme' : 'Switched to Dark Theme');
-      };
+      themeToggleBtn.onclick = toggleCurrentTheme;
+    }
+
+    const drawerThemeBtn = $('drawerThemeBtn');
+    if (drawerThemeBtn) {
+      drawerThemeBtn.onclick = toggleCurrentTheme;
     }
 
     // Initialize
     document.addEventListener('DOMContentLoaded', () => {
-      const currentTheme = localStorage.getItem('lan-share-theme') || 'light';
+      const urlParams = new URLSearchParams(window.location.search);
+      const currentTheme = urlParams.get('theme') || localStorage.getItem('lan-share-theme') || 'light';
       updateThemeToggle(currentTheme);
 
       const savedName = localStorage.getItem('ls_name');

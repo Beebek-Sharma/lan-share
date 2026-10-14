@@ -8,66 +8,67 @@
   <script>
     (function () {
       try {
-        var pref = localStorage.getItem('lan-share-theme') || 'light';
+        var params = new URLSearchParams(window.location.search);
+        var pref = params.get('theme') || localStorage.getItem('lan-share-theme') || 'light';
         document.documentElement.setAttribute('data-theme', pref);
       } catch (e) {}
     })();
   </script>
   <style>
     :root, [data-theme="light"] {
-      /* Portfolio Light Theme (bibekksharma.com.np) */
-      --bg: #f7faf8;
-      --surface: #ffffff;
-      --surface-hover: #f1f6f3;
-      --surface-card: #ffffff;
-      --border: rgba(23, 77, 61, 0.14);
-      --border-strong: rgba(23, 77, 61, 0.32);
-      --pine-input: #ffffff;
-      --emerald: linear-gradient(135deg, rgba(29, 82, 66, 0.92) 0%, rgba(23, 77, 61, 0.78) 100%);
-      --emerald-hover: linear-gradient(135deg, rgba(35, 99, 79, 0.98) 0%, rgba(29, 82, 66, 0.86) 100%);
-      --emerald-light: #14634d;
+      /* Liquid Glassmorphism Light Tokens (Screenshot 2 & 4) */
+      --bg: #edf3f7;
+      --surface: rgba(255, 255, 255, 0.75);
+      --surface-hover: rgba(255, 255, 255, 0.95);
+      --surface-card: rgba(255, 255, 255, 0.82);
+      --border: rgba(255, 255, 255, 0.95);
+      --border-strong: rgba(255, 255, 255, 0.8);
+      --pine-input: rgba(255, 255, 255, 0.85);
+      --emerald: linear-gradient(135deg, #10b981 0%, #059669 100%);
+      --emerald-hover: linear-gradient(135deg, #059669 0%, #047857 100%);
+      --emerald-light: #15803d;
       --emerald-text: #ffffff;
-      --text: #111815;
-      --heading: #111815;
-      --text-muted: #4e5c56;
+      --text: #1e293b;
+      --heading: #0f172a;
+      --text-muted: #64748b;
       --danger: #dc2626;
       --danger-border: rgba(239, 68, 68, 0.28);
-      --danger-bg: #fef2f2;
+      --danger-bg: rgba(254, 242, 242, 0.88);
       --danger-hover: #fee2e2;
-      --radius-lg: 12px;
-      --radius-md: 8px;
-      --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.04);
-      --shadow-card: 0 4px 14px rgba(23, 77, 61, 0.06);
-      --status-bg: #edf3ef;
+      --radius-lg: 14px;
+      --radius-md: 10px;
+      --shadow-sm: -2px -2px 6px rgba(255, 255, 255, 0.9), 3px 4px 10px rgba(0, 0, 0, 0.05), inset 0 1px 1.5px #ffffff;
+      --shadow-card: 0 8px 24px rgba(0, 0, 0, 0.04), inset 0 1.5px 2px #ffffff;
+      --status-bg: rgba(255, 255, 255, 0.8);
       --font-main: 'Manrope', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
       --font-mono: 'DM Mono', ui-monospace, SFMono-Regular, monospace;
     }
 
     [data-theme="dark"] {
-      /* Dark Theme */
-      --bg: #071f19;
-      --surface: #0b2b22;
-      --surface-hover: #10382d;
-      --surface-card: #09261f;
-      --border: #134437;
-      --border-strong: #1b5b4a;
-      --pine-input: #041410;
-      --emerald: #10b981;
-      --emerald-hover: #34d399;
+      /* Stealth Matte Carbon & Obsidian Spatial Theme (Screenshot 3) */
+      --bg: #111417;
+      --surface: linear-gradient(145deg, #1d2127 0%, #15181d 100%);
+      --surface-hover: linear-gradient(145deg, #242932 0%, #191c22 100%);
+      --surface-card: linear-gradient(145deg, #1b1f25 0%, #14171d 100%);
+      --border: rgba(255, 255, 255, 0.08);
+      --border-strong: rgba(255, 255, 255, 0.14);
+      --pine-input: #0c0e11;
+      --emerald: linear-gradient(145deg, #10b981 0%, #059669 100%);
+      --emerald-hover: linear-gradient(145deg, #34d399 0%, #10b981 100%);
       --emerald-light: #34d399;
-      --emerald-text: #032017;
-      --text: #ecfdf5;
+      --emerald-text: #04140e;
+      --text: #f1f5f9;
       --heading: #ffffff;
-      --text-muted: #8ea799;
+      --text-muted: #94a3b8;
       --danger: #f87171;
       --danger-border: #641c23;
       --danger-bg: #2d0e12;
       --danger-hover: #45151c;
-      --radius-lg: 12px;
-      --radius-md: 8px;
-      --shadow-sm: 0 4px 14px rgba(0,0,0,0.4);
-      --shadow-card: none;
-      --status-bg: #041410;
+      --radius-lg: 14px;
+      --radius-md: 10px;
+      --shadow-sm: 4px 5px 12px rgba(0, 0, 0, 0.65), -2px -2px 6px rgba(255, 255, 255, 0.035);
+      --shadow-card: 6px 8px 20px rgba(0, 0, 0, 0.7), -3px -3px 8px rgba(255, 255, 255, 0.035);
+      --status-bg: #0c0e11;
       --font-main: 'Manrope', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
       --font-mono: 'DM Mono', ui-monospace, SFMono-Regular, monospace;
     }

@@ -256,7 +256,8 @@ function updatePopupTheme(theme) {
 
 const themeBtn = document.getElementById('themeToggleBtn');
 if (themeBtn) {
-  const curTheme = localStorage.getItem('lan-share-theme') || 'light';
+  const urlTheme = new URLSearchParams(window.location.search).get('theme');
+  const curTheme = urlTheme || localStorage.getItem('lan-share-theme') || 'light';
   updatePopupTheme(curTheme);
 
   themeBtn.onclick = () => {

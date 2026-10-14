@@ -8,8 +8,13 @@ Built with direct **WebRTC DataChannels** (simple-peer), a **Python Flask + Sock
 
 ## Key Highlights
 
+- **Direct WebRTC Audio & Video Calling**: Make real-time peer-to-peer **Audio Calls** (with live waveform animations & ringback tones) and **Video Calls** (with remote video feeds and local picture-in-picture view). Dedicated call action buttons (green phone receiver for audio call, blue camera for video call) are seamlessly integrated into the mobile and desktop headers.
+- **Dual Master Themes**:
+  - **Light Theme**: Crystal-clear **Liquid Glassmorphism** & Neumorphism (specular white borders, frosted glass pill capsules, subtle drop shadows, and vibrant emerald accents).
+  - **Dark Theme**: Stealth **Matte Carbon & Obsidian Spatial Theme** (deep charcoal backgrounds `#111417`, raised dual-shadow spatial cards, recessed well inputs, and high-tech neon mint & cyber cyan glowing cores).
+  - One-click instant theme toggle (☀️/🌙) available across desktop and mobile.
+- **Mobile-First Icon Theme**: Mobile header matches native phone layouts with dedicated circular action buttons (📣 Sound Horn, 📞 Phone Call, 📹 Video Camera, ⚃ QR Scanner, ⚙️ Settings / Diagnostics), emoji quick reaction bar, and floating glass capsule input dock.
 - **100% Offline Capable**: Zero internet required. All client libraries (`socket.io.min.js`, `simplepeer.min.js`) are bundled locally within `/static/`. Transfers work at full Wi-Fi / Hotspot hardware speeds.
-- **Dual Theme Engine (Portfolio Light & Pine Dark)**: Features a crisp, modern light theme inspired by [bibekksharma.com.np](https://bibekksharma.com.np) with Manrope typography, subtle glassmorphic surfaces, and deep pine accents — alongside the distraction-free Pine Dark theme (`#071f19`). Includes an instant one-click theme switcher (☀️/🌙).
 - **Chunked File Streaming with Flow Control**: Transfers files of any size with chunk-level backpressure management (`bufferedAmount` throttling) and real-time progress bars.
 - **Queued Outbox**: Messages or files sent before a peer enters the room are held in a local outbox and automatically transmitted as soon as a peer connects.
 - **Dynamic IP & Instant QR Codes**: Automatically detects network interface changes (e.g. connecting to a phone's mobile hotspot) and generates fresh QR codes on the fly via `/api/info` and `/qr.png`.
@@ -21,8 +26,9 @@ Built with direct **WebRTC DataChannels** (simple-peer), a **Python Flask + Sock
 ## Screenshots
 
 <div align="center">
-  <h3>🖥️ Desktop Web Client</h3>
-  <img src="Photo/desktop.png" alt="LAN Share Desktop Web Client" width="850" style="border-radius: 8px; max-width: 100%;" />
+  <h3>🖥️ Desktop Interface (Liquid Glassmorphism & Matte Carbon Dark)</h3>
+  <img src="Photo/desktop.png" alt="LAN Share Desktop Web Client (Light Glassmorphic)" width="850" style="border-radius: 8px; max-width: 100%; margin-bottom: 12px;" />
+  <img src="Photo/desktop_dark.png" alt="LAN Share Desktop Web Client (Matte Carbon Dark)" width="850" style="border-radius: 8px; max-width: 100%;" />
 </div>
 
 <br>
@@ -31,17 +37,19 @@ Built with direct **WebRTC DataChannels** (simple-peer), a **Python Flask + Sock
   <table>
     <thead>
       <tr>
-        <th align="center">📱 Mobile Web Interface</th>
+        <th align="center">📱 Mobile Phone Interface</th>
         <th align="center">🧩 Extension Popup Launcher</th>
       </tr>
     </thead>
     <tbody>
       <tr>
         <td align="center" valign="top">
-          <img src="Photo/phone.png" alt="Mobile Web Interface" width="320" style="border-radius: 8px; max-width: 100%;" />
+          <img src="Photo/phone.png" alt="Mobile Web Interface (Light)" width="320" style="border-radius: 8px; max-width: 100%; margin-bottom: 8px;" /><br>
+          <img src="Photo/phone_dark.png" alt="Mobile Web Interface (Dark)" width="320" style="border-radius: 8px; max-width: 100%;" />
         </td>
         <td align="center" valign="top">
-          <img src="Photo/extension.png" alt="Extension Popup" width="320" style="border-radius: 8px; max-width: 100%;" />
+          <img src="Photo/extension.png" alt="Extension Popup (Light)" width="320" style="border-radius: 8px; max-width: 100%; margin-bottom: 8px;" /><br>
+          <img src="Photo/extension_dark.png" alt="Extension Popup (Dark)" width="320" style="border-radius: 8px; max-width: 100%;" />
         </td>
       </tr>
     </tbody>
