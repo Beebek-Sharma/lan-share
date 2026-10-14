@@ -4,9 +4,47 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>LAN Share Launcher</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Manrope:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script>
+    (function () {
+      try {
+        var pref = localStorage.getItem('lan-share-theme') || 'light';
+        document.documentElement.setAttribute('data-theme', pref);
+      } catch (e) {}
+    })();
+  </script>
   <style>
-    :root {
+    :root, [data-theme="light"] {
+      /* Portfolio Light Theme (bibekksharma.com.np) */
+      --bg: #f7faf8;
+      --surface: #ffffff;
+      --surface-hover: #f1f6f3;
+      --surface-card: #ffffff;
+      --border: rgba(23, 77, 61, 0.14);
+      --border-strong: rgba(23, 77, 61, 0.32);
+      --pine-input: #ffffff;
+      --emerald: linear-gradient(135deg, rgba(29, 82, 66, 0.92) 0%, rgba(23, 77, 61, 0.78) 100%);
+      --emerald-hover: linear-gradient(135deg, rgba(35, 99, 79, 0.98) 0%, rgba(29, 82, 66, 0.86) 100%);
+      --emerald-light: #14634d;
+      --emerald-text: #ffffff;
+      --text: #111815;
+      --heading: #111815;
+      --text-muted: #4e5c56;
+      --danger: #dc2626;
+      --danger-border: rgba(239, 68, 68, 0.28);
+      --danger-bg: #fef2f2;
+      --danger-hover: #fee2e2;
+      --radius-lg: 12px;
+      --radius-md: 8px;
+      --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.04);
+      --shadow-card: 0 4px 14px rgba(23, 77, 61, 0.06);
+      --status-bg: #edf3ef;
+      --font-main: 'Manrope', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      --font-mono: 'DM Mono', ui-monospace, SFMono-Regular, monospace;
+    }
+
+    [data-theme="dark"] {
+      /* Dark Theme */
       --bg: #071f19;
       --surface: #0b2b22;
       --surface-hover: #10382d;
@@ -19,6 +57,7 @@
       --emerald-light: #34d399;
       --emerald-text: #032017;
       --text: #ecfdf5;
+      --heading: #ffffff;
       --text-muted: #8ea799;
       --danger: #f87171;
       --danger-border: #641c23;
@@ -26,6 +65,11 @@
       --danger-hover: #45151c;
       --radius-lg: 12px;
       --radius-md: 8px;
+      --shadow-sm: 0 4px 14px rgba(0,0,0,0.4);
+      --shadow-card: none;
+      --status-bg: #041410;
+      --font-main: 'Manrope', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      --font-mono: 'DM Mono', ui-monospace, SFMono-Regular, monospace;
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -33,10 +77,11 @@
     body {
       width: 320px;
       padding: 18px;
-      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      font-family: var(--font-main);
       background: var(--bg);
       color: var(--text);
       user-select: none;
+      transition: background 0.2s, color 0.2s;
     }
 
     .header {
@@ -61,6 +106,7 @@
       display: flex;
       align-items: center;
       justify-content: center;
+      box-shadow: var(--shadow-sm);
     }
 
     .brand-icon svg {
@@ -73,7 +119,7 @@
       font-size: 16px;
       font-weight: 700;
       letter-spacing: -0.2px;
-      color: #ffffff;
+      color: var(--heading);
       line-height: 1.2;
     }
 
@@ -83,16 +129,45 @@
       font-weight: 500;
     }
 
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .theme-btn {
+      appearance: none;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 4px 7px;
+      font-size: 12px;
+      cursor: pointer;
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: var(--shadow-sm);
+      transition: transform 0.15s, background 0.15s;
+    }
+
+    .theme-btn:hover {
+      background: var(--surface-hover);
+      transform: scale(1.05);
+    }
+
     .status-indicator {
       display: inline-flex;
       align-items: center;
       gap: 6px;
       padding: 4px 10px;
       border-radius: 999px;
-      background: var(--surface-card);
+      background: var(--surface);
       border: 1px solid var(--border);
       font-size: 11px;
       font-weight: 600;
+      color: var(--text-muted);
+      box-shadow: var(--shadow-sm);
     }
 
     .status-dot {
@@ -103,9 +178,15 @@
       transition: all 0.3s ease;
     }
 
+    .status-indicator.running {
+      background: rgba(20, 99, 77, 0.08);
+      border-color: rgba(20, 99, 77, 0.3);
+      color: var(--emerald-light);
+    }
+
     .status-indicator.running .status-dot {
       background: var(--emerald-light);
-      box-shadow: 0 0 8px var(--emerald);
+      box-shadow: 0 0 8px var(--emerald-light);
       animation: pulse 2s infinite ease-in-out;
     }
 
@@ -119,11 +200,12 @@
       align-items: center;
       justify-content: space-between;
       background: var(--surface);
-      border: 1px solid var(--border-strong);
+      border: 1px solid var(--border);
       border-radius: var(--radius-md);
       padding: 9px 12px;
       margin-bottom: 12px;
       font-size: 11.5px;
+      box-shadow: var(--shadow-sm);
     }
 
     .ip-card.show {
@@ -138,7 +220,7 @@
     .ip-val {
       color: var(--emerald-light);
       font-weight: 700;
-      font-family: ui-monospace, SFMono-Regular, monospace;
+      font-family: var(--font-mono);
     }
 
     .ip-copy {
@@ -165,6 +247,7 @@
       border-radius: var(--radius-md);
       padding: 8px 12px;
       margin-bottom: 12px;
+      box-shadow: var(--shadow-sm);
     }
 
     .port-label {
@@ -178,7 +261,7 @@
       border: 1px solid var(--border);
       outline: none;
       color: var(--text);
-      font-family: ui-monospace, monospace;
+      font-family: var(--font-mono);
       font-size: 13px;
       font-weight: 600;
       width: 72px;
@@ -189,7 +272,7 @@
     }
 
     #port:focus {
-      border-color: var(--emerald);
+      border-color: var(--emerald-light);
     }
 
     .actions {
@@ -213,13 +296,15 @@
       align-items: center;
       justify-content: center;
       gap: 8px;
-      transition: background 0.15s, transform 0.15s, border-color 0.15s;
+      transition: background 0.15s, transform 0.15s, border-color 0.15s, box-shadow 0.15s;
     }
 
     #startServer {
       background: var(--emerald);
       color: var(--emerald-text);
       font-weight: 700;
+      border: 1px solid rgba(255, 255, 255, 0.6);
+      box-shadow: 0 4px 14px rgba(23, 77, 61, 0.2);
     }
 
     #startServer:hover:not(:disabled) {
@@ -231,6 +316,7 @@
       background: var(--surface);
       color: var(--emerald-light);
       border: 1px solid var(--border);
+      box-shadow: var(--shadow-sm);
     }
 
     #openApp:hover:not(:disabled) {
@@ -260,7 +346,7 @@
     #status {
       margin-top: 12px;
       padding: 8px 12px;
-      background: var(--pine-input);
+      background: var(--status-bg);
       border: 1px solid var(--border);
       border-radius: var(--radius-md);
       font-size: 11.5px;
@@ -285,9 +371,12 @@
         <p class="subtitle">Direct P2P File Transfer</p>
       </div>
     </div>
-    <div id="serverBadge" class="status-indicator">
-      <span class="status-dot"></span>
-      <span id="badgeText">Offline</span>
+    <div class="header-actions">
+      <button id="themeToggleBtn" class="theme-btn" title="Toggle Theme">☀️</button>
+      <div id="serverBadge" class="status-indicator">
+        <span class="status-dot"></span>
+        <span id="badgeText">Offline</span>
+      </div>
     </div>
   </div>
 

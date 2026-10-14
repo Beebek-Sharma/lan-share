@@ -4,10 +4,63 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
   <title>LAN Share — Fast Peer-to-Peer Transfer</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Manrope:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script>
+    (function () {
+      try {
+        var pref = localStorage.getItem('lan-share-theme') || 'light';
+        document.documentElement.setAttribute('data-theme', pref);
+      } catch (e) {}
+    })();
+  </script>
   <style>
-    :root {
-      /* Pure Solid Dark Green Theme based on exact swatch #071f19 (No Gradients) */
+    :root, [data-theme="light"] {
+      /* Portfolio Light Theme (bibekksharma.com.np) */
+      --pine-bg: #f7faf8;
+      --pine-sidebar: #edf3ef;
+      --pine-header: rgba(247, 250, 248, 0.94);
+      --pine-card: #ffffff;
+      --pine-card-hover: #f1f6f3;
+      --pine-card-border: rgba(23, 77, 61, 0.12);
+      --pine-card-border-light: rgba(23, 77, 61, 0.22);
+      --pine-input: #ffffff;
+      --pine-bubble-out: linear-gradient(135deg, rgba(29, 82, 66, 0.92) 0%, rgba(23, 77, 61, 0.8) 100%);
+      --pine-bubble-out-border: rgba(23, 77, 61, 0.25);
+      --pine-bubble-in: #ffffff;
+      --pine-bubble-in-border: rgba(23, 77, 61, 0.12);
+      --emerald-btn: linear-gradient(135deg, rgba(29, 82, 66, 0.92) 0%, rgba(23, 77, 61, 0.78) 100%);
+      --emerald-btn-hover: linear-gradient(135deg, rgba(35, 99, 79, 0.98) 0%, rgba(29, 82, 66, 0.86) 100%);
+      --emerald-btn-text: #ffffff;
+      --mint: #14634d;
+      --mint-glow: rgba(20, 99, 77, 0.35);
+      --text: #111815;
+      --text-muted: #4e5c56;
+      --text-subtle: #73827b;
+      --heading-color: #111815;
+      --danger: #dc2626;
+      --danger-bg: #fef2f2;
+      --danger-border: rgba(239, 68, 68, 0.3);
+      --danger-hover: #fee2e2;
+      --radius-xl: 16px;
+      --radius-lg: 12px;
+      --radius-md: 8px;
+      --radius-sm: 6px;
+      --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.04);
+      --shadow-lg: 0 16px 40px -4px rgba(23, 77, 61, 0.12);
+      --tag-bg: rgba(23, 77, 61, 0.08);
+      --tag-color: #14634d;
+      --drag-overlay-bg: rgba(247, 250, 248, 0.96);
+      --modal-bg: #ffffff;
+      --toast-bg: #ffffff;
+      --toast-text: #111815;
+      --toast-border: #14634d;
+      --progress-track: rgba(23, 77, 61, 0.12);
+      --font-main: 'Manrope', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      --font-mono: 'DM Mono', ui-monospace, SFMono-Regular, monospace;
+    }
+
+    [data-theme="dark"] {
+      /* Solid Dark Green Theme */
       --pine-bg: #071f19;
       --pine-sidebar: #041611;
       --pine-header: #0a2720;
@@ -24,25 +77,38 @@
       --emerald-btn-hover: #34d399;
       --emerald-btn-text: #022016;
       --mint: #34d399;
+      --mint-glow: #34d399;
       --text: #ecfdf5;
       --text-muted: #8ea799;
       --text-subtle: #567367;
+      --heading-color: #ffffff;
       --danger: #f87171;
       --danger-bg: #2d0e12;
       --danger-border: #641c23;
+      --danger-hover: #50181e;
       --radius-xl: 16px;
       --radius-lg: 12px;
       --radius-md: 8px;
       --radius-sm: 6px;
       --shadow-sm: 0 4px 14px rgba(0,0,0,0.4);
       --shadow-lg: 0 16px 36px rgba(0,0,0,0.55);
+      --tag-bg: rgba(0, 0, 0, 0.3);
+      --tag-color: #34d399;
+      --drag-overlay-bg: rgba(7, 31, 25, 0.96);
+      --modal-bg: #041611;
+      --toast-bg: #0c3027;
+      --toast-text: #ffffff;
+      --toast-border: #34d399;
+      --progress-track: rgba(0, 0, 0, 0.45);
+      --font-main: 'Manrope', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      --font-mono: 'DM Mono', ui-monospace, SFMono-Regular, monospace;
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
     html, body { height: 100%; width: 100%; overflow: hidden; }
 
     body {
-      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      font-family: var(--font-main);
       background: var(--pine-bg);
       color: var(--text);
       display: flex;
@@ -114,7 +180,7 @@
       font-weight: 700;
       font-size: 16px;
       letter-spacing: -0.2px;
-      color: #ffffff;
+      color: var(--heading-color);
       line-height: 1.15;
     }
 
@@ -357,8 +423,8 @@
       font-size: 10px;
       padding: 2px 6px;
       border-radius: 4px;
-      background: rgba(0, 0, 0, 0.3);
-      color: var(--mint);
+      background: var(--tag-bg);
+      color: var(--tag-color);
       border: 1px solid var(--pine-card-border);
     }
 
@@ -496,18 +562,25 @@
       display: flex;
       align-items: center;
       gap: 6px;
-      transition: background 0.15s, border-color 0.15s;
+      box-shadow: var(--shadow-sm);
+      transition: all 0.15s ease;
     }
 
     .action-pill-btn:hover {
       background: var(--pine-card-hover);
       border-color: var(--pine-card-border-light);
+      transform: translateY(-1px);
     }
 
     .action-pill-btn svg {
       width: 14px;
       height: 14px;
       fill: currentColor;
+    }
+
+    .theme-toggle-btn {
+      font-size: 13px;
+      padding: 6px 10px;
     }
 
     /* Message Stream */
@@ -553,7 +626,7 @@
     .empty-title {
       font-size: 16px;
       font-weight: 700;
-      color: #ffffff;
+      color: var(--heading-color);
     }
 
     .empty-desc {
@@ -718,7 +791,7 @@
     .progress-bar-container {
       width: 100%;
       height: 5px;
-      background: rgba(0, 0, 0, 0.45);
+      background: var(--progress-track);
       border-radius: 999px;
       overflow: hidden;
       margin-top: 6px;
@@ -855,7 +928,7 @@
       position: absolute;
       inset: 0;
       z-index: 999;
-      background: rgba(7, 31, 25, 0.96);
+      background: var(--drag-overlay-bg);
       border: 3px dashed var(--mint);
       display: none;
       align-items: center;
@@ -886,7 +959,8 @@
       display: none;
       align-items: center;
       justify-content: center;
-      background: rgba(0, 0, 0, 0.75);
+      background: rgba(0, 0, 0, 0.6);
+      backdrop-filter: blur(8px);
       z-index: 9999;
       padding: 16px;
     }
@@ -894,7 +968,7 @@
     .modal.show { display: flex; }
 
     .modal-card {
-      background: var(--pine-sidebar);
+      background: var(--modal-bg);
       border: 1px solid var(--pine-card-border-light);
       border-radius: var(--radius-xl);
       padding: 22px;
@@ -913,7 +987,7 @@
     .modal-title {
       font-size: 15px;
       font-weight: 700;
-      color: #ffffff;
+      color: var(--heading-color);
     }
 
     .qr-frame {
@@ -1035,9 +1109,9 @@
       bottom: 24px;
       left: 50%;
       transform: translateX(-50%) translateY(100px);
-      background: var(--pine-card);
-      border: 1px solid var(--mint);
-      color: #ffffff;
+      background: var(--toast-bg);
+      border: 1px solid var(--toast-border);
+      color: var(--toast-text);
       padding: 10px 18px;
       border-radius: var(--radius-xl);
       font-size: 13px;
@@ -1162,6 +1236,10 @@
         </div>
 
         <div class="chat-header-actions">
+          <button id="themeToggleBtn" class="action-pill-btn theme-toggle-btn" title="Toggle Theme (Light / Dark)">
+            <span id="themeIcon">☀️</span>
+          </button>
+
           <button id="toggleSoundBtn" class="action-pill-btn" title="Toggle Sound">
             <span id="soundIcon">🔊</span>
           </button>
@@ -2195,8 +2273,35 @@
       }
     });
 
+    // Theme toggle handling
+    function updateThemeToggle(theme) {
+      document.documentElement.setAttribute('data-theme', theme);
+      const icon = $('themeIcon');
+      const btn = $('themeToggleBtn');
+      if (icon) {
+        icon.textContent = theme === 'dark' ? '🌙' : '☀️';
+      }
+      if (btn) {
+        btn.title = theme === 'dark' ? 'Switch to Light Theme' : 'Switch to Dark Theme';
+      }
+    }
+
+    const themeToggleBtn = $('themeToggleBtn');
+    if (themeToggleBtn) {
+      themeToggleBtn.onclick = () => {
+        const cur = document.documentElement.getAttribute('data-theme') || 'light';
+        const next = cur === 'light' ? 'dark' : 'light';
+        localStorage.setItem('lan-share-theme', next);
+        updateThemeToggle(next);
+        showToast(next === 'light' ? 'Switched to Light Theme' : 'Switched to Dark Theme');
+      };
+    }
+
     // Initialize
     document.addEventListener('DOMContentLoaded', () => {
+      const currentTheme = localStorage.getItem('lan-share-theme') || 'light';
+      updateThemeToggle(currentTheme);
+
       const savedName = localStorage.getItem('ls_name');
       if (savedName) {
         nameInput.value = savedName;

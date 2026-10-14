@@ -244,6 +244,29 @@ if (portInput) {
   });
 }
 
+// Theme Toggle in Popup
+function updatePopupTheme(theme) {
+  document.documentElement.setAttribute('data-theme', theme);
+  const themeBtn = document.getElementById('themeToggleBtn');
+  if (themeBtn) {
+    themeBtn.textContent = theme === 'dark' ? '🌙' : '☀️';
+    themeBtn.title = theme === 'dark' ? 'Switch to Light Theme' : 'Switch to Dark Theme';
+  }
+}
+
+const themeBtn = document.getElementById('themeToggleBtn');
+if (themeBtn) {
+  const curTheme = localStorage.getItem('lan-share-theme') || 'light';
+  updatePopupTheme(curTheme);
+
+  themeBtn.onclick = () => {
+    const cur = document.documentElement.getAttribute('data-theme') || 'light';
+    const next = cur === 'light' ? 'dark' : 'light';
+    localStorage.setItem('lan-share-theme', next);
+    updatePopupTheme(next);
+  };
+}
+
 // Initial state check
 updateUiState().then(() => {
   const status = document.getElementById('status');

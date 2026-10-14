@@ -9,7 +9,7 @@ Built with direct **WebRTC DataChannels** (simple-peer), a **Python Flask + Sock
 ## Key Highlights
 
 - **100% Offline Capable**: Zero internet required. All client libraries (`socket.io.min.js`, `simplepeer.min.js`) are bundled locally within `/static/`. Transfers work at full Wi-Fi / Hotspot hardware speeds.
-- **Solid Dark Green Theme (`#071f19`)**: Clean, distraction-free modern UI inspired by Telegram and WhatsApp Web. Pure solid colors with no blurry gradients or visual haze.
+- **Dual Theme Engine (Portfolio Light & Pine Dark)**: Features a crisp, modern light theme inspired by [bibekksharma.com.np](https://bibekksharma.com.np) with Manrope typography, subtle glassmorphic surfaces, and deep pine accents — alongside the distraction-free Pine Dark theme (`#071f19`). Includes an instant one-click theme switcher (☀️/🌙).
 - **Chunked File Streaming with Flow Control**: Transfers files of any size with chunk-level backpressure management (`bufferedAmount` throttling) and real-time progress bars.
 - **Queued Outbox**: Messages or files sent before a peer enters the room are held in a local outbox and automatically transmitted as soon as a peer connects.
 - **Dynamic IP & Instant QR Codes**: Automatically detects network interface changes (e.g. connecting to a phone's mobile hotspot) and generates fresh QR codes on the fly via `/api/info` and `/qr.png`.
