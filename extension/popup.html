@@ -138,23 +138,44 @@
 
     .theme-btn {
       appearance: none;
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 4px 7px;
-      font-size: 12px;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      padding: 0;
       cursor: pointer;
-      color: var(--text);
       display: flex;
       align-items: center;
       justify-content: center;
-      box-shadow: var(--shadow-sm);
-      transition: transform 0.15s, background 0.15s;
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    [data-theme="light"] .theme-btn {
+      background: rgba(255, 255, 255, 0.85);
+      border: 1.5px solid rgba(255, 255, 255, 0.98);
+      color: #334155;
+      box-shadow: -2px -2px 6px rgba(255, 255, 255, 0.9), 3px 4px 10px rgba(0, 0, 0, 0.05), inset 0 1px 1px #ffffff;
+    }
+
+    [data-theme="dark"] .theme-btn {
+      background: #171c21;
+      border: 1.5px solid rgba(52, 211, 153, 0.55);
+      color: #ffffff;
+      box-shadow: 0 0 10px rgba(52, 211, 153, 0.25), 4px 5px 12px rgba(0, 0, 0, 0.65), -2px -2px 6px rgba(255, 255, 255, 0.03);
     }
 
     .theme-btn:hover {
-      background: var(--surface-hover);
-      transform: scale(1.05);
+      transform: translateY(-1px) scale(1.08);
+    }
+
+    .theme-icon-svg {
+      width: 16px;
+      height: 16px;
+      display: block;
+      transition: transform 0.25s ease;
+    }
+
+    .theme-btn:hover .theme-icon-svg {
+      transform: rotate(15deg);
     }
 
     .status-indicator {

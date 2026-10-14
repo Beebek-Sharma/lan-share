@@ -244,12 +244,28 @@ if (portInput) {
   });
 }
 
+const SUN_SVG = `<svg class="theme-icon-svg sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+  <circle cx="12" cy="12" r="4.5"></circle>
+  <line x1="12" y1="1.5" x2="12" y2="4"></line>
+  <line x1="12" y1="20" x2="12" y2="22.5"></line>
+  <line x1="4.22" y1="4.22" x2="6" y2="6"></line>
+  <line x1="18" y1="18" x2="19.78" y2="19.78"></line>
+  <line x1="1.5" y1="12" x2="4" y2="12"></line>
+  <line x1="20" y1="12" x2="22.5" y2="12"></line>
+  <line x1="4.22" y1="19.78" x2="6" y2="18"></line>
+  <line x1="18" y1="6" x2="19.78" y2="4.22"></line>
+</svg>`;
+
+const MOON_SVG = `<svg class="theme-icon-svg moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+  <path d="M20.5 13.2A8.5 8.5 0 1 1 10.8 3.5a6.8 6.8 0 0 0 9.7 9.7z"></path>
+</svg>`;
+
 // Theme Toggle in Popup
 function updatePopupTheme(theme) {
   document.documentElement.setAttribute('data-theme', theme);
   const themeBtn = document.getElementById('themeToggleBtn');
   if (themeBtn) {
-    themeBtn.textContent = theme === 'dark' ? '🌙' : '☀️';
+    themeBtn.innerHTML = theme === 'dark' ? MOON_SVG : SUN_SVG;
     themeBtn.title = theme === 'dark' ? 'Switch to Light Theme' : 'Switch to Dark Theme';
   }
 }

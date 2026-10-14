@@ -667,7 +667,32 @@
     }
 
     .header-circle-btn.theme-toggle-btn {
-      font-size: 15px;
+      padding: 0;
+    }
+
+    [data-theme="light"] .header-circle-btn.theme-toggle-btn {
+      background: rgba(255, 255, 255, 0.85);
+      border: 1.5px solid rgba(255, 255, 255, 0.98);
+      color: #334155;
+      box-shadow: -2px -2px 6px rgba(255, 255, 255, 0.9), 3px 4px 10px rgba(0, 0, 0, 0.05), inset 0 1px 1px #ffffff;
+    }
+
+    [data-theme="dark"] .header-circle-btn.theme-toggle-btn {
+      background: #171c21;
+      border: 1.5px solid rgba(52, 211, 153, 0.55);
+      color: #ffffff;
+      box-shadow: 0 0 10px rgba(52, 211, 153, 0.25), 4px 5px 12px rgba(0, 0, 0, 0.65), -2px -2px 6px rgba(255, 255, 255, 0.03);
+    }
+
+    .theme-icon-svg {
+      width: 17px;
+      height: 17px;
+      display: block;
+      transition: transform 0.25s ease;
+    }
+
+    .header-circle-btn.theme-toggle-btn:hover .theme-icon-svg {
+      transform: rotate(15deg);
     }
 
     /* Message Stream */
@@ -1808,9 +1833,7 @@
           </button>
 
           <!-- 6. Theme Toggle (Sun / Moon) -->
-          <button id="themeToggleBtn" class="header-circle-btn theme-toggle-btn" title="Toggle Light / Dark Theme">
-            <span id="themeIcon">☀️</span>
-          </button>
+          <button id="themeToggleBtn" class="header-circle-btn theme-toggle-btn" title="Toggle Light / Dark Theme"></button>
         </div>
       </header>
 
@@ -3312,16 +3335,35 @@
       }
     });
 
+    const SUN_SVG = `<svg class="theme-icon-svg sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="12" cy="12" r="4.5"></circle>
+      <line x1="12" y1="1.5" x2="12" y2="4"></line>
+      <line x1="12" y1="20" x2="12" y2="22.5"></line>
+      <line x1="4.22" y1="4.22" x2="6" y2="6"></line>
+      <line x1="18" y1="18" x2="19.78" y2="19.78"></line>
+      <line x1="1.5" y1="12" x2="4" y2="12"></line>
+      <line x1="20" y1="12" x2="22.5" y2="12"></line>
+      <line x1="4.22" y1="19.78" x2="6" y2="18"></line>
+      <line x1="18" y1="6" x2="19.78" y2="4.22"></line>
+    </svg>`;
+
+    const MOON_SVG = `<svg class="theme-icon-svg moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M20.5 13.2A8.5 8.5 0 1 1 10.8 3.5a6.8 6.8 0 0 0 9.7 9.7z"></path>
+    </svg>`;
+
     // Theme toggle handling
     function updateThemeToggle(theme) {
       document.documentElement.setAttribute('data-theme', theme);
-      const icon = $('themeIcon');
       const btn = $('themeToggleBtn');
-      if (icon) {
-        icon.textContent = theme === 'dark' ? '🌙' : '☀️';
-      }
       if (btn) {
+        btn.innerHTML = theme === 'dark' ? MOON_SVG : SUN_SVG;
         btn.title = theme === 'dark' ? 'Switch to Light Theme' : 'Switch to Dark Theme';
+      }
+      const drawerBtn = $('drawerThemeBtn');
+      if (drawerBtn) {
+        drawerBtn.innerHTML = theme === 'dark' 
+          ? (MOON_SVG + '<span style="margin-left:8px;">Switch to Light Theme</span>') 
+          : (SUN_SVG + '<span style="margin-left:8px;">Switch to Dark Theme</span>');
       }
     }
 

@@ -12,7 +12,7 @@ Built with direct **WebRTC DataChannels** (simple-peer), a **Python Flask + Sock
 - **Dual Master Themes**:
   - **Light Theme**: Crystal-clear **Liquid Glassmorphism** & Neumorphism (specular white borders, frosted glass pill capsules, subtle drop shadows, and vibrant emerald accents).
   - **Dark Theme**: Stealth **Matte Carbon & Obsidian Spatial Theme** (deep charcoal backgrounds `#111417`, raised dual-shadow spatial cards, recessed well inputs, and high-tech neon mint & cyber cyan glowing cores).
-  - One-click instant theme toggle (☀️/🌙) available across desktop and mobile.
+  - One-click instant theme toggle with custom stroke **Sun & Crescent Moon** icons available across desktop and popup launcher.
 - **Mobile-First Icon Theme**: Mobile header matches native phone layouts with dedicated circular action buttons (📣 Sound Horn, 📞 Phone Call, 📹 Video Camera, ⚃ QR Scanner, ⚙️ Settings / Diagnostics), emoji quick reaction bar, and floating glass capsule input dock.
 - **100% Offline Capable**: Zero internet required. All client libraries (`socket.io.min.js`, `simplepeer.min.js`) are bundled locally within `/static/`. Transfers work at full Wi-Fi / Hotspot hardware speeds.
 - **Chunked File Streaming with Flow Control**: Transfers files of any size with chunk-level backpressure management (`bufferedAmount` throttling) and real-time progress bars.
@@ -70,7 +70,7 @@ lan-share/
 │   └── simplepeer.min.js            # Localized SimplePeer WebRTC client (offline)
 ├── extension/                       # Chrome & Edge Extension
 │   ├── manifest.json                # Extension manifest v3
-│   ├── popup.html                   # Extension popup UI (Solid Dark Green theme)
+│   ├── popup.html                   # Extension popup UI (Dual Glassmorphic / Matte Carbon theme)
 │   ├── popup.js                     # Server launcher & monitor
 │   └── background.js                # Minimal service worker
 ├── native-host/                     # Native Messaging Host
