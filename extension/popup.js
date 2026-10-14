@@ -1,3 +1,10 @@
+// Immediate theme initialization to prevent flash
+try {
+  const urlTheme = new URLSearchParams(window.location.search).get('theme');
+  const initialTheme = urlTheme || localStorage.getItem('lan-share-theme') || 'light';
+  document.documentElement.setAttribute('data-theme', initialTheme);
+} catch (e) {}
+
 // Helper: fetch with timeout
 function fetchWithTimeout(url, opts = {}, timeout = 1000) {
   return new Promise((resolve, reject) => {
