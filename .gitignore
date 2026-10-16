@@ -14,4 +14,6 @@ lan_share_qr.png
 .idea/
 .DS_Store
 Thumbs.db
-
+# SSL Certificate & Private Key (auto-generated at runtime)
+cert.pem
+key.pem

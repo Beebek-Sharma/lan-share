@@ -1561,7 +1561,26 @@
       overflow: hidden;
     }
 
+    .remote-video-placeholder {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: radial-gradient(circle at center, #1b263b 0%, #0d131f 100%);
+      z-index: 1;
+      text-align: center;
+      padding: 20px;
+    }
+
+    .remote-video-placeholder.hidden {
+      display: none !important;
+    }
+
     .remote-video-feed {
+      position: relative;
+      z-index: 2;
       width: 100%;
       height: 100%;
       object-fit: cover;
@@ -1597,6 +1616,52 @@
       color: #ffffff;
       padding: 1px 5px;
       border-radius: 4px;
+    }
+
+    /* QR Mode Tabs & Mobile HTTPS Notice */
+    .qr-mode-tab {
+      background: transparent;
+      color: var(--text-muted);
+      transition: all 0.2s ease;
+      font-family: inherit;
+    }
+    .qr-mode-tab.active {
+      background: var(--bg-panel);
+      color: var(--primary);
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.12);
+    }
+    .mobile-https-notice {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      padding: 8px 12px;
+      background: linear-gradient(135deg, rgba(16, 185, 129, 0.12), rgba(59, 130, 246, 0.12));
+      border-bottom: 1px solid rgba(16, 185, 129, 0.25);
+      font-size: 12px;
+      color: var(--text-main);
+      z-index: 5;
+    }
+    .banner-switch-btn {
+      background: var(--primary);
+      color: #ffffff;
+      border: none;
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-size: 11px;
+      font-weight: 600;
+      cursor: pointer;
+      flex-shrink: 0;
+      box-shadow: 0 2px 6px rgba(16, 185, 129, 0.3);
+    }
+    .banner-dismiss-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      font-size: 14px;
+      padding: 2px 6px;
+      flex-shrink: 0;
     }
 
     /* Call Control Dock */
@@ -1670,18 +1735,21 @@
       .sidebar-toggle { display: inline-flex; }
       .close-sidebar-btn { display: flex !important; }
       .msg-group { max-width: 88%; }
-      .chat-header { padding: 0 10px; height: 56px; }
-      .chat-header-left { gap: 6px; flex-shrink: 0; min-width: 0; }
-      .room-name-display { font-size: 15px; }
+      .chat-header { padding: 0 8px; height: 56px; }
+      .chat-header-left { gap: 4px; flex-shrink: 0; min-width: 0; }
+      .room-name-display { font-size: 14px; max-width: 85px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
       .room-subtitle { display: none !important; }
-      .chat-header-actions { gap: 5px; flex-shrink: 0; }
-      .header-circle-btn { width: 32px; height: 32px; }
-      .header-circle-btn svg { width: 15px; height: 15px; }
-      .chat-header .theme-toggle-btn { display: none !important; }
+      .chat-header-actions { gap: 4px; flex-shrink: 0; }
+      .header-circle-btn { width: 30px; height: 30px; flex-shrink: 0; }
+      .header-circle-btn svg { width: 14px; height: 14px; }
+      .header-circle-btn.theme-toggle-btn { display: inline-flex !important; }
+      .header-circle-btn.theme-toggle-btn .theme-icon-svg { width: 15px; height: 15px; }
       .message-stream { padding: 12px; }
       .input-dock { padding: 6px 10px 12px; width: 100%; box-sizing: border-box; }
       .chat-input-bar { width: 100%; box-sizing: border-box; padding: 4px 6px 4px 10px; gap: 6px; }
       #chatTextInput { min-width: 0; flex: 1; font-size: 13px; }
+    }
+
     /* Mobile Emulated Frame */
     html.mobile-emulated .app-shell,
     html.mobile-emulated .main-chat {
@@ -1695,14 +1763,15 @@
       transform: translateX(-100%);
     }
     html.mobile-emulated .sidebar-toggle { display: inline-flex !important; }
-    html.mobile-emulated .chat-header { padding: 0 10px !important; height: 56px !important; }
-    html.mobile-emulated .chat-header-left { gap: 6px !important; flex-shrink: 0 !important; min-width: 0 !important; }
-    html.mobile-emulated .room-name-display { font-size: 15px !important; }
+    html.mobile-emulated .chat-header { padding: 0 8px !important; height: 56px !important; }
+    html.mobile-emulated .chat-header-left { gap: 4px !important; flex-shrink: 0 !important; min-width: 0 !important; }
+    html.mobile-emulated .room-name-display { font-size: 14px !important; max-width: 85px !important; overflow: hidden !important; text-overflow: ellipsis !important; white-space: nowrap !important; }
     html.mobile-emulated .room-subtitle { display: none !important; }
-    html.mobile-emulated .chat-header-actions { gap: 5px !important; flex-shrink: 0 !important; }
-    html.mobile-emulated .header-circle-btn { width: 32px !important; height: 32px !important; }
-    html.mobile-emulated .header-circle-btn svg { width: 15px !important; height: 15px !important; }
-    html.mobile-emulated .chat-header .theme-toggle-btn { display: none !important; }
+    html.mobile-emulated .chat-header-actions { gap: 4px !important; flex-shrink: 0 !important; }
+    html.mobile-emulated .header-circle-btn { width: 30px !important; height: 30px !important; flex-shrink: 0 !important; }
+    html.mobile-emulated .header-circle-btn svg { width: 14px !important; height: 14px !important; }
+    html.mobile-emulated .header-circle-btn.theme-toggle-btn { display: inline-flex !important; }
+    html.mobile-emulated .header-circle-btn.theme-toggle-btn .theme-icon-svg { width: 15px !important; height: 15px !important; }
     html.mobile-emulated .input-dock { padding: 6px 10px 12px !important; width: 100% !important; box-sizing: border-box !important; }
     html.mobile-emulated .chat-input-bar { width: 100% !important; box-sizing: border-box !important; padding: 4px 6px 4px 10px !important; gap: 6px !important; }
     html.mobile-emulated #chatTextInput { min-width: 0 !important; flex: 1 !important; font-size: 13px !important; }
@@ -1825,17 +1894,24 @@
             </svg>
           </button>
 
-          <!-- 5. Settings / Diagnostics Drawer Button -->
+          <!-- 5. Theme Toggle (Sun / Moon) -->
+          <button id="themeToggleBtn" class="header-circle-btn theme-toggle-btn" title="Toggle Light / Dark Theme"></button>
+
+          <!-- 6. Settings / Diagnostics Drawer Button -->
           <button id="toggleDrawerBtn" class="header-circle-btn" title="Diagnostics & Controls">
             <svg viewBox="0 0 24 24">
               <path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/>
             </svg>
           </button>
-
-          <!-- 6. Theme Toggle (Sun / Moon) -->
-          <button id="themeToggleBtn" class="header-circle-btn theme-toggle-btn" title="Toggle Light / Dark Theme"></button>
         </div>
       </header>
+
+      <!-- Mobile HTTPS Notice Banner -->
+      <div id="mobileHttpsNotice" class="mobile-https-notice" style="display:none;">
+        <span>🔒 <strong>Mobile Calls:</strong> Switch to Secure HTTPS to enable your phone's microphone & camera.</span>
+        <button id="bannerSwitchHttpsBtn" class="banner-switch-btn">Switch</button>
+        <button id="bannerDismissNoticeBtn" class="banner-dismiss-btn">✕</button>
+      </div>
 
       <!-- Message History Stream -->
       <div id="messagesStream" class="message-stream">
@@ -1930,18 +2006,49 @@
         <div class="modal-title">Scan on Mobile Device</div>
         <button id="closeQrModalBtn" class="icon-btn-ghost">✕</button>
       </div>
+      <!-- Mode Tabs (HTTPS for calls vs HTTP for instant file share) -->
+      <div style="display: flex; gap: 6px; margin-bottom: 12px; background: rgba(0,0,0,0.06); padding: 4px; border-radius: 10px;">
+        <button type="button" id="qrTabHttps" class="qr-mode-tab active" style="flex: 1; padding: 7px 6px; font-size: 11px; border-radius: 7px; font-weight: 600; border: none; cursor: pointer;">
+          🔒 Secure HTTPS (Calling)
+        </button>
+        <button type="button" id="qrTabHttp" class="qr-mode-tab" style="flex: 1; padding: 7px 6px; font-size: 11px; border-radius: 7px; font-weight: 600; border: none; cursor: pointer;">
+          ⚡ Standard HTTP (Fast)
+        </button>
+      </div>
       <div style="text-align:center;">
         <div class="qr-frame">
-          <img id="qrModalImg" src="/qr.png" alt="LAN Share QR" />
+          <img id="qrModalImg" src="/qr.png?type=https" alt="LAN Share QR" />
         </div>
       </div>
       <div class="qr-address-box">
         <span id="qrAddressText" class="qr-address-text">Loading...</span>
         <button id="copyModalUrlBtn" class="connect-btn" style="padding:4px 10px; font-size:11px;">Copy</button>
       </div>
-      <div style="margin-top:10px; font-size:11px; color:var(--text-muted); text-align:center; line-height:1.4;">
-        💡 If connected to a phone hotspot, open the address shown above!
+      <div id="qrNoteText" style="margin-top:10px; font-size:11px; color:var(--text-muted); text-align:center; line-height:1.4;">
+        🔒 Use HTTPS on phones to grant microphone & camera permissions!
       </div>
+    </div>
+  </div>
+
+  <!-- HTTPS Prompt Modal for Mobile Voice & Video Calls -->
+  <div id="httpsPromptModal" class="modal">
+    <div class="modal-card" style="max-width: 380px; text-align: center;">
+      <div style="font-size: 40px; margin-bottom: 8px;">🔒</div>
+      <div class="modal-title" style="margin-bottom: 8px; font-size: 18px;">Secure Mode Required</div>
+      <p style="font-size: 13px; color: var(--text-muted); line-height: 1.5; margin-bottom: 14px;">
+        Mobile browsers (Chrome, Brave, Safari) require HTTPS to allow Microphone and Camera permissions.
+        <br><br>
+        LAN Share is already running in secure mode on port 5001! Tap below to switch:
+      </p>
+      <button type="button" id="switchToHttpsBtn" class="connect-btn" style="width: 100%; padding: 11px; font-size: 14px; font-weight: 600; margin-bottom: 8px;">
+        🚀 Switch to Secure Mode (HTTPS)
+      </button>
+      <div style="font-size: 11px; color: var(--text-muted); margin-bottom: 14px;">
+        <em>(On first visit, tap "Advanced" → "Proceed to 192.168.x.x")</em>
+      </div>
+      <button type="button" id="closeHttpsPromptBtn" class="cancel-btn" style="width: 100%; padding: 9px; font-size: 13px;">
+        Cancel
+      </button>
     </div>
   </div>
 
@@ -2017,10 +2124,15 @@
 
         <!-- Video Call Mode View -->
         <div id="videoCallView" class="video-call-stage" style="display:none;">
+          <div id="remoteVideoPlaceholder" class="remote-video-placeholder">
+            <div id="remoteVideoAvatar" class="call-avatar-circle large">P</div>
+            <div id="remoteVideoName" class="call-peer-title" style="margin-top:12px; color:#ffffff;">Connecting Video...</div>
+            <div id="remoteVideoStatus" style="font-size:12px; color:rgba(255,255,255,0.7); margin-top:4px;">Waiting for camera stream</div>
+          </div>
           <video id="remoteVideo" class="remote-video-feed" autoplay playsinline></video>
           <div class="local-pip-container">
             <video id="localVideo" class="local-video-feed" autoplay playsinline muted></video>
-            <div class="pip-label">You</div>
+            <div id="localPipLabel" class="pip-label">You</div>
           </div>
         </div>
       </div>
@@ -2264,22 +2376,47 @@
     }
 
     // Server Info & Dynamic IP
+    let serverInfo = null;
+    let currentQrMode = 'https';
+
     async function fetchServerInfo() {
       try {
         const res = await fetch('/api/info');
         if (res.ok) {
-          const data = await res.json();
-          currentServerUrl = data.url || window.location.origin;
+          serverInfo = await res.json();
+          currentServerUrl = serverInfo.url || window.location.origin;
           const ipText = $('sidebarIpDisplay');
           if (ipText) ipText.textContent = currentServerUrl;
-          const qrText = $('qrAddressText');
-          if (qrText) qrText.textContent = currentServerUrl;
-          const qrImg = $('qrModalImg');
-          if (qrImg) qrImg.src = '/qr.png?t=' + Date.now();
+          updateQrDisplay();
         }
       } catch (e) {
         const ipText = $('sidebarIpDisplay');
         if (ipText) ipText.textContent = window.location.origin;
+      }
+    }
+
+    function updateQrDisplay() {
+      const qrText = $('qrAddressText');
+      const qrImg = $('qrModalImg');
+      const noteText = $('qrNoteText');
+      const tabHttps = $('qrTabHttps');
+      const tabHttp = $('qrTabHttp');
+
+      const httpsUrl = (serverInfo && serverInfo.https_url) || `https://${location.hostname}:5001/`;
+      const httpUrl = (serverInfo && serverInfo.http_url) || `http://${location.hostname}:5000/`;
+
+      if (currentQrMode === 'https') {
+        if (tabHttps) tabHttps.classList.add('active');
+        if (tabHttp) tabHttp.classList.remove('active');
+        if (qrText) qrText.textContent = httpsUrl;
+        if (qrImg) qrImg.src = '/qr.png?type=https&t=' + Date.now();
+        if (noteText) noteText.innerHTML = '🔒 <strong>Recommended for Mobile:</strong> Enables Camera & Microphone permissions!';
+      } else {
+        if (tabHttps) tabHttps.classList.remove('active');
+        if (tabHttp) tabHttp.classList.add('active');
+        if (qrText) qrText.textContent = httpUrl;
+        if (qrImg) qrImg.src = '/qr.png?type=http&t=' + Date.now();
+        if (noteText) noteText.innerHTML = '⚡ <strong>Fast Mode:</strong> Instant chat & files with zero SSL certificate warnings!';
       }
     }
 
@@ -2593,7 +2730,18 @@
           const remoteVid = $('remoteVideo');
           if (remoteVid) {
             remoteVid.srcObject = remoteStream;
-            remoteVid.play().catch(e => logSys('Video playback note: ' + (e && e.message)));
+            remoteVid.play().then(() => {
+              const ph = $('remoteVideoPlaceholder');
+              if (ph) ph.classList.add('hidden');
+            }).catch(e => logSys('Video playback note: ' + (e && e.message)));
+          }
+          const vTracks = remoteStream.getVideoTracks();
+          const ph = $('remoteVideoPlaceholder');
+          if (ph && vTracks.length > 0) {
+            ph.classList.add('hidden');
+          } else if (ph && vTracks.length === 0) {
+            $('remoteVideoName').textContent = currentCall.peerName;
+            $('remoteVideoStatus').textContent = 'Audio stream active';
           }
           startAudioVisualizer(remoteStream);
         }
@@ -3029,6 +3177,187 @@
       sendJsonToPeer(targetPid, packet);
     }
 
+    let syntheticCanvasActive = false;
+    let syntheticCanvasFrame = 0;
+
+    function createSilentAudioTrack() {
+      try {
+        const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+        if (!AudioContextClass) return null;
+        const ctx = new AudioContextClass();
+        const osc = ctx.createOscillator();
+        const dst = ctx.createMediaStreamDestination();
+        osc.connect(dst);
+        osc.start();
+        const track = dst.stream.getAudioTracks()[0];
+        if (track) track.enabled = false;
+        return track;
+      } catch (e) {
+        console.warn('Silent audio track fallback error:', e);
+        return null;
+      }
+    }
+
+    function createCanvasAvatarTrack(username) {
+      try {
+        const canvas = document.createElement('canvas');
+        canvas.width = 640;
+        canvas.height = 480;
+        const ctx = canvas.getContext('2d');
+        const initial = (username || 'User').trim().charAt(0).toUpperCase() || 'U';
+        syntheticCanvasActive = true;
+
+        function roundRect(c, x, y, w, h, r) {
+          c.beginPath();
+          c.moveTo(x + r, y);
+          c.lineTo(x + w - r, y);
+          c.quadraticCurveTo(x + w, y, x + w, y + r);
+          c.lineTo(x + w, y + h - r);
+          c.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+          c.lineTo(x + r, y + h);
+          c.quadraticCurveTo(x, y + h, x, y + h - r);
+          c.lineTo(x, y + r);
+          c.quadraticCurveTo(x, y, x + r, y);
+          c.closePath();
+        }
+
+        function renderFrame() {
+          if (!syntheticCanvasActive) return;
+          syntheticCanvasFrame++;
+
+          // Rich dark radial gradient
+          const grad = ctx.createLinearGradient(0, 0, 640, 480);
+          grad.addColorStop(0, '#0c121e');
+          grad.addColorStop(0.5, '#162032');
+          grad.addColorStop(1, '#090d16');
+          ctx.fillStyle = grad;
+          ctx.fillRect(0, 0, 640, 480);
+
+          // Subtle ambient concentric pulse
+          const pulse = Math.sin(syntheticCanvasFrame * 0.06) * 10;
+          ctx.beginPath();
+          ctx.arc(320, 195, 76 + pulse, 0, Math.PI * 2);
+          ctx.fillStyle = 'rgba(52, 211, 153, 0.12)';
+          ctx.fill();
+
+          ctx.beginPath();
+          ctx.arc(320, 195, 68, 0, Math.PI * 2);
+          ctx.fillStyle = '#10b981';
+          ctx.fill();
+          ctx.lineWidth = 3;
+          ctx.strokeStyle = '#34d399';
+          ctx.stroke();
+
+          // Avatar Initial
+          ctx.fillStyle = '#ffffff';
+          ctx.font = 'bold 50px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          ctx.fillText(initial, 320, 195);
+
+          // Display Username
+          ctx.fillStyle = '#f1f5f9';
+          ctx.font = '600 22px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+          ctx.fillText(username || 'Peer', 320, 290);
+
+          // Camera Off / Avatar Mode badge
+          ctx.fillStyle = 'rgba(15, 23, 42, 0.75)';
+          roundRect(ctx, 210, 320, 220, 34, 17);
+          ctx.fill();
+          ctx.strokeStyle = 'rgba(255, 255, 255, 0.12)';
+          ctx.lineWidth = 1;
+          ctx.stroke();
+
+          ctx.fillStyle = '#94a3b8';
+          ctx.font = '13px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+          ctx.fillText('📷 Camera Off (Avatar)', 320, 337);
+
+          setTimeout(() => {
+            if (syntheticCanvasActive) requestAnimationFrame(renderFrame);
+          }, 66); // ~15 fps
+        }
+        renderFrame();
+
+        const stream = canvas.captureStream ? canvas.captureStream(15) : null;
+        if (stream && stream.getVideoTracks().length > 0) {
+          return stream.getVideoTracks()[0];
+        }
+      } catch (e) {
+        console.warn('Canvas video generation error:', e);
+      }
+      return null;
+    }
+
+    async function acquireUserMedia(callType) {
+      let audioTrack = null;
+      let videoTrack = null;
+
+      // 1. Acquire Audio Track
+      if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+        try {
+          const aStream = await navigator.mediaDevices.getUserMedia({
+            audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true }
+          });
+          audioTrack = aStream.getAudioTracks()[0] || null;
+        } catch (err1) {
+          try {
+            const aStream2 = await navigator.mediaDevices.getUserMedia({ audio: true });
+            audioTrack = aStream2.getAudioTracks()[0] || null;
+          } catch (err2) {
+            console.warn('Microphone capture note:', err2);
+            logSys('Mic note: ' + (err2 && err2.message));
+          }
+        }
+      }
+
+      if (!audioTrack) {
+        audioTrack = createSilentAudioTrack();
+      }
+
+      // 2. Acquire Video Track (if video call)
+      if (callType === 'video') {
+        if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+          try {
+            const vStream = await navigator.mediaDevices.getUserMedia({
+              video: { width: { ideal: 640 }, height: { ideal: 480 }, facingMode: 'user' }
+            });
+            videoTrack = vStream.getVideoTracks()[0] || null;
+          } catch (vidErr) {
+            console.warn('Hardware camera unavailable or broken:', vidErr);
+            logSys('Camera unavailable: ' + (vidErr && vidErr.message));
+            showToast('⚠️ Camera not detected — using avatar stream');
+          }
+        }
+        // If camera hardware failed or not supported, generate dynamic animated canvas avatar
+        if (!videoTrack) {
+          videoTrack = createCanvasAvatarTrack(myName);
+        }
+      }
+
+      const tracks = [];
+      if (audioTrack) tracks.push(audioTrack);
+      if (videoTrack) tracks.push(videoTrack);
+
+      if (tracks.length === 0) return null;
+      return new MediaStream(tracks);
+    }
+
+    function showHttpsPromptModal() {
+      const targetPort = (serverInfo && serverInfo.https_port) || 5001;
+      const httpsUrl = `https://${location.hostname}:${targetPort}${location.search}`;
+      const modal = $('httpsPromptModal');
+      if (modal) {
+        $('switchToHttpsBtn').onclick = () => {
+          window.location.href = httpsUrl;
+        };
+        modal.classList.add('show');
+      } else {
+        if (confirm("Mobile browsers require HTTPS to grant microphone and camera access.\n\nLAN Share is running HTTPS on port 5001.\n\nTap OK to switch to Secure Mode now.")) {
+          window.location.href = httpsUrl;
+        }
+      }
+    }
+
     async function initiateCall(callType) {
       const allPeerIds = Object.keys(names).filter(id => id !== myId);
       if (allPeerIds.length === 0) {
@@ -3039,25 +3368,13 @@
       const targetPid = pids.length > 0 ? pids[0] : allPeerIds[0];
       const peerName = names[targetPid] || 'Peer';
 
-      let localStream = null;
-      if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-        try {
-          localStream = await navigator.mediaDevices.getUserMedia({
-            audio: true,
-            video: callType === 'video' ? { width: { ideal: 640 }, height: { ideal: 480 } } : false
-          });
-        } catch (err) {
-          logSys('Media device note: ' + err.message);
-          showToast('⚠️ Mic/Camera access error: ' + err.message);
-        }
-      } else {
-        const isSecure = window.isSecureContext;
-        const msg = !isSecure 
-          ? '🔒 Mobile browsers require HTTPS for camera and microphone access. Please use HTTPS.' 
-          : '⚠️ Media devices not supported in this browser.';
-        logSys(msg);
-        showToast(msg);
+      // Check secure context for mobile devices
+      if (!window.isSecureContext && location.protocol === 'http:') {
+        showHttpsPromptModal();
+        return;
       }
+
+      const localStream = await acquireUserMedia(callType);
 
       const callId = 'call_' + Date.now();
       currentCall = {
@@ -3070,13 +3387,18 @@
         localStream: localStream,
         remoteStream: null,
         startTime: null,
-        timerInterval: null
+        timerInterval: null,
+        isMuted: false,
+        isCamOff: false
       };
 
       openCallHud(callType, peerName, 'Calling...');
       if (localStream && callType === 'video') {
         const localVid = $('localVideo');
-        if (localVid) localVid.srcObject = localStream;
+        if (localVid) {
+          localVid.srcObject = localStream;
+          localVid.play().catch(e => {});
+        }
       }
 
       startRingbackTone();
@@ -3112,11 +3434,24 @@
         if (audioStage) audioStage.style.display = 'none';
         if (videoStage) videoStage.style.display = 'flex';
         if (camBtn) camBtn.style.display = 'inline-flex';
+        const remoteVideoPlaceholder = $('remoteVideoPlaceholder');
+        if (remoteVideoPlaceholder) {
+          remoteVideoPlaceholder.classList.remove('hidden');
+          $('remoteVideoAvatar').textContent = (peerName.trim()[0] || 'P').toUpperCase();
+          $('remoteVideoName').textContent = peerName;
+          $('remoteVideoStatus').textContent = 'Connecting video feed...';
+        }
       } else {
         if (audioStage) audioStage.style.display = 'flex';
         if (videoStage) videoStage.style.display = 'none';
         if (camBtn) camBtn.style.display = 'none';
       }
+
+      // Reset mute/cam buttons state
+      $('callMicIcon').textContent = '🎙️';
+      $('callMicBtn').classList.remove('muted');
+      $('callCamIcon').textContent = '📹';
+      $('callCamBtn').classList.remove('muted');
 
       modal.classList.add('show');
     }
@@ -3138,6 +3473,7 @@
     function endCall(notify = true) {
       stopRingtones();
       stopAudioVisualizer();
+      syntheticCanvasActive = false;
       if (currentCall) {
         if (currentCall.timerInterval) clearInterval(currentCall.timerInterval);
         if (notify && currentCall.peerId) {
@@ -3164,6 +3500,8 @@
       if (remoteVid) remoteVid.srcObject = null;
       const localVid = $('localVideo');
       if (localVid) localVid.srcObject = null;
+      const remoteVideoPlaceholder = $('remoteVideoPlaceholder');
+      if (remoteVideoPlaceholder) remoteVideoPlaceholder.classList.remove('hidden');
     }
 
     // Call Buttons Wireup
@@ -3175,34 +3513,27 @@
       $('incomingCallModal').classList.remove('show');
       if (!currentCall) return;
 
-      const callType = currentCall.callType;
-      let localStream = null;
-      if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-        try {
-          localStream = await navigator.mediaDevices.getUserMedia({
-            audio: true,
-            video: callType === 'video' ? { width: { ideal: 640 }, height: { ideal: 480 } } : false
-          });
-        } catch (err) {
-          logSys('Mic/Cam note: ' + err.message);
-          showToast('⚠️ Mic/Camera access error: ' + err.message);
-        }
-      } else {
-        const isSecure = window.isSecureContext;
-        const msg = !isSecure 
-          ? '🔒 Mobile browsers require HTTPS for camera and microphone access. Please use HTTPS.' 
-          : '⚠️ Media devices not supported in this browser.';
-        logSys(msg);
-        showToast(msg);
+      // Check secure context for mobile devices
+      if (!window.isSecureContext && location.protocol === 'http:') {
+        showHttpsPromptModal();
+        return;
       }
+
+      const callType = currentCall.callType;
+      const localStream = await acquireUserMedia(callType);
 
       currentCall.active = true;
       currentCall.localStream = localStream;
+      currentCall.isMuted = false;
+      currentCall.isCamOff = false;
 
       openCallHud(callType, currentCall.peerName, 'Connected');
       if (localStream && callType === 'video') {
         const localVid = $('localVideo');
-        if (localVid) localVid.srcObject = localStream;
+        if (localVid) {
+          localVid.srcObject = localStream;
+          localVid.play().catch(e => {});
+        }
       }
       startCallTimer();
 
@@ -3235,27 +3566,29 @@
     };
 
     $('callMicBtn').onclick = () => {
-      if (currentCall && currentCall.localStream) {
-        const audioTrack = currentCall.localStream.getAudioTracks()[0];
-        if (audioTrack) {
-          audioTrack.enabled = !audioTrack.enabled;
-          $('callMicIcon').textContent = audioTrack.enabled ? '🎙️' : '🔇';
-          $('callMicBtn').classList.toggle('muted', !audioTrack.enabled);
-          showToast(audioTrack.enabled ? 'Microphone unmuted' : 'Microphone muted');
-        }
+      if (!currentCall) return;
+      currentCall.isMuted = !currentCall.isMuted;
+      if (currentCall.localStream) {
+        const audioTracks = currentCall.localStream.getAudioTracks();
+        audioTracks.forEach(t => { t.enabled = !currentCall.isMuted; });
       }
+      const isMuted = !!currentCall.isMuted;
+      $('callMicIcon').textContent = isMuted ? '🔇' : '🎙️';
+      $('callMicBtn').classList.toggle('muted', isMuted);
+      showToast(isMuted ? 'Microphone muted' : 'Microphone unmuted');
     };
 
     $('callCamBtn').onclick = () => {
-      if (currentCall && currentCall.localStream) {
-        const vidTrack = currentCall.localStream.getVideoTracks()[0];
-        if (vidTrack) {
-          vidTrack.enabled = !vidTrack.enabled;
-          $('callCamIcon').textContent = vidTrack.enabled ? '📹' : '🚫';
-          $('callCamBtn').classList.toggle('muted', !vidTrack.enabled);
-          showToast(vidTrack.enabled ? 'Camera turned on' : 'Camera turned off');
-        }
+      if (!currentCall) return;
+      currentCall.isCamOff = !currentCall.isCamOff;
+      if (currentCall.localStream) {
+        const vidTracks = currentCall.localStream.getVideoTracks();
+        vidTracks.forEach(t => { t.enabled = !currentCall.isCamOff; });
       }
+      const isOff = !!currentCall.isCamOff;
+      $('callCamIcon').textContent = isOff ? '🚫' : '📹';
+      $('callCamBtn').classList.toggle('muted', isOff);
+      showToast(isOff ? 'Camera turned off' : 'Camera turned on');
     };
 
     $('callSpeakerBtn').onclick = () => {
@@ -3316,7 +3649,7 @@
       showToast(soundEnabled ? 'Sound enabled' : 'Sound muted');
     };
 
-    // QR Modal Controls
+    // QR Modal Controls & Tabs
     const qrModal = $('qrModal');
     const openQr = () => {
       fetchServerInfo();
@@ -3329,22 +3662,48 @@
     $('closeQrModalBtn').onclick = closeQr;
     qrModal.onclick = (e) => { if (e.target === qrModal) closeQr(); };
 
+    const tabHttps = $('qrTabHttps');
+    if (tabHttps) tabHttps.onclick = () => { currentQrMode = 'https'; updateQrDisplay(); };
+    const tabHttp = $('qrTabHttp');
+    if (tabHttp) tabHttp.onclick = () => { currentQrMode = 'http'; updateQrDisplay(); };
+
+    const closeHttpsBtn = $('closeHttpsPromptBtn');
+    if (closeHttpsBtn) closeHttpsBtn.onclick = () => $('httpsPromptModal').classList.remove('show');
+
+    const bannerSwitchBtn = $('bannerSwitchHttpsBtn');
+    if (bannerSwitchBtn) {
+      bannerSwitchBtn.onclick = () => {
+        const targetPort = (serverInfo && serverInfo.https_port) || 5001;
+        window.location.href = `https://${location.hostname}:${targetPort}${location.search}`;
+      };
+    }
+    const bannerDismissBtn = $('bannerDismissNoticeBtn');
+    if (bannerDismissBtn) {
+      bannerDismissBtn.onclick = () => {
+        const notice = $('mobileHttpsNotice');
+        if (notice) notice.style.display = 'none';
+        sessionStorage.setItem('dismiss_https_notice', '1');
+      };
+    }
+
     // Copy IP buttons
     $('copyIpSidebarBtn').onclick = () => {
-      if (currentServerUrl) {
-        safeCopy(currentServerUrl).then(() => {
-          showToast('Copied LAN URL to clipboard: ' + currentServerUrl);
+      const textToCopy = $('sidebarIpDisplay') ? $('sidebarIpDisplay').textContent : currentServerUrl;
+      if (textToCopy) {
+        safeCopy(textToCopy).then(() => {
+          showToast('Copied LAN URL to clipboard: ' + textToCopy);
           $('copyIpSidebarBtn').textContent = '✅';
           setTimeout(() => { $('copyIpSidebarBtn').textContent = '📋'; }, 2000);
         }).catch(() => {
-          showToast('URL: ' + currentServerUrl);
+          showToast('URL: ' + textToCopy);
         });
       }
     };
 
     $('copyModalUrlBtn').onclick = () => {
-      if (currentServerUrl) {
-        safeCopy(currentServerUrl).then(() => {
+      const textToCopy = $('qrAddressText') ? $('qrAddressText').textContent : currentServerUrl;
+      if (textToCopy) {
+        safeCopy(textToCopy).then(() => {
           showToast('Copied address to clipboard!');
           $('copyModalUrlBtn').textContent = 'Copied!';
           setTimeout(() => { $('copyModalUrlBtn').textContent = 'Copy'; }, 2000);
@@ -3518,6 +3877,16 @@
       fetchServerInfo();
       restoreChatHistory();
       beginConnect();
+
+      // Show mobile HTTPS notice if accessed via insecure HTTP on a mobile phone
+      const isMobileDevice = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+      if (isMobileDevice && !window.isSecureContext && location.protocol === 'http:') {
+        const dismissed = sessionStorage.getItem('dismiss_https_notice');
+        const notice = $('mobileHttpsNotice');
+        if (notice && !dismissed) {
+          notice.style.display = 'flex';
+        }
+      }
     });
   </script>
 </body>

@@ -64,6 +64,8 @@ def api_info():
     ip = get_local_ip()
     scheme = "https" if request.is_secure else "http"
     port = request.host.split(':')[1] if ':' in request.host else (443 if request.is_secure else 5000)
+    http_port = app.config.get('HTTP_PORT', 5000)
+    https_port = app.config.get('HTTPS_PORT', 5001)
     all_ips = []
     try:
         all_ips = [i for i in socket.gethostbyname_ex(socket.gethostname())[2] if not i.startswith('127.') and not i.startswith('169.254.')]
@@ -74,6 +76,10 @@ def api_info():
         "port": port,
         "scheme": scheme,
         "url": f"{scheme}://{ip}:{port}/",
+        "http_port": http_port,
+        "https_port": https_port,
+        "http_url": f"http://{ip}:{http_port}/" if http_port else None,
+        "https_url": f"https://{ip}:{https_port}/" if https_port else None,
         "all_ips": all_ips
     })
 
@@ -82,9 +88,20 @@ def qr_image():
     # Dynamically generate QR code for the current active network IP
     try:
         ip = get_local_ip()
-        scheme = "https" if request.is_secure else "http"
-        port = request.host.split(':')[1] if ':' in request.host else (443 if request.is_secure else 5000)
-        url = f"{scheme}://{ip}:{port}/"
+        qr_type = request.args.get('type')  # 'http', 'https', or None
+        http_port = app.config.get('HTTP_PORT', 5000)
+        https_port = app.config.get('HTTPS_PORT', 5001)
+
+        if qr_type == 'https' and https_port:
+            url = f"https://{ip}:{https_port}/"
+        elif qr_type == 'http' and http_port:
+            url = f"http://{ip}:{http_port}/"
+        elif request.is_secure:
+            port = request.host.split(':')[1] if ':' in request.host else 443
+            url = f"https://{ip}:{port}/"
+        else:
+            url = f"https://{ip}:{https_port}/" if https_port else f"http://{ip}:{http_port}/"
+
         img = qrcode.make(url)
         buf = io.BytesIO()
         img.save(buf, format='PNG')
@@ -230,35 +247,72 @@ def ensure_self_signed_cert(cert_path='cert.pem', key_path='key.pem', ip='127.0.
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="LAN Share Signaling Server")
-    parser.add_argument('--port', type=int, default=5000)
-    parser.add_argument('--ssl', action='store_true', help='Enable HTTPS with self-signed certificate for mobile microphone/camera support')
+    parser.add_argument('--port', type=int, default=5000, help='HTTP port (default: 5000)')
+    parser.add_argument('--https-port', type=int, default=5001, help='HTTPS port (default: 5001)')
+    parser.add_argument('--no-ssl', action='store_true', help='Disable HTTPS server')
+    parser.add_argument('--ssl-only', action='store_true', help='Only run HTTPS on primary port')
+    parser.add_argument('--ssl', action='store_true', help='Alias for HTTPS mode')
     parser.add_argument('--no-qr', action='store_true', help='Do not create QR file')
     args = parser.parse_args()
 
     ip = get_local_ip()
-    port = args.port
-    scheme = "https" if args.ssl else "http"
-    url = f"{scheme}://{ip}:{port}/"
+    http_port = args.port
+    https_port = args.https_port if not args.no_ssl else None
+
+    if args.ssl_only or (args.ssl and args.no_ssl):
+        https_port = http_port
+        http_port = None
+
+    app.config['HTTP_PORT'] = http_port
+    app.config['HTTPS_PORT'] = https_port
 
     ssl_context = None
-    if args.ssl:
+    if https_port:
         cert_file, key_file = ensure_self_signed_cert('cert.pem', 'key.pem', ip)
         if cert_file and key_file:
             ssl_context = (cert_file, key_file)
-            print("🔒 HTTPS Enabled with self-signed SSL certificate (enables camera & mic on mobile devices)")
+        else:
+            https_port = None
+            app.config['HTTPS_PORT'] = None
 
-    if not args.no_qr:
+    print("\n" + "=" * 62)
+    print("   🌐 LAN Share - Instant P2P File Sharing & Calling")
+    print("=" * 62)
+    if http_port:
+        print(f"   ⚡ HTTP  (Chat & Fast Transfers) : http://{ip}:{http_port}/")
+        print(f"      Local: http://localhost:{http_port}/")
+    if https_port and ssl_context:
+        print(f"   🔒 HTTPS (Voice & Video Calls)   : https://{ip}:{https_port}/")
+        print(f"      Local: https://localhost:{https_port}/")
+    print("=" * 62)
+    print("   📱 Mobile devices: Connect to the same Wi-Fi network.")
+    if https_port:
+        print("   🔒 Note for Mobile: Use the HTTPS link to grant Camera/Mic access.")
+    print("=" * 62 + "\n")
+
+    if not args.no_qr and (https_port or http_port):
         try:
-            img = qrcode.make(url)
+            qr_target = f"https://{ip}:{https_port}/" if https_port else f"http://{ip}:{http_port}/"
+            img = qrcode.make(qr_target)
             qr_file = "lan_share_qr.png"
             img.save(qr_file)
-            print(f"📱 QR code saved as {qr_file} (points to {url})")
+            print(f"📱 QR code saved to {qr_file} (points to {qr_target})")
         except Exception as e:
             print("⚠️ Could not generate QR code:", e)
 
-    print(f"\n🔗 Open on other devices: {url}\n")
+    # Start servers
+    if http_port and https_port and ssl_context:
+        # Dual-server mode: run HTTPS in background thread and HTTP in main thread
+        def run_https():
+            try:
+                socketio.run(app, host='0.0.0.0', port=https_port, ssl_context=ssl_context, allow_unsafe_werkzeug=True)
+            except Exception as e:
+                print("HTTPS server error:", e)
 
-    if ssl_context:
-        socketio.run(app, host='0.0.0.0', port=port, ssl_context=ssl_context, allow_unsafe_werkzeug=True)
+        https_thread = threading.Thread(target=run_https, daemon=True)
+        https_thread.start()
+        socketio.run(app, host='0.0.0.0', port=http_port, allow_unsafe_werkzeug=True)
+    elif https_port and ssl_context:
+        socketio.run(app, host='0.0.0.0', port=https_port, ssl_context=ssl_context, allow_unsafe_werkzeug=True)
     else:
-        socketio.run(app, host='0.0.0.0', port=port, allow_unsafe_werkzeug=True)
+        socketio.run(app, host='0.0.0.0', port=http_port or 5000, allow_unsafe_werkzeug=True)

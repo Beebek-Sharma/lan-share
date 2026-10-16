@@ -101,22 +101,27 @@ pip install -r requirements.txt
 ```bash
 python server.py
 ```
-By default, the server will bind to `0.0.0.0:5000` and display your local network IP:
+By default, the server runs in **dual mode**: both HTTP (Port 5000) and secure HTTPS (Port 5001) simultaneously:
 ```
-📱 QR code saved as lan_share_qr.png (points to http://192.168.x.x:5000/)
-🔗 Open on other devices: http://192.168.x.x:5000/
+==============================================================
+   🌐 LAN Share - Instant P2P File Sharing & Calling
+==============================================================
+   ⚡ HTTP  (Chat & Fast Transfers) : http://192.168.x.x:5000/
+      Local: http://localhost:5000/
+   🔒 HTTPS (Voice & Video Calls)   : https://192.168.x.x:5001/
+      Local: https://localhost:5001/
+==============================================================
+   📱 Mobile devices: Connect to the same Wi-Fi network.
+   🔒 Note for Mobile: Use the HTTPS link to grant Camera/Mic access.
+==============================================================
 ```
 
 > [!TIP]
-> **Mobile Audio & Video Calling**: Mobile browsers (Android Chrome, iOS Safari) require HTTPS to grant microphone and camera permissions over LAN IPs. Start the server with `--ssl` to enable instant self-signed HTTPS:
-> ```bash
-> python server.py --ssl
-> ```
-> Open `https://<your-lan-ip>:5000/` on your phone (tap "Advanced" → "Proceed to site" once). Full hardware microphone and camera calling will be unlocked!
+> **Mobile Microphone & Video Calling**: Mobile browsers (Android Chrome, Brave, iOS Safari) require a secure context (HTTPS) to grant microphone and camera permissions over LAN IPs. Because LAN Share automatically serves HTTPS on port 5001 with zero configuration, simply scan the **Secure HTTPS** QR code with your phone (or tap "Switch to Secure Mode" in the top banner/prompt) to unlock full hardware microphone and video calling!
 
 ### 3. Open on Devices
 - **Desktop**: Visit `http://localhost:5000/` in your browser.
-- **Phone / Other PCs**: Connect to the same Wi-Fi or mobile hotspot and open `http://<your-lan-ip>:5000/` or scan the QR code.
+- **Phone / Other PCs**: Connect to the same Wi-Fi or mobile hotspot and open `https://<your-lan-ip>:5001/` (or scan the Secure QR code). On first visit, tap "Advanced" → "Proceed to site".
 - Ensure both devices join the same room name (default is `default`).
 
 ---
