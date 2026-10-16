@@ -1982,6 +1982,8 @@
 
   <!-- 2. Active Call HUD Modal (Audio & Video) -->
   <div id="callModal" class="call-overlay-modal">
+    <!-- Dedicated Remote Audio Receiver -->
+    <audio id="remoteAudio" autoplay playsinline style="display:none;"></audio>
     <div class="call-hud-window">
       <!-- Call Top Header -->
       <div class="call-hud-header">
@@ -2487,6 +2489,11 @@
         peers[from] && peers[from].signal(data);
       });
 
+      socket.on('call-event', ({ from, packet }) => {
+        if (from === myId) return;
+        processCallPacket(from, packet);
+      });
+
       socket.on('disconnect', (reason) => {
         $('userStatusDot').className = 'pulse-dot';
         $('userStatusText').textContent = 'Disconnected';
@@ -2578,22 +2585,38 @@
         logSys('Received live media stream from ' + (names[id] || id));
         if (currentCall) {
           currentCall.remoteStream = remoteStream;
+          const remoteAud = $('remoteAudio');
+          if (remoteAud) {
+            remoteAud.srcObject = remoteStream;
+            remoteAud.play().catch(e => logSys('Audio playback note: ' + (e && e.message)));
+          }
           const remoteVid = $('remoteVideo');
           if (remoteVid) {
             remoteVid.srcObject = remoteStream;
-            remoteVid.play().catch(() => {});
+            remoteVid.play().catch(e => logSys('Video playback note: ' + (e && e.message)));
           }
+          startAudioVisualizer(remoteStream);
         }
       });
     }
 
     // Packet & Protocol Handler
     function handleIncomingData(id, data) {
-      const isBinary = (data instanceof ArrayBuffer) || ArrayBuffer.isView(data);
-
-      if (!isBinary && typeof data === 'string') {
+      let text = null;
+      if (typeof data === 'string') {
+        text = data;
+      } else if (data && (data instanceof ArrayBuffer || ArrayBuffer.isView(data))) {
         try {
-          const packet = JSON.parse(data);
+          const decoded = new TextDecoder().decode(data);
+          if (decoded && (decoded.charCodeAt(0) === 123 || decoded.charCodeAt(0) === 91)) {
+            text = decoded;
+          }
+        } catch (e) {}
+      }
+
+      if (text) {
+        try {
+          const packet = JSON.parse(text);
 
           // Chat Message
           if (packet.t === PROTO.MSG) {
@@ -2667,66 +2690,15 @@
             return;
           }
 
-          // ==========================================
-          // CALL PROTOCOL SIGNALS
-          // ==========================================
-          if (packet.t === 'call_req') {
-            const callerName = packet.callerName || names[id] || 'Peer';
-            const callType = packet.callType || 'audio';
-
-            currentCall = {
-              active: false,
-              isInitiator: false,
-              callType: callType,
-              peerId: id,
-              peerName: callerName,
-              localStream: null,
-              remoteStream: null,
-              startTime: null,
-              timerInterval: null
-            };
-
-            $('incCallerAvatar').textContent = (callerName.trim()[0] || 'P').toUpperCase();
-            $('incCallerName').textContent = callerName;
-            $('incCallType').textContent = callType === 'video' ? '📹 Incoming Video Call...' : '📞 Incoming Audio Call...';
-            $('incomingCallModal').classList.add('show');
-            startIncomingRingtone();
-            logSys(`Incoming ${callType} call from ${callerName}`);
-            return;
-          }
-
-          if (packet.t === 'call_acc') {
-            stopRingtones();
-            if (currentCall) {
-              currentCall.active = true;
-              $('callStatusIndicator').textContent = 'Connected';
-              startCallTimer();
-              const p = peers[currentCall.peerId];
-              if (p && currentCall.localStream && p.addStream) {
-                try { p.addStream(currentCall.localStream); } catch(e) {}
-              }
-            }
-            logSys('Call connected!');
-            showToast('Call connected');
-            return;
-          }
-
-          if (packet.t === 'call_rej') {
-            stopRingtones();
-            endCall(false);
-            showToast('Call was declined by peer');
-            return;
-          }
-
-          if (packet.t === 'call_end') {
-            stopRingtones();
-            endCall(false);
-            showToast('Call ended by peer');
+          // Call Protocol Signals (delegated to unified handler)
+          if (['call_req', 'call_acc', 'call_rej', 'call_end'].includes(packet.t)) {
+            processCallPacket(id, packet);
             return;
           }
         } catch (e) {}
       }
 
+      const isBinary = (data instanceof ArrayBuffer) || (data && ArrayBuffer.isView(data));
       if (isBinary) {
         const chunk = (data instanceof ArrayBuffer) ? data : data.buffer.slice(data.byteOffset, data.byteOffset + data.byteLength);
         const transferKeys = Object.keys(incomingTransfers);
@@ -2941,35 +2913,160 @@
     // CALL ENGINE IMPLEMENTATION (Audio & Video Calling)
     // ==========================================================================
     let currentCall = null;
+    let liveAudioCtx = null;
+    let liveAnalyser = null;
+    let visualizerAnimFrame = null;
+
+    function startAudioVisualizer(stream) {
+      try {
+        if (!stream || !stream.getAudioTracks().length) return;
+        if (!liveAudioCtx) liveAudioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        if (liveAudioCtx.state === 'suspended') liveAudioCtx.resume();
+        const src = liveAudioCtx.createMediaStreamSource(stream);
+        liveAnalyser = liveAudioCtx.createAnalyser();
+        liveAnalyser.fftSize = 32;
+        src.connect(liveAnalyser);
+        const bars = document.querySelectorAll('.audio-waveform-bars .wave-bar');
+        const dataArr = new Uint8Array(liveAnalyser.frequencyBinCount);
+
+        function frame() {
+          if (!currentCall || !currentCall.active) return;
+          liveAnalyser.getByteFrequencyData(dataArr);
+          bars.forEach((bar, idx) => {
+            const val = dataArr[idx % dataArr.length] || 0;
+            const h = Math.max(6, Math.min(36, Math.round((val / 255) * 36) + 6));
+            bar.style.height = `${h}px`;
+          });
+          visualizerAnimFrame = requestAnimationFrame(frame);
+        }
+        frame();
+      } catch (e) {}
+    }
+
+    function stopAudioVisualizer() {
+      if (visualizerAnimFrame) {
+        cancelAnimationFrame(visualizerAnimFrame);
+        visualizerAnimFrame = null;
+      }
+      const bars = document.querySelectorAll('.audio-waveform-bars .wave-bar');
+      bars.forEach(bar => bar.style.height = '');
+    }
+
+    // Call Packet Processor (Handles both Socket.IO & DataChannel packets with deduplication)
+    const processedCallPackets = new Set();
+    function processCallPacket(fromId, packet) {
+      if (!packet || !packet.t) return;
+      const key = `${packet.t}_${packet.callId || ''}_${fromId}`;
+      if (processedCallPackets.has(key)) return;
+      processedCallPackets.add(key);
+      setTimeout(() => processedCallPackets.delete(key), 6000);
+
+      // 1. Incoming Call Request
+      if (packet.t === 'call_req') {
+        const callerName = packet.callerName || names[fromId] || 'Peer';
+        const callType = packet.callType || 'audio';
+
+        currentCall = {
+          active: false,
+          isInitiator: false,
+          callType: callType,
+          peerId: fromId,
+          peerName: callerName,
+          callId: packet.callId || ('call_' + Date.now()),
+          localStream: null,
+          remoteStream: null,
+          startTime: null,
+          timerInterval: null
+        };
+
+        $('incCallerAvatar').textContent = (callerName.trim()[0] || 'P').toUpperCase();
+        $('incCallerName').textContent = callerName;
+        $('incCallType').textContent = callType === 'video' ? '📹 Incoming Video Call...' : '📞 Incoming Audio Call...';
+        $('incomingCallModal').classList.add('show');
+        startIncomingRingtone();
+        logSys(`Incoming ${callType} call from ${callerName}`);
+        return;
+      }
+
+      // 2. Call Accepted by Peer
+      if (packet.t === 'call_acc') {
+        stopRingtones();
+        if (currentCall) {
+          currentCall.active = true;
+          $('callStatusIndicator').textContent = 'Connected';
+          startCallTimer();
+          const p = peers[currentCall.peerId];
+          if (p && currentCall.localStream && p.addStream) {
+            try { p.addStream(currentCall.localStream); } catch(e) {}
+          }
+        }
+        logSys('Call connected!');
+        showToast('Call connected');
+        return;
+      }
+
+      // 3. Call Declined
+      if (packet.t === 'call_rej') {
+        stopRingtones();
+        endCall(false);
+        showToast('Call was declined by peer');
+        return;
+      }
+
+      // 4. Call Ended
+      if (packet.t === 'call_end') {
+        stopRingtones();
+        endCall(false);
+        showToast('Call ended by peer');
+        return;
+      }
+    }
+
+    function emitCallPacket(targetPid, packet) {
+      if (socket) {
+        socket.emit('call-event', { to: targetPid, from: socket.id, packet: packet });
+      }
+      sendJsonToPeer(targetPid, packet);
+    }
 
     async function initiateCall(callType) {
-      const pids = connectedPeerIds();
-      if (pids.length === 0) {
+      const allPeerIds = Object.keys(names).filter(id => id !== myId);
+      if (allPeerIds.length === 0) {
         showToast('⚠️ No other devices in room! Scan QR or open link on another phone.');
         return;
       }
-      const targetPid = pids[0];
+      const pids = connectedPeerIds();
+      const targetPid = pids.length > 0 ? pids[0] : allPeerIds[0];
       const peerName = names[targetPid] || 'Peer';
 
       let localStream = null;
-      try {
-        if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+      if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+        try {
           localStream = await navigator.mediaDevices.getUserMedia({
             audio: true,
             video: callType === 'video' ? { width: { ideal: 640 }, height: { ideal: 480 } } : false
           });
+        } catch (err) {
+          logSys('Media device note: ' + err.message);
+          showToast('⚠️ Mic/Camera access error: ' + err.message);
         }
-      } catch (err) {
-        logSys('Media device note: ' + err.message);
-        showToast('Note: Starting audio-simulated session');
+      } else {
+        const isSecure = window.isSecureContext;
+        const msg = !isSecure 
+          ? '🔒 Mobile browsers require HTTPS for camera and microphone access. Please use HTTPS.' 
+          : '⚠️ Media devices not supported in this browser.';
+        logSys(msg);
+        showToast(msg);
       }
 
+      const callId = 'call_' + Date.now();
       currentCall = {
         active: false,
         isInitiator: true,
         callType: callType,
         peerId: targetPid,
         peerName: peerName,
+        callId: callId,
         localStream: localStream,
         remoteStream: null,
         startTime: null,
@@ -2984,8 +3081,9 @@
 
       startRingbackTone();
 
-      sendJsonToPeer(targetPid, {
+      emitCallPacket(targetPid, {
         t: 'call_req',
+        callId: callId,
         callType: callType,
         callerId: myId,
         callerName: myName
@@ -3039,10 +3137,11 @@
 
     function endCall(notify = true) {
       stopRingtones();
+      stopAudioVisualizer();
       if (currentCall) {
         if (currentCall.timerInterval) clearInterval(currentCall.timerInterval);
         if (notify && currentCall.peerId) {
-          sendJsonToPeer(currentCall.peerId, { t: 'call_end' });
+          emitCallPacket(currentCall.peerId, { t: 'call_end', callId: currentCall.callId });
         }
         if (currentCall.localStream) {
           try {
@@ -3059,6 +3158,8 @@
       }
       $('callModal').classList.remove('show');
       $('incomingCallModal').classList.remove('show');
+      const remoteAud = $('remoteAudio');
+      if (remoteAud) remoteAud.srcObject = null;
       const remoteVid = $('remoteVideo');
       if (remoteVid) remoteVid.srcObject = null;
       const localVid = $('localVideo');
@@ -3076,15 +3177,23 @@
 
       const callType = currentCall.callType;
       let localStream = null;
-      try {
-        if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+      if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+        try {
           localStream = await navigator.mediaDevices.getUserMedia({
             audio: true,
             video: callType === 'video' ? { width: { ideal: 640 }, height: { ideal: 480 } } : false
           });
+        } catch (err) {
+          logSys('Mic/Cam note: ' + err.message);
+          showToast('⚠️ Mic/Camera access error: ' + err.message);
         }
-      } catch (err) {
-        logSys('Mic/Cam note: ' + err.message);
+      } else {
+        const isSecure = window.isSecureContext;
+        const msg = !isSecure 
+          ? '🔒 Mobile browsers require HTTPS for camera and microphone access. Please use HTTPS.' 
+          : '⚠️ Media devices not supported in this browser.';
+        logSys(msg);
+        showToast(msg);
       }
 
       currentCall.active = true;
@@ -3097,7 +3206,11 @@
       }
       startCallTimer();
 
-      sendJsonToPeer(currentCall.peerId, { t: 'call_acc', callType: callType });
+      emitCallPacket(currentCall.peerId, { 
+        t: 'call_acc', 
+        callId: currentCall.callId,
+        callType: callType 
+      });
 
       const p = peers[currentCall.peerId];
       if (p && localStream && p.addStream) {
@@ -3111,7 +3224,7 @@
       stopRingtones();
       $('incomingCallModal').classList.remove('show');
       if (currentCall) {
-        sendJsonToPeer(currentCall.peerId, { t: 'call_rej', reason: 'declined' });
+        emitCallPacket(currentCall.peerId, { t: 'call_rej', callId: currentCall.callId, reason: 'declined' });
         currentCall = null;
       }
     };
@@ -3148,6 +3261,10 @@
     $('callSpeakerBtn').onclick = () => {
       soundEnabled = !soundEnabled;
       localStorage.setItem('ls_sound', soundEnabled ? '1' : '0');
+      const remoteAud = $('remoteAudio');
+      if (remoteAud) remoteAud.muted = !soundEnabled;
+      const remoteVid = $('remoteVideo');
+      if (remoteVid) remoteVid.muted = !soundEnabled;
       $('callSpeakerIcon').textContent = soundEnabled ? '🔊' : '🔇';
       $('callSpeakerBtn').classList.toggle('muted', !soundEnabled);
       showToast(soundEnabled ? 'Speaker unmuted' : 'Speaker muted');

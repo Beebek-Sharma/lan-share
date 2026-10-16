@@ -62,7 +62,8 @@ def api_stop():
 @app.route('/api/info')
 def api_info():
     ip = get_local_ip()
-    port = request.host.split(':')[1] if ':' in request.host else 5000
+    scheme = "https" if request.is_secure else "http"
+    port = request.host.split(':')[1] if ':' in request.host else (443 if request.is_secure else 5000)
     all_ips = []
     try:
         all_ips = [i for i in socket.gethostbyname_ex(socket.gethostname())[2] if not i.startswith('127.') and not i.startswith('169.254.')]
@@ -71,7 +72,8 @@ def api_info():
     return jsonify({
         "ip": ip,
         "port": port,
-        "url": f"http://{ip}:{port}/",
+        "scheme": scheme,
+        "url": f"{scheme}://{ip}:{port}/",
         "all_ips": all_ips
     })
 
@@ -80,8 +82,9 @@ def qr_image():
     # Dynamically generate QR code for the current active network IP
     try:
         ip = get_local_ip()
-        port = request.host.split(':')[1] if ':' in request.host else 5000
-        url = f"http://{ip}:{port}/"
+        scheme = "https" if request.is_secure else "http"
+        port = request.host.split(':')[1] if ':' in request.host else (443 if request.is_secure else 5000)
+        url = f"{scheme}://{ip}:{port}/"
         img = qrcode.make(url)
         buf = io.BytesIO()
         img.save(buf, format='PNG')
@@ -135,6 +138,16 @@ def handle_signal(data):
     to = data.get('to')
     emit('signal', data, to=to)
 
+@socketio.on('call-event')
+def handle_call_event(data):
+    to = data.get('to')
+    if to:
+        emit('call-event', data, to=to)
+    else:
+        room = sid_to_room.get(request.sid)
+        if room:
+            emit('call-event', data, room=room, include_self=False)
+
 @socketio.on('update-name')
 def handle_update_name(data):
     new_name = (data.get('name') or '').strip()
@@ -165,15 +178,74 @@ def handle_disconnect():
     else:
         emit('peer-left', payload, broadcast=True)
 
+def ensure_self_signed_cert(cert_path='cert.pem', key_path='key.pem', ip='127.0.0.1'):
+    try:
+        if os.path.exists(cert_path) and os.path.exists(key_path):
+            return cert_path, key_path
+        from cryptography import x509
+        from cryptography.x509.oid import NameOID
+        from cryptography.hazmat.primitives import hashes
+        from cryptography.hazmat.primitives.asymmetric import rsa
+        from cryptography.hazmat.primitives import serialization
+        import datetime, ipaddress
+
+        key = rsa.generate_private_key(public_exponent=65537, key_size=2048)
+        subject = issuer = x509.Name([
+            x509.NameAttribute(NameOID.COMMON_NAME, "LAN Share Local P2P"),
+            x509.NameAttribute(NameOID.ORGANIZATION_NAME, "LAN Share")
+        ])
+        alt_names = [
+            x509.DNSName("localhost"),
+            x509.IPAddress(ipaddress.IPv4Address("127.0.0.1"))
+        ]
+        try:
+            alt_names.append(x509.IPAddress(ipaddress.IPv4Address(ip)))
+        except Exception:
+            pass
+
+        cert = (
+            x509.CertificateBuilder()
+            .subject_name(subject)
+            .issuer_name(issuer)
+            .public_key(key.public_key())
+            .serial_number(x509.random_serial_number())
+            .not_valid_before(datetime.datetime.now(datetime.timezone.utc) - datetime.timedelta(days=1))
+            .not_valid_after(datetime.datetime.now(datetime.timezone.utc) + datetime.timedelta(days=3650))
+            .add_extension(x509.SubjectAlternativeName(alt_names), critical=False)
+            .sign(key, hashes.SHA256())
+        )
+
+        with open(key_path, "wb") as f:
+            f.write(key.private_bytes(
+                encoding=serialization.Encoding.PEM,
+                format=serialization.PrivateFormat.TraditionalOpenSSL,
+                encryption_algorithm=serialization.NoEncryption()
+            ))
+        with open(cert_path, "wb") as f:
+            f.write(cert.public_bytes(serialization.Encoding.PEM))
+        return cert_path, key_path
+    except Exception as e:
+        print("⚠️ Could not generate self-signed cert:", e)
+        return None, None
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="LAN Share Signaling Server")
     parser.add_argument('--port', type=int, default=5000)
+    parser.add_argument('--ssl', action='store_true', help='Enable HTTPS with self-signed certificate for mobile microphone/camera support')
     parser.add_argument('--no-qr', action='store_true', help='Do not create QR file')
     args = parser.parse_args()
 
     ip = get_local_ip()
     port = args.port
-    url = f"http://{ip}:{port}/"
+    scheme = "https" if args.ssl else "http"
+    url = f"{scheme}://{ip}:{port}/"
+
+    ssl_context = None
+    if args.ssl:
+        cert_file, key_file = ensure_self_signed_cert('cert.pem', 'key.pem', ip)
+        if cert_file and key_file:
+            ssl_context = (cert_file, key_file)
+            print("🔒 HTTPS Enabled with self-signed SSL certificate (enables camera & mic on mobile devices)")
 
     if not args.no_qr:
         try:
@@ -186,4 +258,7 @@ if __name__ == '__main__':
 
     print(f"\n🔗 Open on other devices: {url}\n")
 
-    socketio.run(app, host='0.0.0.0', port=port, allow_unsafe_werkzeug=True)
+    if ssl_context:
+        socketio.run(app, host='0.0.0.0', port=port, ssl_context=ssl_context, allow_unsafe_werkzeug=True)
+    else:
+        socketio.run(app, host='0.0.0.0', port=port, allow_unsafe_werkzeug=True)

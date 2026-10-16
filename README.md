@@ -107,6 +107,13 @@ By default, the server will bind to `0.0.0.0:5000` and display your local networ
 🔗 Open on other devices: http://192.168.x.x:5000/
 ```
 
+> [!TIP]
+> **Mobile Audio & Video Calling**: Mobile browsers (Android Chrome, iOS Safari) require HTTPS to grant microphone and camera permissions over LAN IPs. Start the server with `--ssl` to enable instant self-signed HTTPS:
+> ```bash
+> python server.py --ssl
+> ```
+> Open `https://<your-lan-ip>:5000/` on your phone (tap "Advanced" → "Proceed to site" once). Full hardware microphone and camera calling will be unlocked!
+
 ### 3. Open on Devices
 - **Desktop**: Visit `http://localhost:5000/` in your browser.
 - **Phone / Other PCs**: Connect to the same Wi-Fi or mobile hotspot and open `http://<your-lan-ip>:5000/` or scan the QR code.
