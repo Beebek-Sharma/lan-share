@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
   <title>LAN Share — Direct P2P Transfer & Calling</title>
   <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500;600&family=Manrope:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <script>
@@ -1442,6 +1442,10 @@
     }
 
     /* Active Call HUD Window */
+    .call-overlay-modal.video-call-active {
+      padding: 0 !important;
+    }
+
     .call-hud-window {
       background: var(--modal-bg);
       border: 1.5px solid var(--pine-card-border);
@@ -1456,6 +1460,22 @@
       overflow: hidden;
       backdrop-filter: var(--backdrop-blur);
       -webkit-backdrop-filter: var(--backdrop-blur);
+      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+      position: relative;
+    }
+
+    /* Fullscreen Call Mode */
+    .call-hud-window.fullscreen {
+      position: fixed !important;
+      inset: 0 !important;
+      width: 100vw !important;
+      max-width: 100vw !important;
+      height: 100dvh !important;
+      max-height: 100dvh !important;
+      border-radius: 0 !important;
+      border: none !important;
+      box-shadow: none !important;
+      z-index: 10005 !important;
     }
 
     .call-hud-header {
@@ -1465,6 +1485,7 @@
       align-items: center;
       justify-content: space-between;
       background: var(--pine-header);
+      transition: all 0.25s ease;
     }
 
     .call-badge-wrap {
@@ -1489,11 +1510,125 @@
       font-weight: 500;
     }
 
+    .call-hdr-actions {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
     .call-timer-display {
       font-family: var(--font-mono);
       font-weight: 700;
       font-size: 14px;
       color: var(--mint);
+    }
+
+    .call-hdr-btn {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid var(--pine-card-border);
+      color: var(--text);
+      border-radius: 8px;
+      width: 30px;
+      height: 30px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      padding: 0;
+      transition: all 0.18s ease;
+      outline: none;
+    }
+
+    .call-hdr-btn:hover {
+      background: rgba(255, 255, 255, 0.2);
+      transform: scale(1.08);
+    }
+
+    .call-hdr-btn svg {
+      width: 16px;
+      height: 16px;
+      fill: currentColor;
+    }
+
+    /* Video Call Window Floating Layout (Desktop & Mobile) */
+    .call-hud-window.video-mode {
+      background: #000000;
+      border-color: rgba(255, 255, 255, 0.15);
+    }
+
+    .call-hud-window.video-mode .call-hud-header {
+      position: absolute;
+      top: 14px;
+      left: 14px;
+      right: 14px;
+      z-index: 20;
+      background: rgba(15, 23, 42, 0.72);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      border-radius: 18px;
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.45);
+      padding: 10px 16px;
+      color: #ffffff;
+    }
+
+    .call-hud-window.video-mode .call-status-indicator {
+      color: rgba(255, 255, 255, 0.85);
+    }
+
+    .call-hud-window.video-mode .call-type-badge {
+      background: rgba(16, 185, 129, 0.22);
+      border-color: rgba(16, 185, 129, 0.5);
+      color: #34d399;
+    }
+
+    .call-hud-window.video-mode .call-timer-display {
+      color: #6ee7b7;
+    }
+
+    .call-hud-window.video-mode .call-hdr-btn {
+      color: #ffffff;
+      border-color: rgba(255, 255, 255, 0.25);
+      background: rgba(255, 255, 255, 0.14);
+    }
+
+    .call-hud-window.video-mode .call-hud-controls {
+      position: absolute;
+      bottom: 22px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 20;
+      background: rgba(15, 23, 42, 0.78);
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+      border: 1px solid rgba(255, 255, 255, 0.22);
+      border-radius: 999px;
+      box-shadow: 0 10px 36px rgba(0, 0, 0, 0.55);
+      padding: 10px 20px;
+      gap: 14px;
+      width: auto;
+    }
+
+    .call-hud-window.video-mode .local-pip-container {
+      top: 68px;
+      right: 16px;
+      bottom: auto;
+      width: 110px;
+      height: 155px;
+      border-radius: 14px;
+      border: 2px solid rgba(255, 255, 255, 0.45);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6);
+      z-index: 18;
+    }
+
+    /* Flip Camera animation */
+    @keyframes spinFlip {
+      0% { transform: rotate(0deg) scale(1); }
+      50% { transform: rotate(180deg) scale(1.15); }
+      100% { transform: rotate(360deg) scale(1); }
+    }
+    .call-ctrl-btn.flipping svg {
+      animation: spinFlip 0.45s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
     .call-hud-body {
@@ -1748,6 +1883,42 @@
       .input-dock { padding: 6px 10px 12px; width: 100%; box-sizing: border-box; }
       .chat-input-bar { width: 100%; box-sizing: border-box; padding: 4px 6px 4px 10px; gap: 6px; }
       #chatTextInput { min-width: 0; flex: 1; font-size: 13px; }
+
+      /* Mobile Fullscreen Video Call */
+      .call-overlay-modal.video-call-active {
+        padding: 0 !important;
+        margin: 0 !important;
+      }
+      .call-hud-window.video-mode {
+        position: fixed !important;
+        inset: 0 !important;
+        width: 100vw !important;
+        max-width: 100vw !important;
+        height: 100dvh !important;
+        max-height: 100dvh !important;
+        border-radius: 0 !important;
+        border: none !important;
+        box-shadow: none !important;
+        z-index: 10005 !important;
+      }
+      .call-hud-window.video-mode .call-hud-header {
+        top: max(12px, env(safe-area-inset-top, 12px)) !important;
+        left: 12px !important;
+        right: 12px !important;
+        padding: 8px 14px !important;
+      }
+      .call-hud-window.video-mode .call-hud-controls {
+        bottom: max(20px, env(safe-area-inset-bottom, 20px)) !important;
+        padding: 8px 16px !important;
+        gap: 12px !important;
+      }
+      .call-hud-window.video-mode .local-pip-container {
+        top: max(68px, calc(env(safe-area-inset-top, 12px) + 56px)) !important;
+        right: 12px !important;
+        width: 95px !important;
+        height: 135px !important;
+        border-radius: 12px !important;
+      }
     }
 
     /* Mobile Emulated Frame */
@@ -1777,6 +1948,40 @@
     html.mobile-emulated #chatTextInput { min-width: 0 !important; flex: 1 !important; font-size: 13px !important; }
     html.mobile-emulated .dock-btn { padding: 4px !important; flex-shrink: 0 !important; }
     html.mobile-emulated .send-submit-btn { width: 32px !important; height: 32px !important; flex-shrink: 0 !important; }
+    html.mobile-emulated .call-overlay-modal.video-call-active {
+      padding: 0 !important;
+      margin: 0 !important;
+    }
+    html.mobile-emulated .call-hud-window.video-mode {
+      position: fixed !important;
+      inset: 0 !important;
+      width: 100vw !important;
+      max-width: 100vw !important;
+      height: 100dvh !important;
+      max-height: 100dvh !important;
+      border-radius: 0 !important;
+      border: none !important;
+      box-shadow: none !important;
+      z-index: 10005 !important;
+    }
+    html.mobile-emulated .call-hud-window.video-mode .call-hud-header {
+      top: 12px !important;
+      left: 12px !important;
+      right: 12px !important;
+      padding: 8px 14px !important;
+    }
+    html.mobile-emulated .call-hud-window.video-mode .call-hud-controls {
+      bottom: 20px !important;
+      padding: 8px 16px !important;
+      gap: 12px !important;
+    }
+    html.mobile-emulated .call-hud-window.video-mode .local-pip-container {
+      top: 68px !important;
+      right: 12px !important;
+      width: 95px !important;
+      height: 135px !important;
+      border-radius: 12px !important;
+    }
   </style>
 </head>
 <body>
@@ -2098,7 +2303,12 @@
           <span id="callTypeBadge" class="call-type-badge">📞 Audio Call</span>
           <span id="callStatusIndicator" class="call-status-indicator">Connecting...</span>
         </div>
-        <div id="callTimer" class="call-timer-display">00:00</div>
+        <div class="call-hdr-actions">
+          <div id="callTimer" class="call-timer-display">00:00</div>
+          <button id="callFullscreenBtn" class="call-hdr-btn" title="Toggle Fullscreen">
+            <svg id="callFsIcon" viewBox="0 0 24 24"><path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/></svg>
+          </button>
+        </div>
       </div>
 
       <!-- Call Content Area -->
@@ -2144,6 +2354,11 @@
         </button>
         <button id="callCamBtn" class="call-ctrl-btn" title="Toggle Camera">
           <span id="callCamIcon">📹</span>
+        </button>
+        <button id="callFlipCamBtn" class="call-ctrl-btn" title="Switch Front / Back Camera" style="display:none;">
+          <svg id="callFlipCamIcon" viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
+            <path d="M20 5h-3.17L15 3H9L7.17 5H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm-8 13c-2.76 0-5-2.24-5-5h2c0 1.66 1.34 3 3 3s3-1.34 3-3-1.34-3-3-3c-.76 0-1.44.29-1.97.77L11 9H6V4l1.83 1.83C8.98 4.71 10.42 4 12 4c3.87 0 7 3.13 7 7s-3.13 7-7 7z"/>
+          </svg>
         </button>
         <button id="callSpeakerBtn" class="call-ctrl-btn" title="Toggle Audio Output">
           <span id="callSpeakerIcon">🔊</span>
@@ -3288,6 +3503,9 @@
       return null;
     }
 
+    let currentFacingMode = 'user';
+    let isFlippingCamera = false;
+
     async function acquireUserMedia(callType) {
       let audioTrack = null;
       let videoTrack = null;
@@ -3319,7 +3537,7 @@
         if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
           try {
             const vStream = await navigator.mediaDevices.getUserMedia({
-              video: { width: { ideal: 640 }, height: { ideal: 480 }, facingMode: 'user' }
+              video: { width: { ideal: 640 }, height: { ideal: 480 }, facingMode: currentFacingMode || 'user' }
             });
             videoTrack = vStream.getVideoTracks()[0] || null;
           } catch (vidErr) {
@@ -3415,6 +3633,7 @@
 
     function openCallHud(callType, peerName, statusText) {
       const modal = $('callModal');
+      const hudWindow = document.querySelector('.call-hud-window');
       const badge = $('callTypeBadge');
       const nameEl = $('callPeerName');
       const avatarEl = $('callPeerAvatar');
@@ -3423,6 +3642,8 @@
       const audioStage = $('audioCallView');
       const videoStage = $('videoCallView');
       const camBtn = $('callCamBtn');
+      const flipCamBtn = $('callFlipCamBtn');
+      const localVid = $('localVideo');
 
       if (badge) badge.textContent = callType === 'video' ? '📹 Video Call' : '📞 Audio Call';
       if (nameEl) nameEl.textContent = peerName;
@@ -3431,9 +3652,13 @@
       if (timerEl) timerEl.textContent = '00:00';
 
       if (callType === 'video') {
+        if (modal) modal.classList.add('video-call-active');
+        if (hudWindow) hudWindow.classList.add('video-mode');
         if (audioStage) audioStage.style.display = 'none';
         if (videoStage) videoStage.style.display = 'flex';
         if (camBtn) camBtn.style.display = 'inline-flex';
+        if (flipCamBtn) flipCamBtn.style.display = 'inline-flex';
+        if (localVid) localVid.style.transform = (currentFacingMode === 'environment') ? 'scaleX(1)' : 'scaleX(-1)';
         const remoteVideoPlaceholder = $('remoteVideoPlaceholder');
         if (remoteVideoPlaceholder) {
           remoteVideoPlaceholder.classList.remove('hidden');
@@ -3442,9 +3667,12 @@
           $('remoteVideoStatus').textContent = 'Connecting video feed...';
         }
       } else {
+        if (modal) modal.classList.remove('video-call-active');
+        if (hudWindow) hudWindow.classList.remove('video-mode');
         if (audioStage) audioStage.style.display = 'flex';
         if (videoStage) videoStage.style.display = 'none';
         if (camBtn) camBtn.style.display = 'none';
+        if (flipCamBtn) flipCamBtn.style.display = 'none';
       }
 
       // Reset mute/cam buttons state
@@ -3474,6 +3702,7 @@
       stopRingtones();
       stopAudioVisualizer();
       syntheticCanvasActive = false;
+      currentFacingMode = 'user';
       if (currentCall) {
         if (currentCall.timerInterval) clearInterval(currentCall.timerInterval);
         if (notify && currentCall.peerId) {
@@ -3492,17 +3721,215 @@
         renderStatusPill(`Call ended with ${currentCall.peerName}`);
         currentCall = null;
       }
-      $('callModal').classList.remove('show');
+      const hudWindow = document.querySelector('.call-hud-window');
+      if (hudWindow) {
+        hudWindow.classList.remove('video-mode');
+        hudWindow.classList.remove('fullscreen');
+      }
+      const modal = $('callModal');
+      if (modal) {
+        modal.classList.remove('show');
+        modal.classList.remove('video-call-active');
+        modal.classList.remove('fullscreen-mode');
+      }
+      if (document.fullscreenElement || document.webkitFullscreenElement) {
+        try {
+          if (document.exitFullscreen) document.exitFullscreen();
+          else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
+        } catch(e) {}
+      }
+      const fsIcon = $('callFsIcon');
+      if (fsIcon) {
+        fsIcon.innerHTML = '<path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/>';
+      }
       $('incomingCallModal').classList.remove('show');
       const remoteAud = $('remoteAudio');
       if (remoteAud) remoteAud.srcObject = null;
       const remoteVid = $('remoteVideo');
       if (remoteVid) remoteVid.srcObject = null;
       const localVid = $('localVideo');
-      if (localVid) localVid.srcObject = null;
+      if (localVid) {
+        localVid.srcObject = null;
+        localVid.style.transform = 'scaleX(-1)';
+      }
       const remoteVideoPlaceholder = $('remoteVideoPlaceholder');
       if (remoteVideoPlaceholder) remoteVideoPlaceholder.classList.remove('hidden');
     }
+
+    async function flipCamera() {
+      if (isFlippingCamera) return;
+      if (!currentCall || currentCall.callType !== 'video') return;
+
+      const flipBtn = $('callFlipCamBtn');
+      if (flipBtn) flipBtn.classList.add('flipping');
+
+      isFlippingCamera = true;
+      const targetMode = (currentFacingMode === 'user') ? 'environment' : 'user';
+
+      try {
+        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+          showToast('⚠️ Camera access not supported on this browser');
+          return;
+        }
+
+        let newStream = null;
+        try {
+          newStream = await navigator.mediaDevices.getUserMedia({
+            video: {
+              facingMode: { exact: targetMode },
+              width: { ideal: 1280 },
+              height: { ideal: 720 }
+            }
+          });
+        } catch (exactErr) {
+          try {
+            newStream = await navigator.mediaDevices.getUserMedia({
+              video: {
+                facingMode: targetMode,
+                width: { ideal: 1280 },
+                height: { ideal: 720 }
+              }
+            });
+          } catch (idealErr) {
+            // Check device enumeration fallback
+            try {
+              const devices = await navigator.mediaDevices.enumerateDevices();
+              const videoInputs = devices.filter(d => d.kind === 'videoinput');
+              if (videoInputs.length > 1) {
+                const curTrack = currentCall.localStream ? currentCall.localStream.getVideoTracks()[0] : null;
+                const curSettings = curTrack && curTrack.getSettings ? curTrack.getSettings() : {};
+                const curDeviceId = curSettings.deviceId || (curTrack && curTrack.label);
+                const other = videoInputs.find(d => d.deviceId !== curDeviceId && d.label !== curTrack?.label) || videoInputs[1];
+                if (other && other.deviceId) {
+                  newStream = await navigator.mediaDevices.getUserMedia({
+                    video: { deviceId: { exact: other.deviceId } }
+                  });
+                }
+              }
+            } catch (enumErr) {
+              console.warn('Device enumeration fallback error:', enumErr);
+            }
+          }
+        }
+
+        if (!newStream || !newStream.getVideoTracks().length) {
+          showToast('⚠️ No secondary camera detected on this device');
+          return;
+        }
+
+        const newTrack = newStream.getVideoTracks()[0];
+        
+        // Preserve muted state if camera was toggled off
+        if (currentCall.isCamOff) {
+          newTrack.enabled = false;
+        }
+
+        const oldTrack = currentCall.localStream ? currentCall.localStream.getVideoTracks()[0] : null;
+
+        // 1. Swap track in WebRTC peer connection
+        const p = peers[currentCall.peerId];
+        if (p) {
+          let replaced = false;
+          if (p.replaceTrack && oldTrack) {
+            try {
+              p.replaceTrack(oldTrack, newTrack, currentCall.localStream);
+              replaced = true;
+            } catch (spErr) {
+              console.warn('SimplePeer replaceTrack note:', spErr);
+            }
+          }
+          if (!replaced && p._pc && p._pc.getSenders) {
+            try {
+              const senders = p._pc.getSenders();
+              const vidSender = senders.find(s => s.track && s.track.kind === 'video');
+              if (vidSender && vidSender.replaceTrack) {
+                await vidSender.replaceTrack(newTrack);
+                replaced = true;
+              }
+            } catch (sErr) {
+              console.warn('RTCRtpSender replaceTrack note:', sErr);
+            }
+          }
+        }
+
+        // 2. Update local stream
+        if (currentCall.localStream) {
+          if (oldTrack) {
+            currentCall.localStream.removeTrack(oldTrack);
+            try { oldTrack.stop(); } catch(e) {}
+          }
+          currentCall.localStream.addTrack(newTrack);
+        }
+
+        // 3. Update local PIP video feed and mirror orientation
+        const localVid = $('localVideo');
+        if (localVid) {
+          localVid.srcObject = currentCall.localStream;
+          // Front camera is mirrored for natural selfie view; Back camera is unmirrored
+          localVid.style.transform = (targetMode === 'environment') ? 'scaleX(1)' : 'scaleX(-1)';
+          localVid.play().catch(e => {});
+        }
+
+        currentFacingMode = targetMode;
+        showToast(targetMode === 'environment' ? '📷 Switched to Back Camera' : '🤳 Switched to Front Camera');
+        logSys(`Camera switched to ${targetMode}`);
+
+      } catch (err) {
+        console.warn('flipCamera error:', err);
+        showToast('⚠️ Camera switch failed: ' + (err && err.message ? err.message : 'device error'));
+      } finally {
+        setTimeout(() => {
+          if (flipBtn) flipBtn.classList.remove('flipping');
+          isFlippingCamera = false;
+        }, 450);
+      }
+    }
+
+    function toggleCallFullscreen() {
+      const hudWindow = document.querySelector('.call-hud-window');
+      const modal = $('callModal');
+      const fsIcon = $('callFsIcon');
+      const isFs = !!(document.fullscreenElement || document.webkitFullscreenElement || (hudWindow && hudWindow.classList.contains('fullscreen')));
+
+      if (!isFs) {
+        if (modal && modal.requestFullscreen) {
+          modal.requestFullscreen().catch(() => {});
+        } else if (modal && modal.webkitRequestFullscreen) {
+          modal.webkitRequestFullscreen();
+        } else if (document.documentElement.requestFullscreen) {
+          document.documentElement.requestFullscreen().catch(() => {});
+        }
+        if (hudWindow) hudWindow.classList.add('fullscreen');
+        if (modal) modal.classList.add('fullscreen-mode');
+        if (fsIcon) {
+          fsIcon.innerHTML = '<path d="M5 16h3v3h2v-5H5v2zm3-8H5v2h5V5H8v3zm6 11h2v-3h3v-2h-5v5zm2-11V5h-2v5h5V8h-3z"/>';
+        }
+      } else {
+        if (document.exitFullscreen) {
+          document.exitFullscreen().catch(() => {});
+        } else if (document.webkitExitFullscreen) {
+          document.webkitExitFullscreen();
+        }
+        if (hudWindow) hudWindow.classList.remove('fullscreen');
+        if (modal) modal.classList.remove('fullscreen-mode');
+        if (fsIcon) {
+          fsIcon.innerHTML = '<path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/>';
+        }
+      }
+    }
+
+    document.addEventListener('fullscreenchange', () => {
+      const hudWindow = document.querySelector('.call-hud-window');
+      const modal = $('callModal');
+      const fsIcon = $('callFsIcon');
+      if (!document.fullscreenElement && !document.webkitFullscreenElement) {
+        if (hudWindow) hudWindow.classList.remove('fullscreen');
+        if (modal) modal.classList.remove('fullscreen-mode');
+        if (fsIcon) {
+          fsIcon.innerHTML = '<path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/>';
+        }
+      }
+    });
 
     // Call Buttons Wireup
     $('callAudioBtn').onclick = () => initiateCall('audio');
@@ -3601,6 +4028,14 @@
       $('callSpeakerIcon').textContent = soundEnabled ? '🔊' : '🔇';
       $('callSpeakerBtn').classList.toggle('muted', !soundEnabled);
       showToast(soundEnabled ? 'Speaker unmuted' : 'Speaker muted');
+    };
+
+    $('callFlipCamBtn').onclick = () => {
+      flipCamera();
+    };
+
+    $('callFullscreenBtn').onclick = () => {
+      toggleCallFullscreen();
     };
 
     // Chat Inputs & Buttons

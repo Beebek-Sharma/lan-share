@@ -8,7 +8,7 @@ Built with direct **WebRTC DataChannels** (simple-peer), a **Python Flask + Sock
 
 ## Key Highlights
 
-- **Direct WebRTC Audio & Video Calling**: Make real-time peer-to-peer **Audio Calls** (with live waveform animations & ringback tones) and **Video Calls** (with remote video feeds and local picture-in-picture view). Dedicated call action buttons (green phone receiver for audio call, blue camera for video call) are seamlessly integrated into the mobile and desktop headers.
+- **Direct WebRTC Audio & Video Calling**: Make real-time peer-to-peer **Audio Calls** (with live waveform animations & ringback tones) and **Video Calls** (with remote video feeds and local picture-in-picture view). Dedicated call action buttons (green phone receiver for audio call, blue camera for video call) are seamlessly integrated into the mobile and desktop headers. Includes **Front & Back Camera rotation** (`facingMode`), seamless in-call track switching without dropping the WebRTC connection, and **Native Full-Screen Mobile Video Call mode** with floating frosted glass header pill and dock controls.
 - **Dual Master Themes**:
   - **Light Theme**: Crystal-clear **Liquid Glassmorphism** & Neumorphism (specular white borders, frosted glass pill capsules, subtle drop shadows, and vibrant emerald accents).
   - **Dark Theme**: Stealth **Matte Carbon & Obsidian Spatial Theme** (deep charcoal backgrounds `#111417`, raised dual-shadow spatial cards, recessed well inputs, and high-tech neon mint & cyber cyan glowing cores).
@@ -37,6 +37,7 @@ Built with direct **WebRTC DataChannels** (simple-peer), a **Python Flask + Sock
   <table>
     <thead>
       <tr>
+        <th align="center">📱 Mobile Fullscreen Video Call</th>
         <th align="center">📱 Mobile Phone Interface</th>
         <th align="center">🧩 Extension Popup Launcher</th>
       </tr>
@@ -44,12 +45,15 @@ Built with direct **WebRTC DataChannels** (simple-peer), a **Python Flask + Sock
     <tbody>
       <tr>
         <td align="center" valign="top">
-          <img src="Photo/phone.png" alt="Mobile Web Interface (Light)" width="320" style="border-radius: 8px; max-width: 100%; margin-bottom: 8px;" /><br>
-          <img src="Photo/phone_dark.png" alt="Mobile Web Interface (Dark)" width="320" style="border-radius: 8px; max-width: 100%;" />
+          <img src="Photo/mobile_video_call.png" alt="Mobile Fullscreen Video Call" width="280" style="border-radius: 8px; max-width: 100%;" />
         </td>
         <td align="center" valign="top">
-          <img src="Photo/extension.png" alt="Extension Popup (Light)" width="320" style="border-radius: 8px; max-width: 100%; margin-bottom: 8px;" /><br>
-          <img src="Photo/extension_dark.png" alt="Extension Popup (Dark)" width="320" style="border-radius: 8px; max-width: 100%;" />
+          <img src="Photo/phone.png" alt="Mobile Web Interface (Light)" width="280" style="border-radius: 8px; max-width: 100%; margin-bottom: 8px;" /><br>
+          <img src="Photo/phone_dark.png" alt="Mobile Web Interface (Dark)" width="280" style="border-radius: 8px; max-width: 100%;" />
+        </td>
+        <td align="center" valign="top">
+          <img src="Photo/extension.png" alt="Extension Popup (Light)" width="280" style="border-radius: 8px; max-width: 100%; margin-bottom: 8px;" /><br>
+          <img src="Photo/extension_dark.png" alt="Extension Popup (Dark)" width="280" style="border-radius: 8px; max-width: 100%;" />
         </td>
       </tr>
     </tbody>
